@@ -5,6 +5,8 @@ from rclpy.node import Node
 from sensor_msgs.msg import JointState
 from geometry_msgs.msg import TransformStamped
 from tf2_ros import TransformBroadcaster, TransformListener, Buffer
+from math import cos, sin
+import tf_transformations
 
 class TrailerJointStatePublisher(Node):
     def __init__(self):
@@ -24,16 +26,7 @@ class TrailerJointStatePublisher(Node):
         self.tf_buffer = Buffer()
         self.tf_listener = TransformListener(self.tf_buffer, self)
 
-    def get_transform(self, target_frame: str, source_frame: str):
-        try:
-            # Use lookup_transform to get the transformation from the source_frame to the target_frame
-            # You can specify the time (use Time() for the latest available transform)
-            
-            self.get_logger().info(f"Transform from {source_frame} to {target_frame}: {transform}")
-            return transform
-        except Exception as e:
-            self.get_logger().error(f"Failed to get transform: {str(e)}")
-            return None
+ 
 
     def publish_joint_state_and_tf(self):
         # Publish the joint state
@@ -45,29 +38,37 @@ class TrailerJointStatePublisher(Node):
         joint_state_msg.effort = [0.0]    # Joint effort
         self.joint_state_pub.publish(joint_state_msg)
 
-        # try:
-        #     m_to_bl_tf: TransformStamped = self.tf_buffer.lookup_transform('map', 'base_link', rclpy.time.Time())
-        #     m_to_bl_tf.header.stamp = self.get_clock().now().to_msg()
-        #     m_to_bl_tf.header.frame_id = 'map'  # Parent frame
-        #     m_to_bl_tf.child_frame_id = 'trailer_connector_link'  # Child frame
-        #     m_to_bl_tf.transform.translation.x += -0.5  # Update with the actual XYZ position
-        #     m_to_bl_tf.transform.translation.y += 0.0
-        #     m_to_bl_tf.transform.translation.z += -0.065
-        #     self.tf_broadcaster.sendTransform(m_to_bl_tf)
-        # except Exception as e:
-        #     transform = TransformStamped()
-        #     transform.header.stamp = self.get_clock().now().to_msg()
-        #     transform.header.frame_id = 'map'  # Parent frame
-        #     transform.child_frame_id = 'trailer_connector_link'  # Child frame
-        #     transform.transform.translation.x = -0.5  # Update with the actual XYZ position
-        #     transform.transform.translation.y = 0.0
-        #     transform.transform.translation.z = -0.065
-        #     transform.transform.rotation.x = 0.0
-        #     transform.transform.rotation.y = 0.0
-        #     transform.transform.rotation.z = 0.0
-        #     transform.transform.rotation.w = 1.0
+        try:
+            m_to_bl_tf: TransformStamped = self.tf_buffer.lookup_transform('map', 'base_link', rclpy.time.Time())
+            m_to_bl_tf.header.stamp = self.get_clock().now().to_msg()
+            m_to_bl_tf.header.frame_id = 'map'  # Parent frame
+            m_to_bl_tf.child_frame_id = 'trailer_connector_link'  # Child frame
 
-        #     self.tf_broadcaster.sendTransform(transform)
+            yaw = tf_transformations.euler_from_quaternion([m_to_bl_tf.transform.rotation.x, m_to_bl_tf.transform.rotation.y, m_to_bl_tf.transform.rotation.z, m_to_bl_tf.transform.rotation.w])[2]
+
+            added_x = -0.5 * cos(yaw)
+            added_y = -0.5 * sin(yaw)
+
+            m_to_bl_tf.transform.translation.x += added_x  # Update with the actual XYZ position
+            m_to_bl_tf.transform.translation.y += added_y
+
+            m_to_bl_tf.transform.translation.z += -0.065
+            self.tf_broadcaster.sendTransform(m_to_bl_tf)
+        except Exception as e:
+            transform = TransformStamped()
+            transform.header.stamp = self.get_clock().now().to_msg()
+            transform.header.frame_id = 'map'  # Parent frame
+            transform.child_frame_id = 'trailer_connector_link'  # Child frame
+            transform.transform.translation.x = -0.5  # Update with the actual XYZ position
+            transform.transform.translation.y = 0.0
+            transform.transform.translation.z = -0.065
+            transform.transform.rotation.x = 0.0
+            transform.transform.rotation.y = 0.0
+            transform.transform.rotation.z = 0.0
+            transform.transform.rotation.w = 1.0
+            self.get_logger().error(f"Failed to get transform: {str(e)}")
+
+            self.tf_broadcaster.sendTransform(transform)
 
 def main(args=None):
     rclpy.init(args=args)
