@@ -31,7 +31,6 @@ class TrailerJointStatePublisher(Node):
         joint_state_msg.velocity = [0.0]  # Joint velocity
         joint_state_msg.effort = [0.0]    # Joint effort
         self.joint_state_pub.publish(joint_state_msg)
-        self.get_logger().info(f'Published joint state: {joint_state_msg}')
 
         # Publish the static transform for the joint's child frame
         transform = TransformStamped()
