@@ -33,6 +33,7 @@ install(
 install(PROGRAMS
   scripts/reach_goal.py
   scripts/follow_waypoints.py
+  scripts/test_pub_hitch.py
   DESTINATION lib/${PROJECT_NAME}
 )
 

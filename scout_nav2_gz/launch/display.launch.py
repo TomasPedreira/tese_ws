@@ -77,7 +77,9 @@ def generate_launch_description():
                         "'", trailer_model_path, "' if '", LaunchConfiguration("use_trailer"), "' == 'True' else '", LaunchConfiguration("model"), "'"
                     ])
                 ])
-            }
+
+            },
+            {"use_sim_time": True},
         ],
     )
 
@@ -316,7 +318,7 @@ def generate_launch_description():
                     on_exit=[load_joint_trajectory_controller],
                 )
             ),
-            joint_state_publisher_gui_node,
+            #joint_state_publisher_gui_node,
             relay_odom,
             relay_cmd_vel,
         ] + gazebo
