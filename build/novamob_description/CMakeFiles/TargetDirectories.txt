@@ -1,0 +1,9 @@
+/home/rics/tt_ws/src/tese_ws/build/novamob_description/CMakeFiles/uninstall.dir
+/home/rics/tt_ws/src/tese_ws/build/novamob_description/CMakeFiles/novamob_description_uninstall.dir
+/home/rics/tt_ws/src/tese_ws/build/novamob_description/CMakeFiles/test.dir
+/home/rics/tt_ws/src/tese_ws/build/novamob_description/CMakeFiles/edit_cache.dir
+/home/rics/tt_ws/src/tese_ws/build/novamob_description/CMakeFiles/rebuild_cache.dir
+/home/rics/tt_ws/src/tese_ws/build/novamob_description/CMakeFiles/list_install_components.dir
+/home/rics/tt_ws/src/tese_ws/build/novamob_description/CMakeFiles/install.dir
+/home/rics/tt_ws/src/tese_ws/build/novamob_description/CMakeFiles/install/local.dir
+/home/rics/tt_ws/src/tese_ws/build/novamob_description/CMakeFiles/install/strip.dir

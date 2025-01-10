@@ -1,0 +1,293 @@
+-- The C compiler identification is GNU 11.4.0
+-- The CXX compiler identification is GNU 11.4.0
+-- Detecting C compiler ABI info
+-- Detecting C compiler ABI info - done
+-- Check for working C compiler: /usr/bin/cc - skipped
+-- Detecting C compile features
+-- Detecting C compile features - done
+-- Detecting CXX compiler ABI info
+-- Detecting CXX compiler ABI info - done
+-- Check for working CXX compiler: /usr/bin/c++ - skipped
+-- Detecting CXX compile features
+-- Detecting CXX compile features - done
+-- Found ament_cmake: 1.3.11 (/opt/ros/humble/share/ament_cmake/cmake)
+-- Found Python3: /usr/bin/python3 (found version "3.10.12") found components: Interpreter 
+-- Found xacro: 2.0.8 (/opt/ros/humble/share/xacro/cmake)
+-- Found rclpy: 3.3.15 (/opt/ros/humble/share/rclpy/cmake)
+-- Found ament_lint_auto: 0.12.11 (/opt/ros/humble/share/ament_lint_auto/cmake)
+-- Added test 'copyright' to check source files copyright and LICENSE
+-- Added test 'flake8' to check Python code syntax and style conventions
+-- Added test 'lint_cmake' to check CMake code style
+-- Added test 'pep257' to check Python code against some of the docstring style conventions in PEP 257
+-- Added test 'xmllint' to check XML markup files
+-- Configuring done
+-- Generating done
+-- Build files have been written to: /home/rics/tt_ws/src/tese_ws/build/novamob_nav2_gz
+-- Install configuration: ""
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz/share/novamob_nav2_gz/src
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz/share/novamob_nav2_gz/src/description
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz/share/novamob_nav2_gz/src/description/novamob_description.urdf
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz/share/novamob_nav2_gz/src/description/novamob_trailer_description.urdf
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz/share/novamob_nav2_gz/scripts
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz/share/novamob_nav2_gz/scripts/reach_goal.py
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz/share/novamob_nav2_gz/scripts/follow_waypoints.py
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz/share/novamob_nav2_gz/scripts/__init__.py
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz/share/novamob_nav2_gz/launch
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz/share/novamob_nav2_gz/launch/display.launch.py
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz/share/novamob_nav2_gz/launch/complete_navigation.launch.py
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz/share/novamob_nav2_gz/rviz
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz/share/novamob_nav2_gz/rviz/urdf_config.rviz
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz/share/novamob_nav2_gz/rviz/navigation_config.rviz
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz/share/novamob_nav2_gz/config
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz/share/novamob_nav2_gz/config/ekf.yaml
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz/share/novamob_nav2_gz/config/nav2_params.yaml
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz/share/novamob_nav2_gz/config/diff_drive_controller_velocity.yaml
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz/share/novamob_nav2_gz/world
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz/share/novamob_nav2_gz/world/edifice.sdf
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz/share/novamob_nav2_gz/world/ign_indoor
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz/share/novamob_nav2_gz/world/ign_indoor/ign_indoor.sdf
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz/share/novamob_nav2_gz/world/ign_indoor/models
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz/share/novamob_nav2_gz/world/ign_indoor/models/ramp_1
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz/share/novamob_nav2_gz/world/ign_indoor/models/ramp_1/ramp_015.dae
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz/share/novamob_nav2_gz/world/ign_indoor/models/ramp_1/ramp_025.dae
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz/share/novamob_nav2_gz/world/ign_indoor/models/ramp_1/model.config
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz/share/novamob_nav2_gz/world/ign_indoor/models/ramp_1/model.sdf
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz/share/novamob_nav2_gz/world/ign_indoor/models/speed_bump_2
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz/share/novamob_nav2_gz/world/ign_indoor/models/speed_bump_2/Bump_2_short.dae
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz/share/novamob_nav2_gz/world/ign_indoor/models/speed_bump_2/bump_2.dae
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz/share/novamob_nav2_gz/world/ign_indoor/models/speed_bump_2/model.config
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz/share/novamob_nav2_gz/world/ign_indoor/models/speed_bump_2/bump_2
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz/share/novamob_nav2_gz/world/ign_indoor/models/speed_bump_2/bump_2/rubbishy_xdigg8.jpg
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz/share/novamob_nav2_gz/world/ign_indoor/models/speed_bump_2/model.sdf
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz/share/novamob_nav2_gz/world/ign_indoor/models/speed_bump_3
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz/share/novamob_nav2_gz/world/ign_indoor/models/speed_bump_3/bump_3
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz/share/novamob_nav2_gz/world/ign_indoor/models/speed_bump_3/bump_3/rubbishy_xdigg9.jpg
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz/share/novamob_nav2_gz/world/ign_indoor/models/speed_bump_3/bump_3.dae
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz/share/novamob_nav2_gz/world/ign_indoor/models/speed_bump_3/model.config
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz/share/novamob_nav2_gz/world/ign_indoor/models/speed_bump_3/model.sdf
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz/share/novamob_nav2_gz/world/ign_indoor/models/speed_bump_3/Bump_3_short.dae
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz/share/novamob_nav2_gz/world/ign_indoor/models/ramp_2
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz/share/novamob_nav2_gz/world/ign_indoor/models/ramp_2/ramp_037.dae
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz/share/novamob_nav2_gz/world/ign_indoor/models/ramp_2/ramp_020.dae
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz/share/novamob_nav2_gz/world/ign_indoor/models/ramp_2/model.config
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz/share/novamob_nav2_gz/world/ign_indoor/models/ramp_2/model.sdf
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz/share/novamob_nav2_gz/world/ign_indoor/models/speed_bump_1_short
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz/share/novamob_nav2_gz/world/ign_indoor/models/speed_bump_1_short/bump_2_060
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz/share/novamob_nav2_gz/world/ign_indoor/models/speed_bump_1_short/bump_2_060/rubbishy_xdigg10.jpg
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz/share/novamob_nav2_gz/world/ign_indoor/models/speed_bump_1_short/model.config
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz/share/novamob_nav2_gz/world/ign_indoor/models/speed_bump_1_short/model.sdf
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz/share/novamob_nav2_gz/world/ign_indoor/models/speed_bump_1_short/bump_2_060.dae
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz/share/novamob_nav2_gz/world/ign_indoor/models/speed_bump_3_short
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz/share/novamob_nav2_gz/world/ign_indoor/models/speed_bump_3_short/bump_3_060.dae
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz/share/novamob_nav2_gz/world/ign_indoor/models/speed_bump_3_short/model.config
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz/share/novamob_nav2_gz/world/ign_indoor/models/speed_bump_3_short/bump_3_060
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz/share/novamob_nav2_gz/world/ign_indoor/models/speed_bump_3_short/bump_3_060/rubbishy_xdigg9.jpg
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz/share/novamob_nav2_gz/world/ign_indoor/models/speed_bump_3_short/model.sdf
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz/share/novamob_nav2_gz/world/ign_indoor/models/speed_bump_1
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz/share/novamob_nav2_gz/world/ign_indoor/models/speed_bump_1/Bump_1_short.dae
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz/share/novamob_nav2_gz/world/ign_indoor/models/speed_bump_1/bump_1
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz/share/novamob_nav2_gz/world/ign_indoor/models/speed_bump_1/bump_1/rubbishy_xdigg10.jpg
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz/share/novamob_nav2_gz/world/ign_indoor/models/speed_bump_1/bump_1.dae
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz/share/novamob_nav2_gz/world/ign_indoor/models/speed_bump_1/model.config
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz/share/novamob_nav2_gz/world/ign_indoor/models/speed_bump_1/model.sdf
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz/share/novamob_nav2_gz/world/ign_indoor/models/speed_bump_2_short
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz/share/novamob_nav2_gz/world/ign_indoor/models/speed_bump_2_short/bump_1_060.dae
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz/share/novamob_nav2_gz/world/ign_indoor/models/speed_bump_2_short/model.config
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz/share/novamob_nav2_gz/world/ign_indoor/models/speed_bump_2_short/bump_1_060
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz/share/novamob_nav2_gz/world/ign_indoor/models/speed_bump_2_short/bump_1_060/rubbishy_xdigg8.jpg
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz/share/novamob_nav2_gz/world/ign_indoor/models/speed_bump_2_short/model.sdf
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz/share/novamob_nav2_gz/world/ign_indoor/ign_indoor_old.sdf
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz/share/novamob_nav2_gz/world/ign_indoor/ign_indoor_minimal.sdf
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz/share/novamob_nav2_gz/world/mecanum_drive.sdf
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz/share/novamob_nav2_gz/world/neo_workshop_empty.sdf
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz/share/novamob_nav2_gz/world/depth_camera_sensor.sdf
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz/share/novamob_nav2_gz/world/neo_workshop.sdf
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz/share/novamob_nav2_gz/world/empty.sdf
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz/share/novamob_nav2_gz/models
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz/share/novamob_nav2_gz/models/door
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz/share/novamob_nav2_gz/models/door/model.config
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz/share/novamob_nav2_gz/models/door/materials
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz/share/novamob_nav2_gz/models/door/materials/scripts
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz/share/novamob_nav2_gz/models/door/materials/scripts/door.material
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz/share/novamob_nav2_gz/models/door/materials/textures
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz/share/novamob_nav2_gz/models/door/materials/textures/door.jpg
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz/share/novamob_nav2_gz/models/door/model.sdf
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz/share/novamob_nav2_gz/models/office_env_w_complete
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz/share/novamob_nav2_gz/models/office_env_w_complete/model.config
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz/share/novamob_nav2_gz/models/office_env_w_complete/materials
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz/share/novamob_nav2_gz/models/office_env_w_complete/materials/scripts
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz/share/novamob_nav2_gz/models/office_env_w_complete/materials/scripts/wall_white.material
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz/share/novamob_nav2_gz/models/office_env_w_complete/materials/textures
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz/share/novamob_nav2_gz/models/office_env_w_complete/materials/textures/wall_color_white.jpg
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz/share/novamob_nav2_gz/models/office_env_w_complete/model.sdf
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz/share/novamob_nav2_gz/models/neobotix_wall_stickers
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz/share/novamob_nav2_gz/models/neobotix_wall_stickers/model.config
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz/share/novamob_nav2_gz/models/neobotix_wall_stickers/materials
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz/share/novamob_nav2_gz/models/neobotix_wall_stickers/materials/scripts
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz/share/novamob_nav2_gz/models/neobotix_wall_stickers/materials/scripts/neobotix_ground_plane.material
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz/share/novamob_nav2_gz/models/neobotix_wall_stickers/materials/textures
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz/share/novamob_nav2_gz/models/neobotix_wall_stickers/materials/textures/MyImage.jpg
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz/share/novamob_nav2_gz/models/neobotix_wall_stickers/model.sdf
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz/share/novamob_nav2_gz/models/office_env_w
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz/share/novamob_nav2_gz/models/office_env_w/model.config
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz/share/novamob_nav2_gz/models/office_env_w/materials
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz/share/novamob_nav2_gz/models/office_env_w/materials/scripts
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz/share/novamob_nav2_gz/models/office_env_w/materials/scripts/wall_white.material
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz/share/novamob_nav2_gz/models/office_env_w/materials/textures
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz/share/novamob_nav2_gz/models/office_env_w/materials/textures/wall_color_white.jpg
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz/share/novamob_nav2_gz/models/office_env_w/model.sdf
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz/share/novamob_nav2_gz/models/office_env_w 1
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz/share/novamob_nav2_gz/models/office_env_w 1/model.config
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz/share/novamob_nav2_gz/models/office_env_w 1/materials
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz/share/novamob_nav2_gz/models/office_env_w 1/materials/scripts
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz/share/novamob_nav2_gz/models/office_env_w 1/materials/scripts/wall_white.material
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz/share/novamob_nav2_gz/models/office_env_w 1/materials/textures
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz/share/novamob_nav2_gz/models/office_env_w 1/materials/textures/wall_color_white.jpg
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz/share/novamob_nav2_gz/models/office_env_w 1/model.sdf
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz/share/novamob_nav2_gz/models/neobotix_ground_plane
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz/share/novamob_nav2_gz/models/neobotix_ground_plane/model.config
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz/share/novamob_nav2_gz/models/neobotix_ground_plane/materials
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz/share/novamob_nav2_gz/models/neobotix_ground_plane/materials/scripts
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz/share/novamob_nav2_gz/models/neobotix_ground_plane/materials/scripts/neobotix_ground_plane.material
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz/share/novamob_nav2_gz/models/neobotix_ground_plane/materials/textures
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz/share/novamob_nav2_gz/models/neobotix_ground_plane/materials/textures/MyImage.jpg
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz/share/novamob_nav2_gz/models/neobotix_ground_plane/model.sdf
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz/share/novamob_nav2_gz/models/door_3d
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz/share/novamob_nav2_gz/models/door_3d/model.config
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz/share/novamob_nav2_gz/models/door_3d/materials
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz/share/novamob_nav2_gz/models/door_3d/materials/scripts
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz/share/novamob_nav2_gz/models/door_3d/materials/scripts/door_handle.material
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz/share/novamob_nav2_gz/models/door_3d/materials/scripts/door_3d.material
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz/share/novamob_nav2_gz/models/door_3d/materials/textures
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz/share/novamob_nav2_gz/models/door_3d/materials/textures/silver_door.jpg
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz/share/novamob_nav2_gz/models/door_3d/materials/textures/door_3d.jpg
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz/share/novamob_nav2_gz/models/door_3d/model.sdf
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz/share/novamob_nav2_gz/models/door_3d/meshes
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz/share/novamob_nav2_gz/models/door_3d/meshes/door_v2.dae
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz/share/novamob_nav2_gz/models/door_3d/meshes/door_v2_handle.dae
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz/share/novamob_nav2_gz/models/door_3d/meshes/door_v2_door.dae
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz/share/novamob_nav2_gz/models/door_3d/meshes/model.dae
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz/share/novamob_nav2_gz/models/door_3d/meshes/door.dae
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz/share/novamob_nav2_gz/models/neo_office_box
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz/share/novamob_nav2_gz/models/neo_office_box/model.config
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz/share/novamob_nav2_gz/models/neo_office_box/model.sdf
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz/share/novamob_nav2_gz/models/neo_office_box/meshes
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz/share/novamob_nav2_gz/models/neo_office_box/meshes/model.dae
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz/share/novamob_nav2_gz/models/window
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz/share/novamob_nav2_gz/models/window/model.config
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz/share/novamob_nav2_gz/models/window/model.sdf
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz/share/novamob_nav2_gz/models/drc_practice_straight
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz/share/novamob_nav2_gz/models/drc_practice_straight/model.config
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz/share/novamob_nav2_gz/models/drc_practice_straight/model.sdf
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz/share/novamob_nav2_gz/models/office_env
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz/share/novamob_nav2_gz/models/office_env/model.config
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz/share/novamob_nav2_gz/models/office_env/materials
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz/share/novamob_nav2_gz/models/office_env/materials/scripts
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz/share/novamob_nav2_gz/models/office_env/materials/scripts/wall.material
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz/share/novamob_nav2_gz/models/office_env/materials/textures
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz/share/novamob_nav2_gz/models/office_env/materials/textures/wall_color.jpg
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz/share/novamob_nav2_gz/models/office_env/model.sdf
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz/share/novamob_nav2_gz/models/office_small
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz/share/novamob_nav2_gz/models/office_small/model.config
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz/share/novamob_nav2_gz/models/office_small/materials
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz/share/novamob_nav2_gz/models/office_small/materials/scripts
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz/share/novamob_nav2_gz/models/office_small/materials/scripts/wall_white.material
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz/share/novamob_nav2_gz/models/office_small/materials/scripts/Floor.material
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz/share/novamob_nav2_gz/models/office_small/materials/textures
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz/share/novamob_nav2_gz/models/office_small/materials/textures/cp1.jpg
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz/share/novamob_nav2_gz/models/office_small/materials/textures/cp2.jpg
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz/share/novamob_nav2_gz/models/office_small/materials/textures/cp7.jpg
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz/share/novamob_nav2_gz/models/office_small/materials/textures/hd8.jpg
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz/share/novamob_nav2_gz/models/office_small/materials/textures/cp10.jpg
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz/share/novamob_nav2_gz/models/office_small/materials/textures/cl3.jpg
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz/share/novamob_nav2_gz/models/office_small/materials/textures/hd2.gif
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz/share/novamob_nav2_gz/models/office_small/materials/textures/cl4.jpg
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz/share/novamob_nav2_gz/models/office_small/materials/textures/hd6.png
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz/share/novamob_nav2_gz/models/office_small/materials/textures/hd5.jpg
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz/share/novamob_nav2_gz/models/office_small/materials/textures/hd7.jpg
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz/share/novamob_nav2_gz/models/office_small/materials/textures/cl5.jpg
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz/share/novamob_nav2_gz/models/office_small/materials/textures/cp8.jpg
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz/share/novamob_nav2_gz/models/office_small/materials/textures/hd4.jpg
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz/share/novamob_nav2_gz/models/office_small/materials/textures/cp3.jpg
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz/share/novamob_nav2_gz/models/office_small/materials/textures/cp6.jpg
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz/share/novamob_nav2_gz/models/office_small/materials/textures/cp12.jpg
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz/share/novamob_nav2_gz/models/office_small/materials/textures/wall_color_white.jpg
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz/share/novamob_nav2_gz/models/office_small/materials/textures/cp4.jpg
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz/share/novamob_nav2_gz/models/office_small/materials/textures/hd1.jpg
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz/share/novamob_nav2_gz/models/office_small/materials/textures/cl6.jpg
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz/share/novamob_nav2_gz/models/office_small/materials/textures/hd3.jpg
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz/share/novamob_nav2_gz/models/office_small/materials/textures/cl2.jpg
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz/share/novamob_nav2_gz/models/office_small/materials/textures/cp9.jpg
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz/share/novamob_nav2_gz/models/office_small/materials/textures/cl1.jpg
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz/share/novamob_nav2_gz/models/office_small/materials/textures/cp5.png
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz/share/novamob_nav2_gz/models/office_small/materials/textures/cp11.jpg
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz/share/novamob_nav2_gz/models/office_small/model.sdf
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz/share/novamob_nav2_gz/models/construction_cone
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz/share/novamob_nav2_gz/models/construction_cone/model.config
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz/share/novamob_nav2_gz/models/construction_cone/model-1_4.sdf
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz/share/novamob_nav2_gz/models/construction_cone/materials
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz/share/novamob_nav2_gz/models/construction_cone/materials/textures
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz/share/novamob_nav2_gz/models/construction_cone/materials/textures/Construction_Cone_Diffuse.png
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz/share/novamob_nav2_gz/models/construction_cone/model-1_3.sdf
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz/share/novamob_nav2_gz/models/construction_cone/model.sdf
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz/share/novamob_nav2_gz/models/construction_cone/meshes
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz/share/novamob_nav2_gz/models/construction_cone/meshes/construction_cone.dae
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz/share/novamob_nav2_gz/models/TurtlebotArena
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz/share/novamob_nav2_gz/models/TurtlebotArena/model.config
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz/share/novamob_nav2_gz/models/TurtlebotArena/model.sdf
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz/share/novamob_nav2_gz/models/TurtlebotArena/meshes
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz/share/novamob_nav2_gz/models/TurtlebotArena/meshes/wall.dae
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz/share/novamob_nav2_gz/models/TurtlebotArena/meshes/hexagon.dae
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz/share/novamob_nav2_gz/models/office_env_w 2
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz/share/novamob_nav2_gz/models/office_env_w 2/model.config
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz/share/novamob_nav2_gz/models/office_env_w 2/materials
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz/share/novamob_nav2_gz/models/office_env_w 2/materials/textures
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz/share/novamob_nav2_gz/models/office_env_w 2/materials/textures/wall_color_white.jpg
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz/share/novamob_nav2_gz/models/office_env_w 2/model.sdf
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz/share/novamob_nav2_gz/models/yellow_bin
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz/share/novamob_nav2_gz/models/yellow_bin/model.config
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz/share/novamob_nav2_gz/models/yellow_bin/model.sdf
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz/share/novamob_nav2_gz/models/yellow_bin/meshes
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz/share/novamob_nav2_gz/models/yellow_bin/meshes/green_cylinder.stl
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz/share/novamob_nav2_gz/models/neobotix_wall
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz/share/novamob_nav2_gz/models/neobotix_wall/model.config
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz/share/novamob_nav2_gz/models/neobotix_wall/model.sdf
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz/share/novamob_nav2_gz/models/neobotix_wall/meshes
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz/share/novamob_nav2_gz/models/neobotix_wall/meshes/Videopräsentation_ROX-HG-1b.png.001.png
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz/share/novamob_nav2_gz/models/neobotix_wall/meshes/Videopräsentation_ROX-HG-1b.png
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz/share/novamob_nav2_gz/models/neobotix_wall/meshes/model.dae
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz/share/novamob_nav2_gz/models/indoor_no_doors_2
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz/share/novamob_nav2_gz/models/indoor_no_doors_2/model.config
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz/share/novamob_nav2_gz/models/indoor_no_doors_2/indoor_2.world
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz/share/novamob_nav2_gz/models/indoor_no_doors_2/model.sdf
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz/share/novamob_nav2_gz/meshes
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz/share/novamob_nav2_gz/meshes/novamob_no_wheels.obj
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz/share/novamob_nav2_gz/meshes/novamob_no_wheels_centered.obj
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz/share/novamob_nav2_gz/meshes/novamob_no_wheels_centered.mtl
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz/share/novamob_nav2_gz/meshes/novamob_no_wheels.mtl
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz/share/novamob_nav2_gz/meshes/novamob_mecanum_wheel_centered_left.mtl
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz/share/novamob_nav2_gz/meshes/novamob_mecanum_wheel.stl
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz/share/novamob_nav2_gz/meshes/novamob_mecanum_wheel.obj.mtl
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz/share/novamob_nav2_gz/meshes/novamob_mecanum_wheel_centered_right.obj
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz/share/novamob_nav2_gz/meshes/novamob_mecanum_wheel.dae
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz/share/novamob_nav2_gz/meshes/novamob_mecanum_wheel_centered_right.mtl
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz/share/novamob_nav2_gz/meshes/novamob_mecanum_wheel_centered_left.obj
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz/share/novamob_nav2_gz/meshes/novamob_no_wheels.stl
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz/share/novamob_nav2_gz/meshes/novamob_mecanum_wheel.obj
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz/lib/novamob_nav2_gz/reach_goal.py
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz/lib/novamob_nav2_gz/follow_waypoints.py
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz/share/ament_index/resource_index/package_run_dependencies/novamob_nav2_gz
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz/share/ament_index/resource_index/parent_prefix_path/novamob_nav2_gz
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz/share/novamob_nav2_gz/environment/ament_prefix_path.sh
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz/share/novamob_nav2_gz/environment/ament_prefix_path.dsv
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz/share/novamob_nav2_gz/environment/path.sh
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz/share/novamob_nav2_gz/environment/path.dsv
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz/share/novamob_nav2_gz/local_setup.bash
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz/share/novamob_nav2_gz/local_setup.sh
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz/share/novamob_nav2_gz/local_setup.zsh
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz/share/novamob_nav2_gz/local_setup.dsv
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz/share/novamob_nav2_gz/package.dsv
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz/share/ament_index/resource_index/packages/novamob_nav2_gz
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz/share/novamob_nav2_gz/cmake/novamob_nav2_gzConfig.cmake
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz/share/novamob_nav2_gz/cmake/novamob_nav2_gzConfig-version.cmake
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz/share/novamob_nav2_gz/package.xml

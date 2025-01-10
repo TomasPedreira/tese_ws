@@ -1,0 +1,9 @@
+/home/rics/tt_ws/src/tese_ws/build/sam_bot_nav2_gz/CMakeFiles/uninstall.dir
+/home/rics/tt_ws/src/tese_ws/build/sam_bot_nav2_gz/CMakeFiles/sam_bot_nav2_gz_uninstall.dir
+/home/rics/tt_ws/src/tese_ws/build/sam_bot_nav2_gz/CMakeFiles/test.dir
+/home/rics/tt_ws/src/tese_ws/build/sam_bot_nav2_gz/CMakeFiles/edit_cache.dir
+/home/rics/tt_ws/src/tese_ws/build/sam_bot_nav2_gz/CMakeFiles/rebuild_cache.dir
+/home/rics/tt_ws/src/tese_ws/build/sam_bot_nav2_gz/CMakeFiles/list_install_components.dir
+/home/rics/tt_ws/src/tese_ws/build/sam_bot_nav2_gz/CMakeFiles/install.dir
+/home/rics/tt_ws/src/tese_ws/build/sam_bot_nav2_gz/CMakeFiles/install/local.dir
+/home/rics/tt_ws/src/tese_ws/build/sam_bot_nav2_gz/CMakeFiles/install/strip.dir
