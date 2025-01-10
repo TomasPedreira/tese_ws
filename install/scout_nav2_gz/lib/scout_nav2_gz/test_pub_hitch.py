@@ -9,7 +9,7 @@ from math import cos, sin, sqrt
 import tf_transformations
 
 def calculate_trailer_yaw(tractor_yaw, trailer_yaw, velocity, dt):
-    rtr = 1.5
+    rtr = 0.5
 
     yaw = trailer_yaw + (velocity / rtr * sin(tractor_yaw - trailer_yaw)) * dt
 
@@ -22,7 +22,6 @@ class TrailerJointStatePublisher(Node):
         self.time_now = self.get_clock().now().to_msg()
         # Create a publisher for JointState messages
         self.joint_state_pub = self.create_publisher(JointState, '/joint_states', 10)
-        self.cmd_vel_sub = self.create_subscription(Twist, '/cmd_vel', self.cmd_vel_callback, 10)
 
         # Create a TF broadcaster to publish static transform
         self.tf_broadcaster = TransformBroadcaster(self)
@@ -35,30 +34,26 @@ class TrailerJointStatePublisher(Node):
         self.tf_buffer = Buffer()
         self.tf_listener = TransformListener(self.tf_buffer, self)
 
-        self.tractor_yaw = [0.0, 0.0]
-        self.trailer_yaw = [0.0, 0.0]
-
+        self.tractor_yaw = 0.0
+        self.trailer_yaw = 0.0
+        self.tratcor_pos = (0.0,0.0)
         self.cur_vel = 0.0
-
-    def cmd_vel_callback(self, msg):
-        self.cur_vel = sqrt( msg.linear.x**2 + msg.linear.y**2)
 
  
 
     def publish_joint_state_and_tf(self):
         now = self.get_clock().now().to_msg()
         dt = (now.sec + now.nanosec * 1e-9) - (self.time_now.sec + self.time_now.nanosec * 1e-9) 
+        self.get_logger().info(f"dt: {dt}")
         self.time_now = now
 
-        self.trailer_yaw[0] = calculate_trailer_yaw(self.tractor_yaw[1], self.trailer_yaw[1],self.cur_vel, dt)
-        self.trailer_yaw[1] = self.trailer_yaw[0]
-        self.tractor_yaw[1] = self.tractor_yaw[0]
+        self.trailer_yaw = calculate_trailer_yaw(self.tractor_yaw, self.trailer_yaw,self.cur_vel, dt)
 
         # Publish the joint state
         joint_state_msg = JointState()
         joint_state_msg.header.stamp = self.get_clock().now().to_msg()
         joint_state_msg.name = ['trailer_connector_joint']
-        joint_state_msg.position = [self.trailer_yaw[0]]  # Joint position (in radians)
+        joint_state_msg.position = [self.trailer_yaw]  # Joint position (in radians)
         joint_state_msg.velocity = [0.0]  # Joint velocity
         joint_state_msg.effort = [0.0]    # Joint effort
         self.joint_state_pub.publish(joint_state_msg)
@@ -66,13 +61,18 @@ class TrailerJointStatePublisher(Node):
 
         try:
             m_to_bl_tf: TransformStamped = self.tf_buffer.lookup_transform('map', 'base_link', rclpy.time.Time())
+            new_pos = (m_to_bl_tf.transform.translation.x,m_to_bl_tf.transform.translation.y)
+            dist = sqrt((new_pos[0] - self.tratcor_pos[0])**2 + (new_pos[1] - self.tratcor_pos[1])**2)
+            self.tratcor_pos = new_pos
+            self.cur_vel = dist / dt
+            self.get_logger().info(f"cur_vel: {self.cur_vel}")
             m_to_bl_tf.header.stamp = self.get_clock().now().to_msg()
             m_to_bl_tf.header.frame_id = 'map'  # Parent frame
             m_to_bl_tf.child_frame_id = 'trailer_connector_link'  # Child frame
 
             yaw = tf_transformations.euler_from_quaternion([m_to_bl_tf.transform.rotation.x, m_to_bl_tf.transform.rotation.y, m_to_bl_tf.transform.rotation.z, m_to_bl_tf.transform.rotation.w])[2]
-            rot = tf_transformations.quaternion_from_euler(0, 0, self.trailer_yaw[0])
-            self.tractor_yaw[0] = yaw
+            rot = tf_transformations.quaternion_from_euler(0, 0, self.trailer_yaw)
+            self.tractor_yaw = yaw
 
             added_x = -0.5 * cos(yaw)
             added_y = -0.5 * sin(yaw)

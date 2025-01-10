@@ -1,0 +1,4 @@
+Invoking command in '/home/rics/tt_ws/src/tese_ws/build/novamob_nav2_gz': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/opt/ros/humble /usr/bin/cmake --build /home/rics/tt_ws/src/tese_ws/build/novamob_nav2_gz -- -j8 -l8
+Invoked command in '/home/rics/tt_ws/src/tese_ws/build/novamob_nav2_gz' returned '0': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/opt/ros/humble /usr/bin/cmake --build /home/rics/tt_ws/src/tese_ws/build/novamob_nav2_gz -- -j8 -l8
+Invoking command in '/home/rics/tt_ws/src/tese_ws/build/novamob_nav2_gz': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/opt/ros/humble /usr/bin/cmake --install /home/rics/tt_ws/src/tese_ws/build/novamob_nav2_gz
+Invoked command in '/home/rics/tt_ws/src/tese_ws/build/novamob_nav2_gz' returned '0': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/opt/ros/humble /usr/bin/cmake --install /home/rics/tt_ws/src/tese_ws/build/novamob_nav2_gz
