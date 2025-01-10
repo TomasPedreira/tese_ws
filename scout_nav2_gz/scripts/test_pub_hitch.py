@@ -35,8 +35,10 @@ class TrailerJointStatePublisher(Node):
         self.tf_buffer = Buffer()
         self.tf_listener = TransformListener(self.tf_buffer, self)
 
-        self.tractor_yaw = [0.0, 0.0]
-        self.trailer_yaw = [0.0, 0.0]
+        self.tractor_yaw = 0.0
+        self.tractor_pos = (0.0, 0.0)
+
+        self.trailer_yaw = 0.0
 
         self.cur_vel = 0.0
 
@@ -50,15 +52,13 @@ class TrailerJointStatePublisher(Node):
         dt = (now.sec + now.nanosec * 1e-9) - (self.time_now.sec + self.time_now.nanosec * 1e-9) 
         self.time_now = now
 
-        self.trailer_yaw[0] = calculate_trailer_yaw(self.tractor_yaw[1], self.trailer_yaw[1],self.cur_vel, dt)
-        self.trailer_yaw[1] = self.trailer_yaw[0]
-        self.tractor_yaw[1] = self.tractor_yaw[0]
+        self.trailer_yaw = calculate_trailer_yaw(self.tractor_yaw, self.trailer_yaw,self.cur_vel, dt)
 
         # Publish the joint state
         joint_state_msg = JointState()
         joint_state_msg.header.stamp = self.get_clock().now().to_msg()
         joint_state_msg.name = ['trailer_connector_joint']
-        joint_state_msg.position = [self.trailer_yaw[0]]  # Joint position (in radians)
+        joint_state_msg.position = [self.trailer_yaw]  # Joint position (in radians)
         joint_state_msg.velocity = [0.0]  # Joint velocity
         joint_state_msg.effort = [0.0]    # Joint effort
         self.joint_state_pub.publish(joint_state_msg)
@@ -71,8 +71,9 @@ class TrailerJointStatePublisher(Node):
             m_to_bl_tf.child_frame_id = 'trailer_connector_link'  # Child frame
 
             yaw = tf_transformations.euler_from_quaternion([m_to_bl_tf.transform.rotation.x, m_to_bl_tf.transform.rotation.y, m_to_bl_tf.transform.rotation.z, m_to_bl_tf.transform.rotation.w])[2]
-            rot = tf_transformations.quaternion_from_euler(0, 0, self.trailer_yaw[0])
-            self.tractor_yaw[0] = yaw
+            rot = tf_transformations.quaternion_from_euler(0, 0, self.trailer_yaw)
+            self.tractor_yaw = yaw
+            self.tractor_pos = (m_to_bl_tf.transform.translation.x, m_to_bl_tf.transform.translation.y)
 
             added_x = -0.5 * cos(yaw)
             added_y = -0.5 * sin(yaw)
