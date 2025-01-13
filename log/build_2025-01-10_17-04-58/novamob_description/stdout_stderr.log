@@ -1,0 +1,169 @@
+-- The C compiler identification is GNU 11.4.0
+-- The CXX compiler identification is GNU 11.4.0
+-- Detecting C compiler ABI info
+-- Detecting C compiler ABI info - done
+-- Check for working C compiler: /usr/bin/cc - skipped
+-- Detecting C compile features
+-- Detecting C compile features - done
+-- Detecting CXX compiler ABI info
+-- Detecting CXX compiler ABI info - done
+-- Check for working CXX compiler: /usr/bin/c++ - skipped
+-- Detecting CXX compile features
+-- Detecting CXX compile features - done
+-- Found ament_cmake: 1.3.11 (/opt/ros/humble/share/ament_cmake/cmake)
+-- Found Python3: /usr/bin/python3 (found version "3.10.12") found components: Interpreter 
+-- Found ament_lint_auto: 0.12.11 (/opt/ros/humble/share/ament_lint_auto/cmake)
+-- Added test 'flake8' to check Python code syntax and style conventions
+-- Added test 'lint_cmake' to check CMake code style
+-- Added test 'pep257' to check Python code against some of the docstring style conventions in PEP 257
+-- Added test 'xmllint' to check XML markup files
+-- Configuring done
+-- Generating done
+-- Build files have been written to: /home/rics/tt_ws/src/tese_ws/build/novamob_description
+-- Install configuration: ""
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_description/share/novamob_description/src
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_description/share/novamob_description/src/description
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_description/share/novamob_description/src/description/novamob_description.urdf
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_description/share/novamob_description/src/description/novamob_trailer_description.urdf
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_description/share/novamob_description/launch
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_description/share/novamob_description/launch/display.launch.py
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_description/share/novamob_description/rviz
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_description/share/novamob_description/rviz/urdf_config.rviz
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_description/share/novamob_description/meshes
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_description/share/novamob_description/meshes/novamob_no_wheels.obj
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_description/share/novamob_description/meshes/novamob_no_wheels_centered.obj
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_description/share/novamob_description/meshes/novamob_no_wheels_centered.mtl
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_description/share/novamob_description/meshes/novamob_no_wheels.mtl
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_description/share/novamob_description/meshes/novamob_mecanum_wheel_centered_left.mtl
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_description/share/novamob_description/meshes/novamob_mecanum_wheel.stl
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_description/share/novamob_description/meshes/novamob_mecanum_wheel.obj.mtl
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_description/share/novamob_description/meshes/novamob_mecanum_wheel_centered_right.obj
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_description/share/novamob_description/meshes/novamob_mecanum_wheel.dae
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_description/share/novamob_description/meshes/novamob_mecanum_wheel_centered_right.mtl
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_description/share/novamob_description/meshes/novamob_mecanum_wheel_centered_left.obj
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_description/share/novamob_description/meshes/novamob_no_wheels.stl
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_description/share/novamob_description/meshes/novamob_mecanum_wheel.obj
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_description/share/novamob_description/config
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_description/share/novamob_description/config/ekf.yaml
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_description/share/novamob_description/world
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_description/share/novamob_description/world/indoor_2.world
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_description/share/novamob_description/world/outdoor.world
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_description/share/novamob_description/world/blank.world
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_description/share/novamob_description/world/myworld.sdf
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_description/share/novamob_description/models
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_description/share/novamob_description/models/puddle
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_description/share/novamob_description/models/puddle/media
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_description/share/novamob_description/models/puddle/media/scripts
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_description/share/novamob_description/models/puddle/media/scripts/puddle.material
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_description/share/novamob_description/models/puddle/media/textures
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_description/share/novamob_description/models/puddle/media/textures/blue_texture.jpg
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_description/share/novamob_description/models/puddle/model.config
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_description/share/novamob_description/models/puddle/model.sdf
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_description/share/novamob_description/models/ramp_1
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_description/share/novamob_description/models/ramp_1/ramp_015.dae
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_description/share/novamob_description/models/ramp_1/ramp_025.dae
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_description/share/novamob_description/models/ramp_1/model.config
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_description/share/novamob_description/models/ramp_1/model.sdf
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_description/share/novamob_description/models/speed_bump_2
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_description/share/novamob_description/models/speed_bump_2/Bump_2_short.dae
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_description/share/novamob_description/models/speed_bump_2/bump_2.dae
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_description/share/novamob_description/models/speed_bump_2/model.config
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_description/share/novamob_description/models/speed_bump_2/bump_2
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_description/share/novamob_description/models/speed_bump_2/bump_2/rubbishy_xdigg8.jpg
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_description/share/novamob_description/models/speed_bump_2/model.sdf
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_description/share/novamob_description/models/speed_bump_3
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_description/share/novamob_description/models/speed_bump_3/bump_3
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_description/share/novamob_description/models/speed_bump_3/bump_3/rubbishy_xdigg9.jpg
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_description/share/novamob_description/models/speed_bump_3/bump_3.dae
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_description/share/novamob_description/models/speed_bump_3/model.config
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_description/share/novamob_description/models/speed_bump_3/model.sdf
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_description/share/novamob_description/models/speed_bump_3/Bump_3_short.dae
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_description/share/novamob_description/models/ramp_2
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_description/share/novamob_description/models/ramp_2/ramp_037.dae
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_description/share/novamob_description/models/ramp_2/ramp_020.dae
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_description/share/novamob_description/models/ramp_2/model.config
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_description/share/novamob_description/models/ramp_2/model.sdf
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_description/share/novamob_description/models/outdoor_1
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_description/share/novamob_description/models/outdoor_1/media
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_description/share/novamob_description/models/outdoor_1/media/forrest_ground_01_nor_gl_4k.exr
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_description/share/novamob_description/models/outdoor_1/media/scripts
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_description/share/novamob_description/models/outdoor_1/media/scripts/repeated.material
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_description/share/novamob_description/models/outdoor_1/media/forrest_ground_01_disp_4k.png
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_description/share/novamob_description/models/outdoor_1/media/outdoor1_texture4.dae
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_description/share/novamob_description/models/outdoor_1/media/forrest_ground_01_rough_4k.jpg
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_description/share/novamob_description/models/outdoor_1/media/outdoor1_texture3.dae
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_description/share/novamob_description/models/outdoor_1/media/outdoor1_texture2.obj
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_description/share/novamob_description/models/outdoor_1/media/forrest_ground_01_diff_4k.jpg
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_description/share/novamob_description/models/outdoor_1/media/outdoor1.dae
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_description/share/novamob_description/models/outdoor_1/media/outdoor1_texture2.mtl
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_description/share/novamob_description/models/outdoor_1/media/outdoor1_texture.dae
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_description/share/novamob_description/models/outdoor_1/media/Textures
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_description/share/novamob_description/models/outdoor_1/media/Textures/Grass.png
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_description/share/novamob_description/models/outdoor_1/model.config
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_description/share/novamob_description/models/outdoor_1/model.sdf
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_description/share/novamob_description/models/speed_bump_1_short
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_description/share/novamob_description/models/speed_bump_1_short/bump_2_060
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_description/share/novamob_description/models/speed_bump_1_short/bump_2_060/rubbishy_xdigg10.jpg
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_description/share/novamob_description/models/speed_bump_1_short/model.config
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_description/share/novamob_description/models/speed_bump_1_short/model.sdf
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_description/share/novamob_description/models/speed_bump_1_short/bump_2_060.dae
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_description/share/novamob_description/models/indoor_with_doors_2
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_description/share/novamob_description/models/indoor_with_doors_2/model.config
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_description/share/novamob_description/models/indoor_with_doors_2/model.sdf
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_description/share/novamob_description/models/speed_bump_3_short
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_description/share/novamob_description/models/speed_bump_3_short/bump_3_060.dae
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_description/share/novamob_description/models/speed_bump_3_short/model.config
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_description/share/novamob_description/models/speed_bump_3_short/bump_3_060
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_description/share/novamob_description/models/speed_bump_3_short/bump_3_060/rubbishy_xdigg9.jpg
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_description/share/novamob_description/models/speed_bump_3_short/model.sdf
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_description/share/novamob_description/models/speed_bump_1
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_description/share/novamob_description/models/speed_bump_1/Bump_1_short.dae
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_description/share/novamob_description/models/speed_bump_1/bump_1
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_description/share/novamob_description/models/speed_bump_1/bump_1/rubbishy_xdigg10.jpg
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_description/share/novamob_description/models/speed_bump_1/bump_1.dae
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_description/share/novamob_description/models/speed_bump_1/model.config
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_description/share/novamob_description/models/speed_bump_1/model.sdf
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_description/share/novamob_description/models/terrain_1
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_description/share/novamob_description/models/terrain_1/media
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_description/share/novamob_description/models/terrain_1/media/scripts
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_description/share/novamob_description/models/terrain_1/media/scripts/repeated.material
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_description/share/novamob_description/models/terrain_1/media/terrain_1.dae
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_description/share/novamob_description/models/terrain_1/media/Textures
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_description/share/novamob_description/models/terrain_1/media/Textures/Grass.png
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_description/share/novamob_description/models/terrain_1/model.config
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_description/share/novamob_description/models/terrain_1/model.sdf
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_description/share/novamob_description/models/indoor_no_doors_2
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_description/share/novamob_description/models/indoor_no_doors_2/model.config
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_description/share/novamob_description/models/indoor_no_doors_2/indoor_2.world
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_description/share/novamob_description/models/indoor_no_doors_2/model.sdf
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_description/share/novamob_description/models/speed_bump_2_short
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_description/share/novamob_description/models/speed_bump_2_short/bump_1_060.dae
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_description/share/novamob_description/models/speed_bump_2_short/model.config
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_description/share/novamob_description/models/speed_bump_2_short/bump_1_060
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_description/share/novamob_description/models/speed_bump_2_short/bump_1_060/rubbishy_xdigg8.jpg
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_description/share/novamob_description/models/speed_bump_2_short/model.sdf
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_description/share/novamob_description/models/outdoor
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_description/share/novamob_description/models/outdoor/outdoor.world
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_description/share/novamob_description/models/black_hole
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_description/share/novamob_description/models/black_hole/media
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_description/share/novamob_description/models/black_hole/media/scripts
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_description/share/novamob_description/models/black_hole/media/scripts/hole.material
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_description/share/novamob_description/models/black_hole/media/textures
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_description/share/novamob_description/models/black_hole/media/textures/black_texture.jpg
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_description/share/novamob_description/models/black_hole/model.config
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_description/share/novamob_description/models/black_hole/model.sdf
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_description/share/ament_index/resource_index/package_run_dependencies/novamob_description
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_description/share/ament_index/resource_index/parent_prefix_path/novamob_description
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_description/share/novamob_description/environment/ament_prefix_path.sh
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_description/share/novamob_description/environment/ament_prefix_path.dsv
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_description/share/novamob_description/environment/path.sh
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_description/share/novamob_description/environment/path.dsv
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_description/share/novamob_description/local_setup.bash
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_description/share/novamob_description/local_setup.sh
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_description/share/novamob_description/local_setup.zsh
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_description/share/novamob_description/local_setup.dsv
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_description/share/novamob_description/package.dsv
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_description/share/ament_index/resource_index/packages/novamob_description
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_description/share/novamob_description/cmake/novamob_descriptionConfig.cmake
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_description/share/novamob_description/cmake/novamob_descriptionConfig-version.cmake
+-- Installing: /home/rics/tt_ws/src/tese_ws/install/novamob_description/share/novamob_description/package.xml

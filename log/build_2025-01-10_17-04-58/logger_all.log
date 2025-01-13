@@ -1,0 +1,467 @@
+[0.079s] DEBUG:colcon:Command line arguments: ['/usr/bin/colcon', 'build']
+[0.079s] DEBUG:colcon:Parsed command line arguments: Namespace(log_base=None, log_level=None, verb_name='build', build_base='build', install_base='install', merge_install=False, symlink_install=False, test_result_base=None, continue_on_error=False, executor='parallel', parallel_workers=8, event_handlers=None, ignore_user_meta=False, metas=['./colcon.meta'], base_paths=['.'], packages_ignore=None, packages_ignore_regex=None, paths=None, packages_up_to=None, packages_up_to_regex=None, packages_above=None, packages_above_and_dependencies=None, packages_above_depth=None, packages_select_by_dep=None, packages_skip_by_dep=None, packages_skip_up_to=None, packages_select_build_failed=False, packages_skip_build_finished=False, packages_select_test_failures=False, packages_skip_test_passed=False, packages_select=None, packages_skip=None, packages_select_regex=None, packages_skip_regex=None, packages_start=None, packages_end=None, allow_overriding=[], cmake_args=None, cmake_target=None, cmake_target_skip_unavailable=False, cmake_clean_cache=False, cmake_clean_first=False, cmake_force_configure=False, ament_cmake_args=None, catkin_cmake_args=None, catkin_skip_building_tests=False, verb_parser=<colcon_defaults.argument_parser.defaults.DefaultArgumentsDecorator object at 0x71c7fa651240>, verb_extension=<colcon_core.verb.build.BuildVerb object at 0x71c7fa650d30>, main=<bound method BuildVerb.main of <colcon_core.verb.build.BuildVerb object at 0x71c7fa650d30>>)
+[0.226s] Level 1:colcon.colcon_core.package_discovery:discover_packages(colcon_meta) check parameters
+[0.226s] Level 1:colcon.colcon_core.package_discovery:discover_packages(recursive) check parameters
+[0.226s] Level 1:colcon.colcon_core.package_discovery:discover_packages(ignore) check parameters
+[0.226s] Level 1:colcon.colcon_core.package_discovery:discover_packages(path) check parameters
+[0.226s] Level 1:colcon.colcon_core.package_discovery:discover_packages(colcon_meta) discover
+[0.226s] Level 1:colcon.colcon_core.package_discovery:discover_packages(recursive) discover
+[0.226s] INFO:colcon.colcon_core.package_discovery:Crawling recursively for packages in '/home/rics/tt_ws/src/tese_ws'
+[0.227s] Level 1:colcon.colcon_core.package_identification:_identify(.) by extensions ['ignore', 'ignore_ament_install']
+[0.227s] Level 1:colcon.colcon_core.package_identification:_identify(.) by extension 'ignore'
+[0.227s] Level 1:colcon.colcon_core.package_identification:_identify(.) by extension 'ignore_ament_install'
+[0.227s] Level 1:colcon.colcon_core.package_identification:_identify(.) by extensions ['colcon_pkg']
+[0.227s] Level 1:colcon.colcon_core.package_identification:_identify(.) by extension 'colcon_pkg'
+[0.227s] Level 1:colcon.colcon_core.package_identification:_identify(.) by extensions ['colcon_meta']
+[0.227s] Level 1:colcon.colcon_core.package_identification:_identify(.) by extension 'colcon_meta'
+[0.227s] Level 1:colcon.colcon_core.package_identification:_identify(.) by extensions ['ros']
+[0.227s] Level 1:colcon.colcon_core.package_identification:_identify(.) by extension 'ros'
+[0.235s] Level 1:colcon.colcon_core.package_identification:_identify(.) by extensions ['cmake', 'python']
+[0.235s] Level 1:colcon.colcon_core.package_identification:_identify(.) by extension 'cmake'
+[0.235s] Level 1:colcon.colcon_core.package_identification:_identify(.) by extension 'python'
+[0.235s] Level 1:colcon.colcon_core.package_identification:_identify(.) by extensions ['python_setup_py']
+[0.235s] Level 1:colcon.colcon_core.package_identification:_identify(.) by extension 'python_setup_py'
+[0.235s] Level 1:colcon.colcon_core.package_identification:_identify(build) by extensions ['ignore', 'ignore_ament_install']
+[0.235s] Level 1:colcon.colcon_core.package_identification:_identify(build) by extension 'ignore'
+[0.235s] Level 1:colcon.colcon_core.package_identification:_identify(build) ignored
+[0.235s] Level 1:colcon.colcon_core.package_identification:_identify(install) by extensions ['ignore', 'ignore_ament_install']
+[0.235s] Level 1:colcon.colcon_core.package_identification:_identify(install) by extension 'ignore'
+[0.235s] Level 1:colcon.colcon_core.package_identification:_identify(install) ignored
+[0.235s] Level 1:colcon.colcon_core.package_identification:_identify(log) by extensions ['ignore', 'ignore_ament_install']
+[0.236s] Level 1:colcon.colcon_core.package_identification:_identify(log) by extension 'ignore'
+[0.236s] Level 1:colcon.colcon_core.package_identification:_identify(log) ignored
+[0.236s] Level 1:colcon.colcon_core.package_identification:_identify(novamob_description) by extensions ['ignore', 'ignore_ament_install']
+[0.236s] Level 1:colcon.colcon_core.package_identification:_identify(novamob_description) by extension 'ignore'
+[0.236s] Level 1:colcon.colcon_core.package_identification:_identify(novamob_description) by extension 'ignore_ament_install'
+[0.236s] Level 1:colcon.colcon_core.package_identification:_identify(novamob_description) by extensions ['colcon_pkg']
+[0.236s] Level 1:colcon.colcon_core.package_identification:_identify(novamob_description) by extension 'colcon_pkg'
+[0.236s] Level 1:colcon.colcon_core.package_identification:_identify(novamob_description) by extensions ['colcon_meta']
+[0.236s] Level 1:colcon.colcon_core.package_identification:_identify(novamob_description) by extension 'colcon_meta'
+[0.236s] Level 1:colcon.colcon_core.package_identification:_identify(novamob_description) by extensions ['ros']
+[0.236s] Level 1:colcon.colcon_core.package_identification:_identify(novamob_description) by extension 'ros'
+[0.238s] DEBUG:colcon.colcon_core.package_identification:Package 'novamob_description' with type 'ros.ament_cmake' and name 'novamob_description'
+[0.238s] Level 1:colcon.colcon_core.package_identification:_identify(novamob_nav2_gz) by extensions ['ignore', 'ignore_ament_install']
+[0.238s] Level 1:colcon.colcon_core.package_identification:_identify(novamob_nav2_gz) by extension 'ignore'
+[0.238s] Level 1:colcon.colcon_core.package_identification:_identify(novamob_nav2_gz) by extension 'ignore_ament_install'
+[0.238s] Level 1:colcon.colcon_core.package_identification:_identify(novamob_nav2_gz) by extensions ['colcon_pkg']
+[0.238s] Level 1:colcon.colcon_core.package_identification:_identify(novamob_nav2_gz) by extension 'colcon_pkg'
+[0.238s] Level 1:colcon.colcon_core.package_identification:_identify(novamob_nav2_gz) by extensions ['colcon_meta']
+[0.238s] Level 1:colcon.colcon_core.package_identification:_identify(novamob_nav2_gz) by extension 'colcon_meta'
+[0.238s] Level 1:colcon.colcon_core.package_identification:_identify(novamob_nav2_gz) by extensions ['ros']
+[0.238s] Level 1:colcon.colcon_core.package_identification:_identify(novamob_nav2_gz) by extension 'ros'
+[0.239s] DEBUG:colcon.colcon_core.package_identification:Package 'novamob_nav2_gz' with type 'ros.ament_cmake' and name 'novamob_nav2_gz'
+[0.239s] Level 1:colcon.colcon_core.package_identification:_identify(sam_bot_description) by extensions ['ignore', 'ignore_ament_install']
+[0.239s] Level 1:colcon.colcon_core.package_identification:_identify(sam_bot_description) by extension 'ignore'
+[0.239s] Level 1:colcon.colcon_core.package_identification:_identify(sam_bot_description) by extension 'ignore_ament_install'
+[0.239s] Level 1:colcon.colcon_core.package_identification:_identify(sam_bot_description) by extensions ['colcon_pkg']
+[0.239s] Level 1:colcon.colcon_core.package_identification:_identify(sam_bot_description) by extension 'colcon_pkg'
+[0.239s] Level 1:colcon.colcon_core.package_identification:_identify(sam_bot_description) by extensions ['colcon_meta']
+[0.239s] Level 1:colcon.colcon_core.package_identification:_identify(sam_bot_description) by extension 'colcon_meta'
+[0.239s] Level 1:colcon.colcon_core.package_identification:_identify(sam_bot_description) by extensions ['ros']
+[0.239s] Level 1:colcon.colcon_core.package_identification:_identify(sam_bot_description) by extension 'ros'
+[0.239s] DEBUG:colcon.colcon_core.package_identification:Package 'sam_bot_description' with type 'ros.ament_cmake' and name 'sam_bot_description'
+[0.239s] Level 1:colcon.colcon_core.package_identification:_identify(sam_bot_nav2_gz) by extensions ['ignore', 'ignore_ament_install']
+[0.239s] Level 1:colcon.colcon_core.package_identification:_identify(sam_bot_nav2_gz) by extension 'ignore'
+[0.239s] Level 1:colcon.colcon_core.package_identification:_identify(sam_bot_nav2_gz) by extension 'ignore_ament_install'
+[0.240s] Level 1:colcon.colcon_core.package_identification:_identify(sam_bot_nav2_gz) by extensions ['colcon_pkg']
+[0.240s] Level 1:colcon.colcon_core.package_identification:_identify(sam_bot_nav2_gz) by extension 'colcon_pkg'
+[0.240s] Level 1:colcon.colcon_core.package_identification:_identify(sam_bot_nav2_gz) by extensions ['colcon_meta']
+[0.240s] Level 1:colcon.colcon_core.package_identification:_identify(sam_bot_nav2_gz) by extension 'colcon_meta'
+[0.240s] Level 1:colcon.colcon_core.package_identification:_identify(sam_bot_nav2_gz) by extensions ['ros']
+[0.240s] Level 1:colcon.colcon_core.package_identification:_identify(sam_bot_nav2_gz) by extension 'ros'
+[0.240s] DEBUG:colcon.colcon_core.package_identification:Package 'sam_bot_nav2_gz' with type 'ros.ament_cmake' and name 'sam_bot_nav2_gz'
+[0.240s] Level 1:colcon.colcon_core.package_identification:_identify(scout_description) by extensions ['ignore', 'ignore_ament_install']
+[0.240s] Level 1:colcon.colcon_core.package_identification:_identify(scout_description) by extension 'ignore'
+[0.240s] Level 1:colcon.colcon_core.package_identification:_identify(scout_description) by extension 'ignore_ament_install'
+[0.240s] Level 1:colcon.colcon_core.package_identification:_identify(scout_description) by extensions ['colcon_pkg']
+[0.240s] Level 1:colcon.colcon_core.package_identification:_identify(scout_description) by extension 'colcon_pkg'
+[0.240s] Level 1:colcon.colcon_core.package_identification:_identify(scout_description) by extensions ['colcon_meta']
+[0.240s] Level 1:colcon.colcon_core.package_identification:_identify(scout_description) by extension 'colcon_meta'
+[0.241s] Level 1:colcon.colcon_core.package_identification:_identify(scout_description) by extensions ['ros']
+[0.241s] Level 1:colcon.colcon_core.package_identification:_identify(scout_description) by extension 'ros'
+[0.241s] DEBUG:colcon.colcon_core.package_identification:Package 'scout_description' with type 'ros.ament_cmake' and name 'scout_description'
+[0.241s] Level 1:colcon.colcon_core.package_identification:_identify(scout_nav2_gz) by extensions ['ignore', 'ignore_ament_install']
+[0.241s] Level 1:colcon.colcon_core.package_identification:_identify(scout_nav2_gz) by extension 'ignore'
+[0.241s] Level 1:colcon.colcon_core.package_identification:_identify(scout_nav2_gz) by extension 'ignore_ament_install'
+[0.241s] Level 1:colcon.colcon_core.package_identification:_identify(scout_nav2_gz) by extensions ['colcon_pkg']
+[0.241s] Level 1:colcon.colcon_core.package_identification:_identify(scout_nav2_gz) by extension 'colcon_pkg'
+[0.241s] Level 1:colcon.colcon_core.package_identification:_identify(scout_nav2_gz) by extensions ['colcon_meta']
+[0.241s] Level 1:colcon.colcon_core.package_identification:_identify(scout_nav2_gz) by extension 'colcon_meta'
+[0.241s] Level 1:colcon.colcon_core.package_identification:_identify(scout_nav2_gz) by extensions ['ros']
+[0.241s] Level 1:colcon.colcon_core.package_identification:_identify(scout_nav2_gz) by extension 'ros'
+[0.242s] DEBUG:colcon.colcon_core.package_identification:Package 'scout_nav2_gz' with type 'ros.ament_cmake' and name 'scout_nav2_gz'
+[0.242s] Level 1:colcon.colcon_core.package_identification:_identify(virtual_maize_field) by extensions ['ignore', 'ignore_ament_install']
+[0.242s] Level 1:colcon.colcon_core.package_identification:_identify(virtual_maize_field) by extension 'ignore'
+[0.242s] Level 1:colcon.colcon_core.package_identification:_identify(virtual_maize_field) by extension 'ignore_ament_install'
+[0.242s] Level 1:colcon.colcon_core.package_identification:_identify(virtual_maize_field) by extensions ['colcon_pkg']
+[0.242s] Level 1:colcon.colcon_core.package_identification:_identify(virtual_maize_field) by extension 'colcon_pkg'
+[0.242s] Level 1:colcon.colcon_core.package_identification:_identify(virtual_maize_field) by extensions ['colcon_meta']
+[0.242s] Level 1:colcon.colcon_core.package_identification:_identify(virtual_maize_field) by extension 'colcon_meta'
+[0.242s] Level 1:colcon.colcon_core.package_identification:_identify(virtual_maize_field) by extensions ['ros']
+[0.242s] Level 1:colcon.colcon_core.package_identification:_identify(virtual_maize_field) by extension 'ros'
+[0.242s] Level 1:colcon.colcon_core.package_identification:_identify(virtual_maize_field) by extensions ['cmake', 'python']
+[0.242s] Level 1:colcon.colcon_core.package_identification:_identify(virtual_maize_field) by extension 'cmake'
+[0.242s] Level 1:colcon.colcon_core.package_identification:_identify(virtual_maize_field) by extension 'python'
+[0.243s] Level 1:colcon.colcon_core.package_identification:_identify(virtual_maize_field) by extensions ['python_setup_py']
+[0.243s] Level 1:colcon.colcon_core.package_identification:_identify(virtual_maize_field) by extension 'python_setup_py'
+[0.243s] Level 1:colcon.colcon_core.package_discovery:discover_packages(recursive) using defaults
+[0.243s] Level 1:colcon.colcon_core.package_discovery:discover_packages(ignore) discover
+[0.243s] Level 1:colcon.colcon_core.package_discovery:discover_packages(ignore) using defaults
+[0.243s] Level 1:colcon.colcon_core.package_discovery:discover_packages(path) discover
+[0.243s] Level 1:colcon.colcon_core.package_discovery:discover_packages(path) using defaults
+[0.263s] Level 1:colcon.colcon_core.package_discovery:discover_packages(prefix_path) check parameters
+[0.264s] Level 1:colcon.colcon_core.package_discovery:discover_packages(prefix_path) discover
+[0.265s] DEBUG:colcon.colcon_installed_package_information.package_discovery:Found 6 installed packages in /home/rics/tt_ws/install
+[0.266s] DEBUG:colcon.colcon_installed_package_information.package_discovery:Found 388 installed packages in /opt/ros/humble
+[0.268s] Level 1:colcon.colcon_core.package_discovery:discover_packages(prefix_path) using defaults
+[0.305s] Level 5:colcon.colcon_core.verb:set package 'novamob_description' build argument 'cmake_args' from command line to 'None'
+[0.305s] Level 5:colcon.colcon_core.verb:set package 'novamob_description' build argument 'cmake_target' from command line to 'None'
+[0.305s] Level 5:colcon.colcon_core.verb:set package 'novamob_description' build argument 'cmake_target_skip_unavailable' from command line to 'False'
+[0.305s] Level 5:colcon.colcon_core.verb:set package 'novamob_description' build argument 'cmake_clean_cache' from command line to 'False'
+[0.305s] Level 5:colcon.colcon_core.verb:set package 'novamob_description' build argument 'cmake_clean_first' from command line to 'False'
+[0.305s] Level 5:colcon.colcon_core.verb:set package 'novamob_description' build argument 'cmake_force_configure' from command line to 'False'
+[0.305s] Level 5:colcon.colcon_core.verb:set package 'novamob_description' build argument 'ament_cmake_args' from command line to 'None'
+[0.305s] Level 5:colcon.colcon_core.verb:set package 'novamob_description' build argument 'catkin_cmake_args' from command line to 'None'
+[0.305s] Level 5:colcon.colcon_core.verb:set package 'novamob_description' build argument 'catkin_skip_building_tests' from command line to 'False'
+[0.305s] DEBUG:colcon.colcon_core.verb:Building package 'novamob_description' with the following arguments: {'ament_cmake_args': None, 'build_base': '/home/rics/tt_ws/src/tese_ws/build/novamob_description', 'catkin_cmake_args': None, 'catkin_skip_building_tests': False, 'cmake_args': None, 'cmake_clean_cache': False, 'cmake_clean_first': False, 'cmake_force_configure': False, 'cmake_target': None, 'cmake_target_skip_unavailable': False, 'install_base': '/home/rics/tt_ws/src/tese_ws/install/novamob_description', 'merge_install': False, 'path': '/home/rics/tt_ws/src/tese_ws/novamob_description', 'symlink_install': False, 'test_result_base': None}
+[0.305s] Level 5:colcon.colcon_core.verb:set package 'novamob_nav2_gz' build argument 'cmake_args' from command line to 'None'
+[0.305s] Level 5:colcon.colcon_core.verb:set package 'novamob_nav2_gz' build argument 'cmake_target' from command line to 'None'
+[0.305s] Level 5:colcon.colcon_core.verb:set package 'novamob_nav2_gz' build argument 'cmake_target_skip_unavailable' from command line to 'False'
+[0.305s] Level 5:colcon.colcon_core.verb:set package 'novamob_nav2_gz' build argument 'cmake_clean_cache' from command line to 'False'
+[0.305s] Level 5:colcon.colcon_core.verb:set package 'novamob_nav2_gz' build argument 'cmake_clean_first' from command line to 'False'
+[0.305s] Level 5:colcon.colcon_core.verb:set package 'novamob_nav2_gz' build argument 'cmake_force_configure' from command line to 'False'
+[0.305s] Level 5:colcon.colcon_core.verb:set package 'novamob_nav2_gz' build argument 'ament_cmake_args' from command line to 'None'
+[0.305s] Level 5:colcon.colcon_core.verb:set package 'novamob_nav2_gz' build argument 'catkin_cmake_args' from command line to 'None'
+[0.305s] Level 5:colcon.colcon_core.verb:set package 'novamob_nav2_gz' build argument 'catkin_skip_building_tests' from command line to 'False'
+[0.305s] DEBUG:colcon.colcon_core.verb:Building package 'novamob_nav2_gz' with the following arguments: {'ament_cmake_args': None, 'build_base': '/home/rics/tt_ws/src/tese_ws/build/novamob_nav2_gz', 'catkin_cmake_args': None, 'catkin_skip_building_tests': False, 'cmake_args': None, 'cmake_clean_cache': False, 'cmake_clean_first': False, 'cmake_force_configure': False, 'cmake_target': None, 'cmake_target_skip_unavailable': False, 'install_base': '/home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz', 'merge_install': False, 'path': '/home/rics/tt_ws/src/tese_ws/novamob_nav2_gz', 'symlink_install': False, 'test_result_base': None}
+[0.305s] Level 5:colcon.colcon_core.verb:set package 'sam_bot_description' build argument 'cmake_args' from command line to 'None'
+[0.305s] Level 5:colcon.colcon_core.verb:set package 'sam_bot_description' build argument 'cmake_target' from command line to 'None'
+[0.306s] Level 5:colcon.colcon_core.verb:set package 'sam_bot_description' build argument 'cmake_target_skip_unavailable' from command line to 'False'
+[0.306s] Level 5:colcon.colcon_core.verb:set package 'sam_bot_description' build argument 'cmake_clean_cache' from command line to 'False'
+[0.306s] Level 5:colcon.colcon_core.verb:set package 'sam_bot_description' build argument 'cmake_clean_first' from command line to 'False'
+[0.306s] Level 5:colcon.colcon_core.verb:set package 'sam_bot_description' build argument 'cmake_force_configure' from command line to 'False'
+[0.306s] Level 5:colcon.colcon_core.verb:set package 'sam_bot_description' build argument 'ament_cmake_args' from command line to 'None'
+[0.306s] Level 5:colcon.colcon_core.verb:set package 'sam_bot_description' build argument 'catkin_cmake_args' from command line to 'None'
+[0.306s] Level 5:colcon.colcon_core.verb:set package 'sam_bot_description' build argument 'catkin_skip_building_tests' from command line to 'False'
+[0.306s] DEBUG:colcon.colcon_core.verb:Building package 'sam_bot_description' with the following arguments: {'ament_cmake_args': None, 'build_base': '/home/rics/tt_ws/src/tese_ws/build/sam_bot_description', 'catkin_cmake_args': None, 'catkin_skip_building_tests': False, 'cmake_args': None, 'cmake_clean_cache': False, 'cmake_clean_first': False, 'cmake_force_configure': False, 'cmake_target': None, 'cmake_target_skip_unavailable': False, 'install_base': '/home/rics/tt_ws/src/tese_ws/install/sam_bot_description', 'merge_install': False, 'path': '/home/rics/tt_ws/src/tese_ws/sam_bot_description', 'symlink_install': False, 'test_result_base': None}
+[0.306s] Level 5:colcon.colcon_core.verb:set package 'sam_bot_nav2_gz' build argument 'cmake_args' from command line to 'None'
+[0.306s] Level 5:colcon.colcon_core.verb:set package 'sam_bot_nav2_gz' build argument 'cmake_target' from command line to 'None'
+[0.306s] Level 5:colcon.colcon_core.verb:set package 'sam_bot_nav2_gz' build argument 'cmake_target_skip_unavailable' from command line to 'False'
+[0.306s] Level 5:colcon.colcon_core.verb:set package 'sam_bot_nav2_gz' build argument 'cmake_clean_cache' from command line to 'False'
+[0.306s] Level 5:colcon.colcon_core.verb:set package 'sam_bot_nav2_gz' build argument 'cmake_clean_first' from command line to 'False'
+[0.306s] Level 5:colcon.colcon_core.verb:set package 'sam_bot_nav2_gz' build argument 'cmake_force_configure' from command line to 'False'
+[0.306s] Level 5:colcon.colcon_core.verb:set package 'sam_bot_nav2_gz' build argument 'ament_cmake_args' from command line to 'None'
+[0.306s] Level 5:colcon.colcon_core.verb:set package 'sam_bot_nav2_gz' build argument 'catkin_cmake_args' from command line to 'None'
+[0.306s] Level 5:colcon.colcon_core.verb:set package 'sam_bot_nav2_gz' build argument 'catkin_skip_building_tests' from command line to 'False'
+[0.306s] DEBUG:colcon.colcon_core.verb:Building package 'sam_bot_nav2_gz' with the following arguments: {'ament_cmake_args': None, 'build_base': '/home/rics/tt_ws/src/tese_ws/build/sam_bot_nav2_gz', 'catkin_cmake_args': None, 'catkin_skip_building_tests': False, 'cmake_args': None, 'cmake_clean_cache': False, 'cmake_clean_first': False, 'cmake_force_configure': False, 'cmake_target': None, 'cmake_target_skip_unavailable': False, 'install_base': '/home/rics/tt_ws/src/tese_ws/install/sam_bot_nav2_gz', 'merge_install': False, 'path': '/home/rics/tt_ws/src/tese_ws/sam_bot_nav2_gz', 'symlink_install': False, 'test_result_base': None}
+[0.306s] Level 5:colcon.colcon_core.verb:set package 'scout_description' build argument 'cmake_args' from command line to 'None'
+[0.306s] Level 5:colcon.colcon_core.verb:set package 'scout_description' build argument 'cmake_target' from command line to 'None'
+[0.306s] Level 5:colcon.colcon_core.verb:set package 'scout_description' build argument 'cmake_target_skip_unavailable' from command line to 'False'
+[0.306s] Level 5:colcon.colcon_core.verb:set package 'scout_description' build argument 'cmake_clean_cache' from command line to 'False'
+[0.306s] Level 5:colcon.colcon_core.verb:set package 'scout_description' build argument 'cmake_clean_first' from command line to 'False'
+[0.306s] Level 5:colcon.colcon_core.verb:set package 'scout_description' build argument 'cmake_force_configure' from command line to 'False'
+[0.306s] Level 5:colcon.colcon_core.verb:set package 'scout_description' build argument 'ament_cmake_args' from command line to 'None'
+[0.306s] Level 5:colcon.colcon_core.verb:set package 'scout_description' build argument 'catkin_cmake_args' from command line to 'None'
+[0.306s] Level 5:colcon.colcon_core.verb:set package 'scout_description' build argument 'catkin_skip_building_tests' from command line to 'False'
+[0.306s] DEBUG:colcon.colcon_core.verb:Building package 'scout_description' with the following arguments: {'ament_cmake_args': None, 'build_base': '/home/rics/tt_ws/src/tese_ws/build/scout_description', 'catkin_cmake_args': None, 'catkin_skip_building_tests': False, 'cmake_args': None, 'cmake_clean_cache': False, 'cmake_clean_first': False, 'cmake_force_configure': False, 'cmake_target': None, 'cmake_target_skip_unavailable': False, 'install_base': '/home/rics/tt_ws/src/tese_ws/install/scout_description', 'merge_install': False, 'path': '/home/rics/tt_ws/src/tese_ws/scout_description', 'symlink_install': False, 'test_result_base': None}
+[0.307s] Level 5:colcon.colcon_core.verb:set package 'scout_nav2_gz' build argument 'cmake_args' from command line to 'None'
+[0.307s] Level 5:colcon.colcon_core.verb:set package 'scout_nav2_gz' build argument 'cmake_target' from command line to 'None'
+[0.307s] Level 5:colcon.colcon_core.verb:set package 'scout_nav2_gz' build argument 'cmake_target_skip_unavailable' from command line to 'False'
+[0.307s] Level 5:colcon.colcon_core.verb:set package 'scout_nav2_gz' build argument 'cmake_clean_cache' from command line to 'False'
+[0.307s] Level 5:colcon.colcon_core.verb:set package 'scout_nav2_gz' build argument 'cmake_clean_first' from command line to 'False'
+[0.307s] Level 5:colcon.colcon_core.verb:set package 'scout_nav2_gz' build argument 'cmake_force_configure' from command line to 'False'
+[0.307s] Level 5:colcon.colcon_core.verb:set package 'scout_nav2_gz' build argument 'ament_cmake_args' from command line to 'None'
+[0.307s] Level 5:colcon.colcon_core.verb:set package 'scout_nav2_gz' build argument 'catkin_cmake_args' from command line to 'None'
+[0.307s] Level 5:colcon.colcon_core.verb:set package 'scout_nav2_gz' build argument 'catkin_skip_building_tests' from command line to 'False'
+[0.307s] DEBUG:colcon.colcon_core.verb:Building package 'scout_nav2_gz' with the following arguments: {'ament_cmake_args': None, 'build_base': '/home/rics/tt_ws/src/tese_ws/build/scout_nav2_gz', 'catkin_cmake_args': None, 'catkin_skip_building_tests': False, 'cmake_args': None, 'cmake_clean_cache': False, 'cmake_clean_first': False, 'cmake_force_configure': False, 'cmake_target': None, 'cmake_target_skip_unavailable': False, 'install_base': '/home/rics/tt_ws/src/tese_ws/install/scout_nav2_gz', 'merge_install': False, 'path': '/home/rics/tt_ws/src/tese_ws/scout_nav2_gz', 'symlink_install': False, 'test_result_base': None}
+[0.307s] INFO:colcon.colcon_core.executor:Executing jobs using 'parallel' executor
+[0.308s] DEBUG:colcon.colcon_parallel_executor.executor.parallel:run_until_complete
+[0.308s] INFO:colcon.colcon_ros.task.ament_cmake.build:Building ROS package in '/home/rics/tt_ws/src/tese_ws/novamob_description' with build type 'ament_cmake'
+[0.308s] INFO:colcon.colcon_cmake.task.cmake.build:Building CMake package in '/home/rics/tt_ws/src/tese_ws/novamob_description'
+[0.309s] INFO:colcon.colcon_core.plugin_system:Skipping extension 'colcon_core.shell.bat': Not used on non-Windows systems
+[0.310s] INFO:colcon.colcon_core.shell:Skip shell extension 'powershell' for command environment: Not usable outside of PowerShell
+[0.310s] DEBUG:colcon.colcon_core.shell:Skip shell extension 'dsv' for command environment
+[0.313s] INFO:colcon.colcon_ros.task.ament_cmake.build:Building ROS package in '/home/rics/tt_ws/src/tese_ws/novamob_nav2_gz' with build type 'ament_cmake'
+[0.313s] INFO:colcon.colcon_cmake.task.cmake.build:Building CMake package in '/home/rics/tt_ws/src/tese_ws/novamob_nav2_gz'
+[0.313s] INFO:colcon.colcon_core.shell:Skip shell extension 'powershell' for command environment: Not usable outside of PowerShell
+[0.313s] DEBUG:colcon.colcon_core.shell:Skip shell extension 'dsv' for command environment
+[0.316s] INFO:colcon.colcon_ros.task.ament_cmake.build:Building ROS package in '/home/rics/tt_ws/src/tese_ws/sam_bot_description' with build type 'ament_cmake'
+[0.316s] INFO:colcon.colcon_cmake.task.cmake.build:Building CMake package in '/home/rics/tt_ws/src/tese_ws/sam_bot_description'
+[0.316s] INFO:colcon.colcon_core.shell:Skip shell extension 'powershell' for command environment: Not usable outside of PowerShell
+[0.316s] DEBUG:colcon.colcon_core.shell:Skip shell extension 'dsv' for command environment
+[0.319s] INFO:colcon.colcon_ros.task.ament_cmake.build:Building ROS package in '/home/rics/tt_ws/src/tese_ws/sam_bot_nav2_gz' with build type 'ament_cmake'
+[0.319s] INFO:colcon.colcon_cmake.task.cmake.build:Building CMake package in '/home/rics/tt_ws/src/tese_ws/sam_bot_nav2_gz'
+[0.319s] INFO:colcon.colcon_core.shell:Skip shell extension 'powershell' for command environment: Not usable outside of PowerShell
+[0.319s] DEBUG:colcon.colcon_core.shell:Skip shell extension 'dsv' for command environment
+[0.322s] INFO:colcon.colcon_ros.task.ament_cmake.build:Building ROS package in '/home/rics/tt_ws/src/tese_ws/scout_description' with build type 'ament_cmake'
+[0.322s] INFO:colcon.colcon_cmake.task.cmake.build:Building CMake package in '/home/rics/tt_ws/src/tese_ws/scout_description'
+[0.322s] INFO:colcon.colcon_core.shell:Skip shell extension 'powershell' for command environment: Not usable outside of PowerShell
+[0.322s] DEBUG:colcon.colcon_core.shell:Skip shell extension 'dsv' for command environment
+[0.325s] INFO:colcon.colcon_ros.task.ament_cmake.build:Building ROS package in '/home/rics/tt_ws/src/tese_ws/scout_nav2_gz' with build type 'ament_cmake'
+[0.325s] INFO:colcon.colcon_cmake.task.cmake.build:Building CMake package in '/home/rics/tt_ws/src/tese_ws/scout_nav2_gz'
+[0.326s] INFO:colcon.colcon_core.shell:Skip shell extension 'powershell' for command environment: Not usable outside of PowerShell
+[0.326s] DEBUG:colcon.colcon_core.shell:Skip shell extension 'dsv' for command environment
+[0.332s] DEBUG:colcon.colcon_core.event_handler.log_command:Invoking command in '/home/rics/tt_ws/src/tese_ws/build/novamob_description': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/opt/ros/humble /usr/bin/cmake /home/rics/tt_ws/src/tese_ws/novamob_description -DCMAKE_INSTALL_PREFIX=/home/rics/tt_ws/src/tese_ws/install/novamob_description
+[0.334s] DEBUG:colcon.colcon_core.event_handler.log_command:Invoking command in '/home/rics/tt_ws/src/tese_ws/build/novamob_nav2_gz': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/opt/ros/humble /usr/bin/cmake /home/rics/tt_ws/src/tese_ws/novamob_nav2_gz -DCMAKE_INSTALL_PREFIX=/home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz
+[0.336s] DEBUG:colcon.colcon_core.event_handler.log_command:Invoking command in '/home/rics/tt_ws/src/tese_ws/build/sam_bot_description': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/opt/ros/humble /usr/bin/cmake /home/rics/tt_ws/src/tese_ws/sam_bot_description -DCMAKE_INSTALL_PREFIX=/home/rics/tt_ws/src/tese_ws/install/sam_bot_description
+[0.353s] DEBUG:colcon.colcon_core.event_handler.log_command:Invoking command in '/home/rics/tt_ws/src/tese_ws/build/sam_bot_nav2_gz': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/opt/ros/humble /usr/bin/cmake /home/rics/tt_ws/src/tese_ws/sam_bot_nav2_gz -DCMAKE_INSTALL_PREFIX=/home/rics/tt_ws/src/tese_ws/install/sam_bot_nav2_gz
+[0.358s] DEBUG:colcon.colcon_core.event_handler.log_command:Invoking command in '/home/rics/tt_ws/src/tese_ws/build/scout_description': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/opt/ros/humble /usr/bin/cmake /home/rics/tt_ws/src/tese_ws/scout_description -DCMAKE_INSTALL_PREFIX=/home/rics/tt_ws/src/tese_ws/install/scout_description
+[0.362s] DEBUG:colcon.colcon_core.event_handler.log_command:Invoking command in '/home/rics/tt_ws/src/tese_ws/build/scout_nav2_gz': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/opt/ros/humble /usr/bin/cmake /home/rics/tt_ws/src/tese_ws/scout_nav2_gz -DCMAKE_INSTALL_PREFIX=/home/rics/tt_ws/src/tese_ws/install/scout_nav2_gz
+[0.841s] DEBUG:colcon.colcon_core.event_handler.log_command:Invoked command in '/home/rics/tt_ws/src/tese_ws/build/scout_description' returned '0': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/opt/ros/humble /usr/bin/cmake /home/rics/tt_ws/src/tese_ws/scout_description -DCMAKE_INSTALL_PREFIX=/home/rics/tt_ws/src/tese_ws/install/scout_description
+[0.842s] DEBUG:colcon.colcon_core.event_handler.log_command:Invoking command in '/home/rics/tt_ws/src/tese_ws/build/scout_description': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/opt/ros/humble /usr/bin/cmake --build /home/rics/tt_ws/src/tese_ws/build/scout_description -- -j8 -l8
+[0.853s] DEBUG:colcon.colcon_core.event_handler.log_command:Invoked command in '/home/rics/tt_ws/src/tese_ws/build/sam_bot_description' returned '0': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/opt/ros/humble /usr/bin/cmake /home/rics/tt_ws/src/tese_ws/sam_bot_description -DCMAKE_INSTALL_PREFIX=/home/rics/tt_ws/src/tese_ws/install/sam_bot_description
+[0.854s] DEBUG:colcon.colcon_core.event_handler.log_command:Invoking command in '/home/rics/tt_ws/src/tese_ws/build/sam_bot_description': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/opt/ros/humble /usr/bin/cmake --build /home/rics/tt_ws/src/tese_ws/build/sam_bot_description -- -j8 -l8
+[0.865s] DEBUG:colcon.colcon_core.event_handler.log_command:Invoked command in '/home/rics/tt_ws/src/tese_ws/build/novamob_description' returned '0': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/opt/ros/humble /usr/bin/cmake /home/rics/tt_ws/src/tese_ws/novamob_description -DCMAKE_INSTALL_PREFIX=/home/rics/tt_ws/src/tese_ws/install/novamob_description
+[0.866s] DEBUG:colcon.colcon_core.event_handler.log_command:Invoking command in '/home/rics/tt_ws/src/tese_ws/build/novamob_description': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/opt/ros/humble /usr/bin/cmake --build /home/rics/tt_ws/src/tese_ws/build/novamob_description -- -j8 -l8
+[0.868s] DEBUG:colcon.colcon_core.event_handler.log_command:Invoked command in '/home/rics/tt_ws/src/tese_ws/build/scout_description' returned '0': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/opt/ros/humble /usr/bin/cmake --build /home/rics/tt_ws/src/tese_ws/build/scout_description -- -j8 -l8
+[0.875s] DEBUG:colcon.colcon_core.event_handler.log_command:Invoking command in '/home/rics/tt_ws/src/tese_ws/build/scout_description': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/opt/ros/humble /usr/bin/cmake --install /home/rics/tt_ws/src/tese_ws/build/scout_description
+[0.884s] DEBUG:colcon.colcon_core.event_handler.log_command:Invoked command in '/home/rics/tt_ws/src/tese_ws/build/sam_bot_description' returned '0': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/opt/ros/humble /usr/bin/cmake --build /home/rics/tt_ws/src/tese_ws/build/sam_bot_description -- -j8 -l8
+[0.887s] DEBUG:colcon.colcon_core.event_handler.log_command:Invoking command in '/home/rics/tt_ws/src/tese_ws/build/sam_bot_description': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/opt/ros/humble /usr/bin/cmake --install /home/rics/tt_ws/src/tese_ws/build/sam_bot_description
+[0.887s] DEBUG:colcon.colcon_core.event_handler.log_command:Invoked command in '/home/rics/tt_ws/src/tese_ws/build/sam_bot_nav2_gz' returned '0': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/opt/ros/humble /usr/bin/cmake /home/rics/tt_ws/src/tese_ws/sam_bot_nav2_gz -DCMAKE_INSTALL_PREFIX=/home/rics/tt_ws/src/tese_ws/install/sam_bot_nav2_gz
+[0.887s] DEBUG:colcon.colcon_core.event_handler.log_command:Invoking command in '/home/rics/tt_ws/src/tese_ws/build/sam_bot_nav2_gz': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/opt/ros/humble /usr/bin/cmake --build /home/rics/tt_ws/src/tese_ws/build/sam_bot_nav2_gz -- -j8 -l8
+[0.893s] DEBUG:colcon.colcon_core.event_handler.log_command:Invoked command in '/home/rics/tt_ws/src/tese_ws/build/novamob_description' returned '0': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/opt/ros/humble /usr/bin/cmake --build /home/rics/tt_ws/src/tese_ws/build/novamob_description -- -j8 -l8
+[0.895s] DEBUG:colcon.colcon_core.event_handler.log_command:Invoking command in '/home/rics/tt_ws/src/tese_ws/build/novamob_description': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/opt/ros/humble /usr/bin/cmake --install /home/rics/tt_ws/src/tese_ws/build/novamob_description
+[0.896s] Level 1:colcon.colcon_core.environment:create_environment_scripts_only(sam_bot_description)
+[0.897s] DEBUG:colcon.colcon_core.event_handler.log_command:Invoked command in '/home/rics/tt_ws/src/tese_ws/build/sam_bot_description' returned '0': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/opt/ros/humble /usr/bin/cmake --install /home/rics/tt_ws/src/tese_ws/build/sam_bot_description
+[0.898s] Level 1:colcon.colcon_core.environment:checking '/home/rics/tt_ws/src/tese_ws/install/sam_bot_description' for CMake module files
+[0.898s] Level 1:colcon.colcon_core.environment:checking '/home/rics/tt_ws/src/tese_ws/install/sam_bot_description' for CMake config files
+[0.899s] Level 1:colcon.colcon_core.shell:create_environment_hook('sam_bot_description', 'cmake_prefix_path')
+[0.899s] INFO:colcon.colcon_core.shell:Creating environment hook '/home/rics/tt_ws/src/tese_ws/install/sam_bot_description/share/sam_bot_description/hook/cmake_prefix_path.ps1'
+[0.899s] INFO:colcon.colcon_core.shell:Creating environment descriptor '/home/rics/tt_ws/src/tese_ws/install/sam_bot_description/share/sam_bot_description/hook/cmake_prefix_path.dsv'
+[0.900s] INFO:colcon.colcon_core.shell:Creating environment hook '/home/rics/tt_ws/src/tese_ws/install/sam_bot_description/share/sam_bot_description/hook/cmake_prefix_path.sh'
+[0.900s] Level 1:colcon.colcon_core.environment:checking '/home/rics/tt_ws/src/tese_ws/install/sam_bot_description/bin'
+[0.900s] Level 1:colcon.colcon_core.environment:checking '/home/rics/tt_ws/src/tese_ws/install/sam_bot_description/lib/pkgconfig/sam_bot_description.pc'
+[0.901s] Level 1:colcon.colcon_core.environment:checking '/home/rics/tt_ws/src/tese_ws/install/sam_bot_description/lib/python3.10/site-packages'
+[0.901s] Level 1:colcon.colcon_core.environment:checking '/home/rics/tt_ws/src/tese_ws/install/sam_bot_description/bin'
+[0.901s] INFO:colcon.colcon_core.shell:Creating package script '/home/rics/tt_ws/src/tese_ws/install/sam_bot_description/share/sam_bot_description/package.ps1'
+[0.902s] INFO:colcon.colcon_core.shell:Creating package descriptor '/home/rics/tt_ws/src/tese_ws/install/sam_bot_description/share/sam_bot_description/package.dsv'
+[0.903s] INFO:colcon.colcon_core.shell:Creating package script '/home/rics/tt_ws/src/tese_ws/install/sam_bot_description/share/sam_bot_description/package.sh'
+[0.904s] INFO:colcon.colcon_core.shell:Creating package script '/home/rics/tt_ws/src/tese_ws/install/sam_bot_description/share/sam_bot_description/package.bash'
+[0.904s] INFO:colcon.colcon_core.shell:Creating package script '/home/rics/tt_ws/src/tese_ws/install/sam_bot_description/share/sam_bot_description/package.zsh'
+[0.905s] Level 1:colcon.colcon_core.environment:create_file_with_runtime_dependencies(/home/rics/tt_ws/src/tese_ws/install/sam_bot_description/share/colcon-core/packages/sam_bot_description)
+[0.905s] Level 1:colcon.colcon_core.environment:create_environment_scripts_only(sam_bot_description)
+[0.906s] Level 1:colcon.colcon_core.environment:checking '/home/rics/tt_ws/src/tese_ws/install/sam_bot_description' for CMake module files
+[0.906s] Level 1:colcon.colcon_core.environment:checking '/home/rics/tt_ws/src/tese_ws/install/sam_bot_description' for CMake config files
+[0.906s] Level 1:colcon.colcon_core.shell:create_environment_hook('sam_bot_description', 'cmake_prefix_path')
+[0.906s] INFO:colcon.colcon_core.shell:Creating environment hook '/home/rics/tt_ws/src/tese_ws/install/sam_bot_description/share/sam_bot_description/hook/cmake_prefix_path.ps1'
+[0.907s] INFO:colcon.colcon_core.shell:Creating environment descriptor '/home/rics/tt_ws/src/tese_ws/install/sam_bot_description/share/sam_bot_description/hook/cmake_prefix_path.dsv'
+[0.907s] INFO:colcon.colcon_core.shell:Creating environment hook '/home/rics/tt_ws/src/tese_ws/install/sam_bot_description/share/sam_bot_description/hook/cmake_prefix_path.sh'
+[0.907s] Level 1:colcon.colcon_core.environment:checking '/home/rics/tt_ws/src/tese_ws/install/sam_bot_description/bin'
+[0.908s] Level 1:colcon.colcon_core.environment:checking '/home/rics/tt_ws/src/tese_ws/install/sam_bot_description/lib/pkgconfig/sam_bot_description.pc'
+[0.908s] Level 1:colcon.colcon_core.environment:checking '/home/rics/tt_ws/src/tese_ws/install/sam_bot_description/lib/python3.10/site-packages'
+[0.908s] Level 1:colcon.colcon_core.environment:checking '/home/rics/tt_ws/src/tese_ws/install/sam_bot_description/bin'
+[0.908s] INFO:colcon.colcon_core.shell:Creating package script '/home/rics/tt_ws/src/tese_ws/install/sam_bot_description/share/sam_bot_description/package.ps1'
+[0.909s] INFO:colcon.colcon_core.shell:Creating package descriptor '/home/rics/tt_ws/src/tese_ws/install/sam_bot_description/share/sam_bot_description/package.dsv'
+[0.909s] INFO:colcon.colcon_core.shell:Creating package script '/home/rics/tt_ws/src/tese_ws/install/sam_bot_description/share/sam_bot_description/package.sh'
+[0.910s] INFO:colcon.colcon_core.shell:Creating package script '/home/rics/tt_ws/src/tese_ws/install/sam_bot_description/share/sam_bot_description/package.bash'
+[0.910s] INFO:colcon.colcon_core.shell:Creating package script '/home/rics/tt_ws/src/tese_ws/install/sam_bot_description/share/sam_bot_description/package.zsh'
+[0.910s] Level 1:colcon.colcon_core.environment:create_file_with_runtime_dependencies(/home/rics/tt_ws/src/tese_ws/install/sam_bot_description/share/colcon-core/packages/sam_bot_description)
+[0.912s] DEBUG:colcon.colcon_core.event_handler.log_command:Invoked command in '/home/rics/tt_ws/src/tese_ws/build/novamob_nav2_gz' returned '0': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/opt/ros/humble /usr/bin/cmake /home/rics/tt_ws/src/tese_ws/novamob_nav2_gz -DCMAKE_INSTALL_PREFIX=/home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz
+[0.913s] DEBUG:colcon.colcon_core.event_handler.log_command:Invoking command in '/home/rics/tt_ws/src/tese_ws/build/novamob_nav2_gz': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/opt/ros/humble /usr/bin/cmake --build /home/rics/tt_ws/src/tese_ws/build/novamob_nav2_gz -- -j8 -l8
+[0.915s] DEBUG:colcon.colcon_core.event_handler.log_command:Invoked command in '/home/rics/tt_ws/src/tese_ws/build/sam_bot_nav2_gz' returned '0': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/opt/ros/humble /usr/bin/cmake --build /home/rics/tt_ws/src/tese_ws/build/sam_bot_nav2_gz -- -j8 -l8
+[0.917s] DEBUG:colcon.colcon_core.event_handler.log_command:Invoking command in '/home/rics/tt_ws/src/tese_ws/build/sam_bot_nav2_gz': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/opt/ros/humble /usr/bin/cmake --install /home/rics/tt_ws/src/tese_ws/build/sam_bot_nav2_gz
+[0.933s] Level 1:colcon.colcon_core.environment:create_environment_scripts_only(sam_bot_nav2_gz)
+[0.933s] Level 1:colcon.colcon_core.environment:checking '/home/rics/tt_ws/src/tese_ws/install/sam_bot_nav2_gz' for CMake module files
+[0.934s] DEBUG:colcon.colcon_core.event_handler.log_command:Invoked command in '/home/rics/tt_ws/src/tese_ws/build/sam_bot_nav2_gz' returned '0': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/opt/ros/humble /usr/bin/cmake --install /home/rics/tt_ws/src/tese_ws/build/sam_bot_nav2_gz
+[0.934s] Level 1:colcon.colcon_core.environment:checking '/home/rics/tt_ws/src/tese_ws/install/sam_bot_nav2_gz' for CMake config files
+[0.935s] Level 1:colcon.colcon_core.shell:create_environment_hook('sam_bot_nav2_gz', 'cmake_prefix_path')
+[0.935s] INFO:colcon.colcon_core.shell:Creating environment hook '/home/rics/tt_ws/src/tese_ws/install/sam_bot_nav2_gz/share/sam_bot_nav2_gz/hook/cmake_prefix_path.ps1'
+[0.935s] INFO:colcon.colcon_core.shell:Creating environment descriptor '/home/rics/tt_ws/src/tese_ws/install/sam_bot_nav2_gz/share/sam_bot_nav2_gz/hook/cmake_prefix_path.dsv'
+[0.936s] INFO:colcon.colcon_core.shell:Creating environment hook '/home/rics/tt_ws/src/tese_ws/install/sam_bot_nav2_gz/share/sam_bot_nav2_gz/hook/cmake_prefix_path.sh'
+[0.936s] Level 1:colcon.colcon_core.environment:checking '/home/rics/tt_ws/src/tese_ws/install/sam_bot_nav2_gz/lib'
+[0.936s] Level 1:colcon.colcon_core.environment:checking '/home/rics/tt_ws/src/tese_ws/install/sam_bot_nav2_gz/bin'
+[0.936s] Level 1:colcon.colcon_core.environment:checking '/home/rics/tt_ws/src/tese_ws/install/sam_bot_nav2_gz/lib/pkgconfig/sam_bot_nav2_gz.pc'
+[0.936s] Level 1:colcon.colcon_core.environment:checking '/home/rics/tt_ws/src/tese_ws/install/sam_bot_nav2_gz/lib/python3.10/site-packages'
+[0.936s] Level 1:colcon.colcon_core.environment:checking '/home/rics/tt_ws/src/tese_ws/install/sam_bot_nav2_gz/bin'
+[0.937s] INFO:colcon.colcon_core.shell:Creating package script '/home/rics/tt_ws/src/tese_ws/install/sam_bot_nav2_gz/share/sam_bot_nav2_gz/package.ps1'
+[0.937s] INFO:colcon.colcon_core.shell:Creating package descriptor '/home/rics/tt_ws/src/tese_ws/install/sam_bot_nav2_gz/share/sam_bot_nav2_gz/package.dsv'
+[0.937s] INFO:colcon.colcon_core.shell:Creating package script '/home/rics/tt_ws/src/tese_ws/install/sam_bot_nav2_gz/share/sam_bot_nav2_gz/package.sh'
+[0.938s] INFO:colcon.colcon_core.shell:Creating package script '/home/rics/tt_ws/src/tese_ws/install/sam_bot_nav2_gz/share/sam_bot_nav2_gz/package.bash'
+[0.938s] INFO:colcon.colcon_core.shell:Creating package script '/home/rics/tt_ws/src/tese_ws/install/sam_bot_nav2_gz/share/sam_bot_nav2_gz/package.zsh'
+[0.938s] Level 1:colcon.colcon_core.environment:create_file_with_runtime_dependencies(/home/rics/tt_ws/src/tese_ws/install/sam_bot_nav2_gz/share/colcon-core/packages/sam_bot_nav2_gz)
+[0.939s] Level 1:colcon.colcon_core.environment:create_environment_scripts_only(sam_bot_nav2_gz)
+[0.939s] Level 1:colcon.colcon_core.environment:checking '/home/rics/tt_ws/src/tese_ws/install/sam_bot_nav2_gz' for CMake module files
+[0.939s] Level 1:colcon.colcon_core.environment:checking '/home/rics/tt_ws/src/tese_ws/install/sam_bot_nav2_gz' for CMake config files
+[0.940s] Level 1:colcon.colcon_core.shell:create_environment_hook('sam_bot_nav2_gz', 'cmake_prefix_path')
+[0.940s] INFO:colcon.colcon_core.shell:Creating environment hook '/home/rics/tt_ws/src/tese_ws/install/sam_bot_nav2_gz/share/sam_bot_nav2_gz/hook/cmake_prefix_path.ps1'
+[0.941s] INFO:colcon.colcon_core.shell:Creating environment descriptor '/home/rics/tt_ws/src/tese_ws/install/sam_bot_nav2_gz/share/sam_bot_nav2_gz/hook/cmake_prefix_path.dsv'
+[0.941s] INFO:colcon.colcon_core.shell:Creating environment hook '/home/rics/tt_ws/src/tese_ws/install/sam_bot_nav2_gz/share/sam_bot_nav2_gz/hook/cmake_prefix_path.sh'
+[0.941s] Level 1:colcon.colcon_core.environment:checking '/home/rics/tt_ws/src/tese_ws/install/sam_bot_nav2_gz/lib'
+[0.941s] Level 1:colcon.colcon_core.environment:checking '/home/rics/tt_ws/src/tese_ws/install/sam_bot_nav2_gz/bin'
+[0.941s] Level 1:colcon.colcon_core.environment:checking '/home/rics/tt_ws/src/tese_ws/install/sam_bot_nav2_gz/lib/pkgconfig/sam_bot_nav2_gz.pc'
+[0.942s] Level 1:colcon.colcon_core.environment:checking '/home/rics/tt_ws/src/tese_ws/install/sam_bot_nav2_gz/lib/python3.10/site-packages'
+[0.942s] Level 1:colcon.colcon_core.environment:checking '/home/rics/tt_ws/src/tese_ws/install/sam_bot_nav2_gz/bin'
+[0.942s] INFO:colcon.colcon_core.shell:Creating package script '/home/rics/tt_ws/src/tese_ws/install/sam_bot_nav2_gz/share/sam_bot_nav2_gz/package.ps1'
+[0.942s] INFO:colcon.colcon_core.shell:Creating package descriptor '/home/rics/tt_ws/src/tese_ws/install/sam_bot_nav2_gz/share/sam_bot_nav2_gz/package.dsv'
+[0.943s] INFO:colcon.colcon_core.shell:Creating package script '/home/rics/tt_ws/src/tese_ws/install/sam_bot_nav2_gz/share/sam_bot_nav2_gz/package.sh'
+[0.943s] INFO:colcon.colcon_core.shell:Creating package script '/home/rics/tt_ws/src/tese_ws/install/sam_bot_nav2_gz/share/sam_bot_nav2_gz/package.bash'
+[0.943s] INFO:colcon.colcon_core.shell:Creating package script '/home/rics/tt_ws/src/tese_ws/install/sam_bot_nav2_gz/share/sam_bot_nav2_gz/package.zsh'
+[0.944s] Level 1:colcon.colcon_core.environment:create_file_with_runtime_dependencies(/home/rics/tt_ws/src/tese_ws/install/sam_bot_nav2_gz/share/colcon-core/packages/sam_bot_nav2_gz)
+[0.945s] DEBUG:colcon.colcon_core.event_handler.log_command:Invoked command in '/home/rics/tt_ws/src/tese_ws/build/novamob_nav2_gz' returned '0': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/opt/ros/humble /usr/bin/cmake --build /home/rics/tt_ws/src/tese_ws/build/novamob_nav2_gz -- -j8 -l8
+[0.945s] DEBUG:colcon.colcon_core.event_handler.log_command:Invoking command in '/home/rics/tt_ws/src/tese_ws/build/novamob_nav2_gz': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/opt/ros/humble /usr/bin/cmake --install /home/rics/tt_ws/src/tese_ws/build/novamob_nav2_gz
+[0.947s] DEBUG:colcon.colcon_core.event_handler.log_command:Invoked command in '/home/rics/tt_ws/src/tese_ws/build/scout_nav2_gz' returned '0': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/opt/ros/humble /usr/bin/cmake /home/rics/tt_ws/src/tese_ws/scout_nav2_gz -DCMAKE_INSTALL_PREFIX=/home/rics/tt_ws/src/tese_ws/install/scout_nav2_gz
+[0.948s] DEBUG:colcon.colcon_core.event_handler.log_command:Invoking command in '/home/rics/tt_ws/src/tese_ws/build/scout_nav2_gz': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/opt/ros/humble /usr/bin/cmake --build /home/rics/tt_ws/src/tese_ws/build/scout_nav2_gz -- -j8 -l8
+[0.978s] DEBUG:colcon.colcon_core.event_handler.log_command:Invoked command in '/home/rics/tt_ws/src/tese_ws/build/scout_nav2_gz' returned '0': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/opt/ros/humble /usr/bin/cmake --build /home/rics/tt_ws/src/tese_ws/build/scout_nav2_gz -- -j8 -l8
+[0.979s] DEBUG:colcon.colcon_core.event_handler.log_command:Invoking command in '/home/rics/tt_ws/src/tese_ws/build/scout_nav2_gz': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/opt/ros/humble /usr/bin/cmake --install /home/rics/tt_ws/src/tese_ws/build/scout_nav2_gz
+[1.000s] Level 1:colcon.colcon_core.environment:create_environment_scripts_only(scout_description)
+[1.001s] Level 1:colcon.colcon_core.environment:checking '/home/rics/tt_ws/src/tese_ws/install/scout_description' for CMake module files
+[1.001s] DEBUG:colcon.colcon_core.event_handler.log_command:Invoked command in '/home/rics/tt_ws/src/tese_ws/build/scout_description' returned '0': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/opt/ros/humble /usr/bin/cmake --install /home/rics/tt_ws/src/tese_ws/build/scout_description
+[1.001s] Level 1:colcon.colcon_core.environment:checking '/home/rics/tt_ws/src/tese_ws/install/scout_description' for CMake config files
+[1.002s] Level 1:colcon.colcon_core.shell:create_environment_hook('scout_description', 'cmake_prefix_path')
+[1.003s] INFO:colcon.colcon_core.shell:Creating environment hook '/home/rics/tt_ws/src/tese_ws/install/scout_description/share/scout_description/hook/cmake_prefix_path.ps1'
+[1.003s] INFO:colcon.colcon_core.shell:Creating environment descriptor '/home/rics/tt_ws/src/tese_ws/install/scout_description/share/scout_description/hook/cmake_prefix_path.dsv'
+[1.003s] INFO:colcon.colcon_core.shell:Creating environment hook '/home/rics/tt_ws/src/tese_ws/install/scout_description/share/scout_description/hook/cmake_prefix_path.sh'
+[1.004s] Level 1:colcon.colcon_core.environment:checking '/home/rics/tt_ws/src/tese_ws/install/scout_description/bin'
+[1.004s] Level 1:colcon.colcon_core.environment:checking '/home/rics/tt_ws/src/tese_ws/install/scout_description/lib/pkgconfig/scout_description.pc'
+[1.004s] Level 1:colcon.colcon_core.environment:checking '/home/rics/tt_ws/src/tese_ws/install/scout_description/lib/python3.10/site-packages'
+[1.004s] Level 1:colcon.colcon_core.environment:checking '/home/rics/tt_ws/src/tese_ws/install/scout_description/bin'
+[1.004s] INFO:colcon.colcon_core.shell:Creating package script '/home/rics/tt_ws/src/tese_ws/install/scout_description/share/scout_description/package.ps1'
+[1.005s] INFO:colcon.colcon_core.shell:Creating package descriptor '/home/rics/tt_ws/src/tese_ws/install/scout_description/share/scout_description/package.dsv'
+[1.005s] INFO:colcon.colcon_core.shell:Creating package script '/home/rics/tt_ws/src/tese_ws/install/scout_description/share/scout_description/package.sh'
+[1.005s] INFO:colcon.colcon_core.shell:Creating package script '/home/rics/tt_ws/src/tese_ws/install/scout_description/share/scout_description/package.bash'
+[1.006s] INFO:colcon.colcon_core.shell:Creating package script '/home/rics/tt_ws/src/tese_ws/install/scout_description/share/scout_description/package.zsh'
+[1.006s] Level 1:colcon.colcon_core.environment:create_file_with_runtime_dependencies(/home/rics/tt_ws/src/tese_ws/install/scout_description/share/colcon-core/packages/scout_description)
+[1.007s] Level 1:colcon.colcon_core.environment:create_environment_scripts_only(scout_description)
+[1.007s] Level 1:colcon.colcon_core.environment:checking '/home/rics/tt_ws/src/tese_ws/install/scout_description' for CMake module files
+[1.010s] Level 1:colcon.colcon_core.environment:checking '/home/rics/tt_ws/src/tese_ws/install/scout_description' for CMake config files
+[1.010s] Level 1:colcon.colcon_core.shell:create_environment_hook('scout_description', 'cmake_prefix_path')
+[1.011s] INFO:colcon.colcon_core.shell:Creating environment hook '/home/rics/tt_ws/src/tese_ws/install/scout_description/share/scout_description/hook/cmake_prefix_path.ps1'
+[1.011s] INFO:colcon.colcon_core.shell:Creating environment descriptor '/home/rics/tt_ws/src/tese_ws/install/scout_description/share/scout_description/hook/cmake_prefix_path.dsv'
+[1.011s] INFO:colcon.colcon_core.shell:Creating environment hook '/home/rics/tt_ws/src/tese_ws/install/scout_description/share/scout_description/hook/cmake_prefix_path.sh'
+[1.012s] Level 1:colcon.colcon_core.environment:checking '/home/rics/tt_ws/src/tese_ws/install/scout_description/bin'
+[1.012s] Level 1:colcon.colcon_core.environment:checking '/home/rics/tt_ws/src/tese_ws/install/scout_description/lib/pkgconfig/scout_description.pc'
+[1.012s] Level 1:colcon.colcon_core.environment:checking '/home/rics/tt_ws/src/tese_ws/install/scout_description/lib/python3.10/site-packages'
+[1.012s] Level 1:colcon.colcon_core.environment:checking '/home/rics/tt_ws/src/tese_ws/install/scout_description/bin'
+[1.012s] INFO:colcon.colcon_core.shell:Creating package script '/home/rics/tt_ws/src/tese_ws/install/scout_description/share/scout_description/package.ps1'
+[1.014s] INFO:colcon.colcon_core.shell:Creating package descriptor '/home/rics/tt_ws/src/tese_ws/install/scout_description/share/scout_description/package.dsv'
+[1.015s] INFO:colcon.colcon_core.shell:Creating package script '/home/rics/tt_ws/src/tese_ws/install/scout_description/share/scout_description/package.sh'
+[1.016s] INFO:colcon.colcon_core.shell:Creating package script '/home/rics/tt_ws/src/tese_ws/install/scout_description/share/scout_description/package.bash'
+[1.017s] INFO:colcon.colcon_core.shell:Creating package script '/home/rics/tt_ws/src/tese_ws/install/scout_description/share/scout_description/package.zsh'
+[1.018s] Level 1:colcon.colcon_core.environment:create_file_with_runtime_dependencies(/home/rics/tt_ws/src/tese_ws/install/scout_description/share/colcon-core/packages/scout_description)
+[1.020s] Level 1:colcon.colcon_core.environment:create_environment_scripts_only(novamob_nav2_gz)
+[1.020s] Level 1:colcon.colcon_core.environment:checking '/home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz' for CMake module files
+[1.020s] DEBUG:colcon.colcon_core.event_handler.log_command:Invoked command in '/home/rics/tt_ws/src/tese_ws/build/novamob_nav2_gz' returned '0': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/opt/ros/humble /usr/bin/cmake --install /home/rics/tt_ws/src/tese_ws/build/novamob_nav2_gz
+[1.024s] Level 1:colcon.colcon_core.environment:checking '/home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz' for CMake config files
+[1.025s] Level 1:colcon.colcon_core.shell:create_environment_hook('novamob_nav2_gz', 'cmake_prefix_path')
+[1.026s] INFO:colcon.colcon_core.shell:Creating environment hook '/home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz/share/novamob_nav2_gz/hook/cmake_prefix_path.ps1'
+[1.026s] INFO:colcon.colcon_core.shell:Creating environment descriptor '/home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz/share/novamob_nav2_gz/hook/cmake_prefix_path.dsv'
+[1.026s] INFO:colcon.colcon_core.shell:Creating environment hook '/home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz/share/novamob_nav2_gz/hook/cmake_prefix_path.sh'
+[1.027s] Level 1:colcon.colcon_core.environment:checking '/home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz/lib'
+[1.027s] Level 1:colcon.colcon_core.environment:checking '/home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz/bin'
+[1.027s] Level 1:colcon.colcon_core.environment:checking '/home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz/lib/pkgconfig/novamob_nav2_gz.pc'
+[1.027s] Level 1:colcon.colcon_core.environment:checking '/home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz/lib/python3.10/site-packages'
+[1.027s] Level 1:colcon.colcon_core.environment:checking '/home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz/bin'
+[1.027s] INFO:colcon.colcon_core.shell:Creating package script '/home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz/share/novamob_nav2_gz/package.ps1'
+[1.028s] INFO:colcon.colcon_core.shell:Creating package descriptor '/home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz/share/novamob_nav2_gz/package.dsv'
+[1.029s] INFO:colcon.colcon_core.shell:Creating package script '/home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz/share/novamob_nav2_gz/package.sh'
+[1.029s] INFO:colcon.colcon_core.shell:Creating package script '/home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz/share/novamob_nav2_gz/package.bash'
+[1.030s] INFO:colcon.colcon_core.shell:Creating package script '/home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz/share/novamob_nav2_gz/package.zsh'
+[1.030s] Level 1:colcon.colcon_core.environment:create_file_with_runtime_dependencies(/home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz/share/colcon-core/packages/novamob_nav2_gz)
+[1.031s] Level 1:colcon.colcon_core.environment:create_environment_scripts_only(novamob_nav2_gz)
+[1.031s] Level 1:colcon.colcon_core.environment:checking '/home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz' for CMake module files
+[1.031s] Level 1:colcon.colcon_core.environment:checking '/home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz' for CMake config files
+[1.032s] Level 1:colcon.colcon_core.shell:create_environment_hook('novamob_nav2_gz', 'cmake_prefix_path')
+[1.033s] INFO:colcon.colcon_core.shell:Creating environment hook '/home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz/share/novamob_nav2_gz/hook/cmake_prefix_path.ps1'
+[1.033s] INFO:colcon.colcon_core.shell:Creating environment descriptor '/home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz/share/novamob_nav2_gz/hook/cmake_prefix_path.dsv'
+[1.033s] INFO:colcon.colcon_core.shell:Creating environment hook '/home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz/share/novamob_nav2_gz/hook/cmake_prefix_path.sh'
+[1.033s] Level 1:colcon.colcon_core.environment:checking '/home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz/lib'
+[1.034s] Level 1:colcon.colcon_core.environment:checking '/home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz/bin'
+[1.034s] Level 1:colcon.colcon_core.environment:checking '/home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz/lib/pkgconfig/novamob_nav2_gz.pc'
+[1.034s] Level 1:colcon.colcon_core.environment:checking '/home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz/lib/python3.10/site-packages'
+[1.034s] Level 1:colcon.colcon_core.environment:checking '/home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz/bin'
+[1.034s] INFO:colcon.colcon_core.shell:Creating package script '/home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz/share/novamob_nav2_gz/package.ps1'
+[1.034s] INFO:colcon.colcon_core.shell:Creating package descriptor '/home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz/share/novamob_nav2_gz/package.dsv'
+[1.035s] INFO:colcon.colcon_core.shell:Creating package script '/home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz/share/novamob_nav2_gz/package.sh'
+[1.035s] INFO:colcon.colcon_core.shell:Creating package script '/home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz/share/novamob_nav2_gz/package.bash'
+[1.035s] INFO:colcon.colcon_core.shell:Creating package script '/home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz/share/novamob_nav2_gz/package.zsh'
+[1.036s] Level 1:colcon.colcon_core.environment:create_file_with_runtime_dependencies(/home/rics/tt_ws/src/tese_ws/install/novamob_nav2_gz/share/colcon-core/packages/novamob_nav2_gz)
+[1.036s] Level 1:colcon.colcon_core.environment:create_environment_scripts_only(novamob_description)
+[1.036s] Level 1:colcon.colcon_core.environment:checking '/home/rics/tt_ws/src/tese_ws/install/novamob_description' for CMake module files
+[1.037s] DEBUG:colcon.colcon_core.event_handler.log_command:Invoked command in '/home/rics/tt_ws/src/tese_ws/build/novamob_description' returned '0': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/opt/ros/humble /usr/bin/cmake --install /home/rics/tt_ws/src/tese_ws/build/novamob_description
+[1.037s] Level 1:colcon.colcon_core.environment:checking '/home/rics/tt_ws/src/tese_ws/install/novamob_description' for CMake config files
+[1.037s] Level 1:colcon.colcon_core.shell:create_environment_hook('novamob_description', 'cmake_prefix_path')
+[1.038s] INFO:colcon.colcon_core.shell:Creating environment hook '/home/rics/tt_ws/src/tese_ws/install/novamob_description/share/novamob_description/hook/cmake_prefix_path.ps1'
+[1.038s] INFO:colcon.colcon_core.shell:Creating environment descriptor '/home/rics/tt_ws/src/tese_ws/install/novamob_description/share/novamob_description/hook/cmake_prefix_path.dsv'
+[1.038s] INFO:colcon.colcon_core.shell:Creating environment hook '/home/rics/tt_ws/src/tese_ws/install/novamob_description/share/novamob_description/hook/cmake_prefix_path.sh'
+[1.038s] Level 1:colcon.colcon_core.environment:checking '/home/rics/tt_ws/src/tese_ws/install/novamob_description/bin'
+[1.039s] Level 1:colcon.colcon_core.environment:checking '/home/rics/tt_ws/src/tese_ws/install/novamob_description/lib/pkgconfig/novamob_description.pc'
+[1.039s] Level 1:colcon.colcon_core.environment:checking '/home/rics/tt_ws/src/tese_ws/install/novamob_description/lib/python3.10/site-packages'
+[1.039s] Level 1:colcon.colcon_core.environment:checking '/home/rics/tt_ws/src/tese_ws/install/novamob_description/bin'
+[1.039s] INFO:colcon.colcon_core.shell:Creating package script '/home/rics/tt_ws/src/tese_ws/install/novamob_description/share/novamob_description/package.ps1'
+[1.039s] INFO:colcon.colcon_core.shell:Creating package descriptor '/home/rics/tt_ws/src/tese_ws/install/novamob_description/share/novamob_description/package.dsv'
+[1.040s] INFO:colcon.colcon_core.shell:Creating package script '/home/rics/tt_ws/src/tese_ws/install/novamob_description/share/novamob_description/package.sh'
+[1.040s] INFO:colcon.colcon_core.shell:Creating package script '/home/rics/tt_ws/src/tese_ws/install/novamob_description/share/novamob_description/package.bash'
+[1.040s] INFO:colcon.colcon_core.shell:Creating package script '/home/rics/tt_ws/src/tese_ws/install/novamob_description/share/novamob_description/package.zsh'
+[1.040s] Level 1:colcon.colcon_core.environment:create_file_with_runtime_dependencies(/home/rics/tt_ws/src/tese_ws/install/novamob_description/share/colcon-core/packages/novamob_description)
+[1.041s] Level 1:colcon.colcon_core.environment:create_environment_scripts_only(novamob_description)
+[1.041s] Level 1:colcon.colcon_core.environment:checking '/home/rics/tt_ws/src/tese_ws/install/novamob_description' for CMake module files
+[1.041s] Level 1:colcon.colcon_core.environment:checking '/home/rics/tt_ws/src/tese_ws/install/novamob_description' for CMake config files
+[1.042s] Level 1:colcon.colcon_core.shell:create_environment_hook('novamob_description', 'cmake_prefix_path')
+[1.042s] INFO:colcon.colcon_core.shell:Creating environment hook '/home/rics/tt_ws/src/tese_ws/install/novamob_description/share/novamob_description/hook/cmake_prefix_path.ps1'
+[1.042s] INFO:colcon.colcon_core.shell:Creating environment descriptor '/home/rics/tt_ws/src/tese_ws/install/novamob_description/share/novamob_description/hook/cmake_prefix_path.dsv'
+[1.042s] INFO:colcon.colcon_core.shell:Creating environment hook '/home/rics/tt_ws/src/tese_ws/install/novamob_description/share/novamob_description/hook/cmake_prefix_path.sh'
+[1.043s] Level 1:colcon.colcon_core.environment:checking '/home/rics/tt_ws/src/tese_ws/install/novamob_description/bin'
+[1.043s] Level 1:colcon.colcon_core.environment:checking '/home/rics/tt_ws/src/tese_ws/install/novamob_description/lib/pkgconfig/novamob_description.pc'
+[1.043s] Level 1:colcon.colcon_core.environment:checking '/home/rics/tt_ws/src/tese_ws/install/novamob_description/lib/python3.10/site-packages'
+[1.043s] Level 1:colcon.colcon_core.environment:checking '/home/rics/tt_ws/src/tese_ws/install/novamob_description/bin'
+[1.043s] INFO:colcon.colcon_core.shell:Creating package script '/home/rics/tt_ws/src/tese_ws/install/novamob_description/share/novamob_description/package.ps1'
+[1.044s] INFO:colcon.colcon_core.shell:Creating package descriptor '/home/rics/tt_ws/src/tese_ws/install/novamob_description/share/novamob_description/package.dsv'
+[1.044s] INFO:colcon.colcon_core.shell:Creating package script '/home/rics/tt_ws/src/tese_ws/install/novamob_description/share/novamob_description/package.sh'
+[1.044s] INFO:colcon.colcon_core.shell:Creating package script '/home/rics/tt_ws/src/tese_ws/install/novamob_description/share/novamob_description/package.bash'
+[1.045s] INFO:colcon.colcon_core.shell:Creating package script '/home/rics/tt_ws/src/tese_ws/install/novamob_description/share/novamob_description/package.zsh'
+[1.045s] Level 1:colcon.colcon_core.environment:create_file_with_runtime_dependencies(/home/rics/tt_ws/src/tese_ws/install/novamob_description/share/colcon-core/packages/novamob_description)
+[1.168s] Level 1:colcon.colcon_core.environment:create_environment_scripts_only(scout_nav2_gz)
+[1.168s] Level 1:colcon.colcon_core.environment:checking '/home/rics/tt_ws/src/tese_ws/install/scout_nav2_gz' for CMake module files
+[1.168s] DEBUG:colcon.colcon_core.event_handler.log_command:Invoked command in '/home/rics/tt_ws/src/tese_ws/build/scout_nav2_gz' returned '0': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/opt/ros/humble /usr/bin/cmake --install /home/rics/tt_ws/src/tese_ws/build/scout_nav2_gz
+[1.169s] Level 1:colcon.colcon_core.environment:checking '/home/rics/tt_ws/src/tese_ws/install/scout_nav2_gz' for CMake config files
+[1.171s] Level 1:colcon.colcon_core.shell:create_environment_hook('scout_nav2_gz', 'cmake_prefix_path')
+[1.171s] INFO:colcon.colcon_core.shell:Creating environment hook '/home/rics/tt_ws/src/tese_ws/install/scout_nav2_gz/share/scout_nav2_gz/hook/cmake_prefix_path.ps1'
+[1.171s] INFO:colcon.colcon_core.shell:Creating environment descriptor '/home/rics/tt_ws/src/tese_ws/install/scout_nav2_gz/share/scout_nav2_gz/hook/cmake_prefix_path.dsv'
+[1.172s] INFO:colcon.colcon_core.shell:Creating environment hook '/home/rics/tt_ws/src/tese_ws/install/scout_nav2_gz/share/scout_nav2_gz/hook/cmake_prefix_path.sh'
+[1.172s] Level 1:colcon.colcon_core.environment:checking '/home/rics/tt_ws/src/tese_ws/install/scout_nav2_gz/lib'
+[1.172s] Level 1:colcon.colcon_core.environment:checking '/home/rics/tt_ws/src/tese_ws/install/scout_nav2_gz/bin'
+[1.172s] Level 1:colcon.colcon_core.environment:checking '/home/rics/tt_ws/src/tese_ws/install/scout_nav2_gz/lib/pkgconfig/scout_nav2_gz.pc'
+[1.172s] Level 1:colcon.colcon_core.environment:checking '/home/rics/tt_ws/src/tese_ws/install/scout_nav2_gz/lib/python3.10/site-packages'
+[1.173s] Level 1:colcon.colcon_core.environment:checking '/home/rics/tt_ws/src/tese_ws/install/scout_nav2_gz/bin'
+[1.173s] INFO:colcon.colcon_core.shell:Creating package script '/home/rics/tt_ws/src/tese_ws/install/scout_nav2_gz/share/scout_nav2_gz/package.ps1'
+[1.173s] INFO:colcon.colcon_core.shell:Creating package descriptor '/home/rics/tt_ws/src/tese_ws/install/scout_nav2_gz/share/scout_nav2_gz/package.dsv'
+[1.173s] INFO:colcon.colcon_core.shell:Creating package script '/home/rics/tt_ws/src/tese_ws/install/scout_nav2_gz/share/scout_nav2_gz/package.sh'
+[1.174s] INFO:colcon.colcon_core.shell:Creating package script '/home/rics/tt_ws/src/tese_ws/install/scout_nav2_gz/share/scout_nav2_gz/package.bash'
+[1.174s] INFO:colcon.colcon_core.shell:Creating package script '/home/rics/tt_ws/src/tese_ws/install/scout_nav2_gz/share/scout_nav2_gz/package.zsh'
+[1.174s] Level 1:colcon.colcon_core.environment:create_file_with_runtime_dependencies(/home/rics/tt_ws/src/tese_ws/install/scout_nav2_gz/share/colcon-core/packages/scout_nav2_gz)
+[1.175s] Level 1:colcon.colcon_core.environment:create_environment_scripts_only(scout_nav2_gz)
+[1.175s] Level 1:colcon.colcon_core.environment:checking '/home/rics/tt_ws/src/tese_ws/install/scout_nav2_gz' for CMake module files
+[1.175s] Level 1:colcon.colcon_core.environment:checking '/home/rics/tt_ws/src/tese_ws/install/scout_nav2_gz' for CMake config files
+[1.177s] Level 1:colcon.colcon_core.shell:create_environment_hook('scout_nav2_gz', 'cmake_prefix_path')
+[1.177s] INFO:colcon.colcon_core.shell:Creating environment hook '/home/rics/tt_ws/src/tese_ws/install/scout_nav2_gz/share/scout_nav2_gz/hook/cmake_prefix_path.ps1'
+[1.178s] INFO:colcon.colcon_core.shell:Creating environment descriptor '/home/rics/tt_ws/src/tese_ws/install/scout_nav2_gz/share/scout_nav2_gz/hook/cmake_prefix_path.dsv'
+[1.178s] INFO:colcon.colcon_core.shell:Creating environment hook '/home/rics/tt_ws/src/tese_ws/install/scout_nav2_gz/share/scout_nav2_gz/hook/cmake_prefix_path.sh'
+[1.178s] Level 1:colcon.colcon_core.environment:checking '/home/rics/tt_ws/src/tese_ws/install/scout_nav2_gz/lib'
+[1.178s] Level 1:colcon.colcon_core.environment:checking '/home/rics/tt_ws/src/tese_ws/install/scout_nav2_gz/bin'
+[1.178s] Level 1:colcon.colcon_core.environment:checking '/home/rics/tt_ws/src/tese_ws/install/scout_nav2_gz/lib/pkgconfig/scout_nav2_gz.pc'
+[1.179s] Level 1:colcon.colcon_core.environment:checking '/home/rics/tt_ws/src/tese_ws/install/scout_nav2_gz/lib/python3.10/site-packages'
+[1.179s] Level 1:colcon.colcon_core.environment:checking '/home/rics/tt_ws/src/tese_ws/install/scout_nav2_gz/bin'
+[1.179s] INFO:colcon.colcon_core.shell:Creating package script '/home/rics/tt_ws/src/tese_ws/install/scout_nav2_gz/share/scout_nav2_gz/package.ps1'
+[1.179s] INFO:colcon.colcon_core.shell:Creating package descriptor '/home/rics/tt_ws/src/tese_ws/install/scout_nav2_gz/share/scout_nav2_gz/package.dsv'
+[1.180s] INFO:colcon.colcon_core.shell:Creating package script '/home/rics/tt_ws/src/tese_ws/install/scout_nav2_gz/share/scout_nav2_gz/package.sh'
+[1.180s] INFO:colcon.colcon_core.shell:Creating package script '/home/rics/tt_ws/src/tese_ws/install/scout_nav2_gz/share/scout_nav2_gz/package.bash'
+[1.180s] INFO:colcon.colcon_core.shell:Creating package script '/home/rics/tt_ws/src/tese_ws/install/scout_nav2_gz/share/scout_nav2_gz/package.zsh'
+[1.181s] Level 1:colcon.colcon_core.environment:create_file_with_runtime_dependencies(/home/rics/tt_ws/src/tese_ws/install/scout_nav2_gz/share/colcon-core/packages/scout_nav2_gz)
+[1.181s] DEBUG:colcon.colcon_parallel_executor.executor.parallel:closing loop
+[1.181s] DEBUG:colcon.colcon_parallel_executor.executor.parallel:loop closed
+[1.181s] DEBUG:colcon.colcon_parallel_executor.executor.parallel:run_until_complete finished with '0'
+[1.181s] DEBUG:colcon.colcon_core.event_reactor:joining thread
+[1.185s] INFO:colcon.colcon_core.plugin_system:Skipping extension 'colcon_notification.desktop_notification.terminal_notifier': Not used on non-Darwin systems
+[1.185s] INFO:colcon.colcon_core.plugin_system:Skipping extension 'colcon_notification.desktop_notification.win32': Not used on non-Windows systems
+[1.185s] INFO:colcon.colcon_notification.desktop_notification:Sending desktop notification using 'notify2'
+[1.194s] DEBUG:colcon.colcon_core.event_reactor:joined thread
+[1.195s] INFO:colcon.colcon_core.shell:Creating prefix script '/home/rics/tt_ws/src/tese_ws/install/local_setup.ps1'
+[1.196s] INFO:colcon.colcon_core.shell:Creating prefix util module '/home/rics/tt_ws/src/tese_ws/install/_local_setup_util_ps1.py'
+[1.197s] INFO:colcon.colcon_core.shell:Creating prefix chain script '/home/rics/tt_ws/src/tese_ws/install/setup.ps1'
+[1.197s] INFO:colcon.colcon_core.shell:Creating prefix script '/home/rics/tt_ws/src/tese_ws/install/local_setup.sh'
+[1.198s] INFO:colcon.colcon_core.shell:Creating prefix util module '/home/rics/tt_ws/src/tese_ws/install/_local_setup_util_sh.py'
+[1.198s] INFO:colcon.colcon_core.shell:Creating prefix chain script '/home/rics/tt_ws/src/tese_ws/install/setup.sh'
+[1.199s] INFO:colcon.colcon_core.shell:Creating prefix script '/home/rics/tt_ws/src/tese_ws/install/local_setup.bash'
+[1.200s] INFO:colcon.colcon_core.shell:Creating prefix chain script '/home/rics/tt_ws/src/tese_ws/install/setup.bash'
+[1.200s] INFO:colcon.colcon_core.shell:Creating prefix script '/home/rics/tt_ws/src/tese_ws/install/local_setup.zsh'
+[1.201s] INFO:colcon.colcon_core.shell:Creating prefix chain script '/home/rics/tt_ws/src/tese_ws/install/setup.zsh'
