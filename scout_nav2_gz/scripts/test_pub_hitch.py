@@ -9,9 +9,9 @@ from math import cos, sin, sqrt
 import tf_transformations
 
 def calculate_trailer_yaw(tractor_yaw, trailer_yaw, velocity, dt):
-    rtr = 0.5
+    rtr = 0.8
 
-    yaw = trailer_yaw + (velocity / rtr * sin(tractor_yaw - trailer_yaw)) * dt
+    yaw = trailer_yaw + ((velocity / rtr) * sin(tractor_yaw - trailer_yaw)) * dt
 
     return yaw
 
@@ -27,6 +27,9 @@ class TrailerJointStatePublisher(Node):
         self.tf_broadcaster = TransformBroadcaster(self)
 
         # Create a timer to periodically publish the joint state and TF
+        timer_period = 0.1  # seconds
+        self.timer = self.create_timer(timer_period, self.publish_joint_state_and_tf)
+        # Create a timer to periodically publish the joint state and TF
 
         self.get_logger().info('Trailer Joint State Publisher started.')
         self.tf_buffer = Buffer()
@@ -41,6 +44,8 @@ class TrailerJointStatePublisher(Node):
 
     def publish_joint_state_and_tf(self):
         now = self.get_clock().now().to_msg()
+        self.get_logger().info('never func')
+
         dt = (now.sec + now.nanosec * 1e-9) - (self.time_now.sec + self.time_now.nanosec * 1e-9) 
         self.get_logger().info(f"dt: {dt}")
         self.time_now = now
