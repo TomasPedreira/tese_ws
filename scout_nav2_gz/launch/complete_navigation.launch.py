@@ -209,8 +209,8 @@ def generate_launch_description():
                 name="world",
                 default_value=[
                     FindPackageShare("scout_nav2_gz"),
-                    # "/world/ign_indoor/ign_indoor.sdf",
-                    "/world/outdoor.sdf",
+                    "/world/ign_indoor/ign_indoor.sdf",
+                    # "/world/outdoor.sdf",
                 ],
                 description="Absolute path to the world file",
             ),

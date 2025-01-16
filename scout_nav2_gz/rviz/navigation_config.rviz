@@ -3,15 +3,6 @@ Panels:
     Help Height: 85
     Name: Displays
     Property Tree Widget:
-      Expanded:
-        - /Global Options1
-        - /Status1
-        - /TF1
-        - /LocalCoastmap1
-        - /Plan1
-        - /LaserScan1
-        - /LaserScan1/Topic1
-        - /Goal1
       Splitter Ratio: 0.5
     Tree Height: 1185
 Visualization Manager:
@@ -201,7 +192,7 @@ Visualization Manager:
       Value: true
     - Alpha: 0.699999988079071
       Class: rviz_default_plugins/Map
-      Color Scheme: map
+      Color Scheme: costmap
       Draw Behind: false
       Enabled: true
       Name: LocalCoastmap
