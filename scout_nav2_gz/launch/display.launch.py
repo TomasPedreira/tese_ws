@@ -234,6 +234,13 @@ def generate_launch_description():
         ],
         output="screen",
     )
+    trailer_pub = Node(
+        condition = IfCondition(use_trailer),
+        package="scout_nav2_gz",
+        executable="test_pub_hitch.py",
+        name="test_pub_hitch",
+        output="screen",
+    )
 
     return launch.LaunchDescription(
         [
@@ -318,6 +325,13 @@ def generate_launch_description():
                     on_exit=[load_joint_trajectory_controller],
                 )
             ),
+            RegisterEventHandler(
+                event_handler=OnProcessExit(
+                    target_action=load_joint_state_controller,
+                    on_exit=[trailer_pub],
+                )
+            ),
+
             #joint_state_publisher_gui_node,
             relay_odom,
             relay_cmd_vel,
