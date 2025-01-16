@@ -106,6 +106,7 @@ class TrailerJointStatePublisher(Node):
             transform_to_pub.transform.rotation.y = m_to_bl_tf.transform.rotation.y
             transform_to_pub.transform.rotation.z = m_to_bl_tf.transform.rotation.z
             transform_to_pub.transform.rotation.w = m_to_bl_tf.transform.rotation.w
+            
             self.tf_broadcaster.sendTransform(transform_to_pub)
 
             #self.tf_broadcaster.sendTransform(m_to_bl_tf)
@@ -123,7 +124,7 @@ class TrailerJointStatePublisher(Node):
             transform.transform.rotation.w = 1.0
             self.get_logger().error(f"Failed to get transform: {str(e)}")
 
-            self.tf_broadcaster.sendTransform(transform)
+            #self.tf_broadcaster.sendTransform(transform)
 
 def main(args=None):
     rclpy.init(args=args)
