@@ -65,11 +65,29 @@ class TrailerJointStatePublisher(Node):
         joint_state_msg.velocity = [0.0]  # Joint velocity
         joint_state_msg.effort = [0.0]    # Joint effort
         self.joint_state_pub.publish(joint_state_msg)
+
+        left_wheel = JointState()
+        left_wheel.header.stamp = self.get_clock().now().to_msg()
+        left_wheel.name = ['trailer_wheel_lr_joint']
+        left_wheel.position = [0.0]  # Joint position (in radians)
+        left_wheel.velocity = [0.0]  # Joint velocity
+        left_wheel.effort = [0.0]    # Joint effort
+        self.joint_state_pub.publish(left_wheel)
+
+        left_wheel = JointState()
+        left_wheel.header.stamp = self.get_clock().now().to_msg()
+        left_wheel.name = ['trailer_wheel_rr_joint']
+        left_wheel.position = [0.0]  # Joint position (in radians)
+        left_wheel.velocity = [0.0]  # Joint velocity
+        left_wheel.effort = [0.0]    # Joint effort
+        self.joint_state_pub.publish(left_wheel)
         
 
         try:
             m_to_bl_tf: TransformStamped = self.tf_buffer.lookup_transform('map', 'base_link', rclpy.time.Time())
-            transform_to_pub = TransformStamped()
+            trailer_tf = TransformStamped()
+            trailer_left_wheel_tf = TransformStamped()
+            trailer_right_wheel_tf = TransformStamped()
             new_pos = (m_to_bl_tf.transform.translation.x,m_to_bl_tf.transform.translation.y)
             dist = sqrt((new_pos[0] - self.tratcor_pos[0])**2 + (new_pos[1] - self.tratcor_pos[1])**2)
             self.tratcor_pos = new_pos
@@ -96,20 +114,45 @@ class TrailerJointStatePublisher(Node):
             m_to_bl_tf.transform.rotation.w = rot[3]
 
 
-            transform_to_pub.header.stamp = self.get_clock().now().to_msg()
-            transform_to_pub.header.frame_id = 'map'  # Parent frame
-            transform_to_pub.child_frame_id = 'trailer_connector_link'  # Child frame
-            transform_to_pub.transform.translation.x = m_to_bl_tf.transform.translation.x  # Update with the actual XYZ position
-            transform_to_pub.transform.translation.y = m_to_bl_tf.transform.translation.y
-            transform_to_pub.transform.translation.z = m_to_bl_tf.transform.translation.z
-            transform_to_pub.transform.rotation.x = m_to_bl_tf.transform.rotation.x
-            transform_to_pub.transform.rotation.y = m_to_bl_tf.transform.rotation.y
-            transform_to_pub.transform.rotation.z = m_to_bl_tf.transform.rotation.z
-            transform_to_pub.transform.rotation.w = m_to_bl_tf.transform.rotation.w
-            
-            self.tf_broadcaster.sendTransform(transform_to_pub)
+            trailer_tf.header.stamp = self.get_clock().now().to_msg()
+            trailer_tf.header.frame_id = 'map'  # Parent frame
+            trailer_tf.child_frame_id = 'trailer_connector_link'  # Child frame
+            trailer_tf.transform.translation.x = m_to_bl_tf.transform.translation.x  # Update with the actual XYZ position
+            trailer_tf.transform.translation.y = m_to_bl_tf.transform.translation.y
+            trailer_tf.transform.translation.z = m_to_bl_tf.transform.translation.z
+            trailer_tf.transform.rotation.x = m_to_bl_tf.transform.rotation.x
+            trailer_tf.transform.rotation.y = m_to_bl_tf.transform.rotation.y
+            trailer_tf.transform.rotation.z = m_to_bl_tf.transform.rotation.z
+            trailer_tf.transform.rotation.w = m_to_bl_tf.transform.rotation.w
 
-            #self.tf_broadcaster.sendTransform(m_to_bl_tf)
+            trailer_left_wheel_tf.header.stamp = self.get_clock().now().to_msg()
+            trailer_left_wheel_tf.header.frame_id = 'trailer_connector_link'  # Parent frame
+            trailer_left_wheel_tf.child_frame_id = 'trailer_wheel_lr_link'  # Child frame
+            trailer_left_wheel_tf.transform.translation.x = trailer_tf.transform.translation.x - 4*0.1375
+            trailer_left_wheel_tf.transform.translation.y = trailer_tf.transform.translation.y + 0.2 + 0.45/2
+            trailer_left_wheel_tf.transform.translation.z = trailer_tf.transform.translation.z - 0.105 
+            trailer_left_wheel_tf.transform.rotation.x = 0.0
+            trailer_left_wheel_tf.transform.rotation.y = 0.0
+            trailer_left_wheel_tf.transform.rotation.z = 0.0
+            trailer_left_wheel_tf.transform.rotation.w = 0.5   
+
+
+            trailer_right_wheel_tf.header.stamp = self.get_clock().now().to_msg()
+            trailer_right_wheel_tf.header.frame_id = 'trailer_connector_link'  # Parent frame
+            trailer_right_wheel_tf.child_frame_id = 'trailer_wheel_rr_link'  # Child frame
+            trailer_right_wheel_tf.transform.translation.x = trailer_tf.transform.translation.x - 4*0.1375 
+            trailer_right_wheel_tf.transform.translation.y = trailer_tf.transform.translation.y - 0.2 - 0.45/2
+            trailer_right_wheel_tf.transform.translation.z = trailer_tf.transform.translation.z - 0.105  
+            trailer_right_wheel_tf.transform.rotation.x = 0.0
+            trailer_right_wheel_tf.transform.rotation.y = 0.0
+            trailer_right_wheel_tf.transform.rotation.z = 0.0
+            trailer_right_wheel_tf.transform.rotation.w = 0.5  
+
+
+            self.tf_broadcaster.sendTransform(trailer_tf)
+            self.tf_broadcaster.sendTransform(trailer_left_wheel_tf)
+            self.tf_broadcaster.sendTransform(trailer_right_wheel_tf)
+
         except Exception as e:
             transform = TransformStamped()
             transform.header.stamp = self.get_clock().now().to_msg()
