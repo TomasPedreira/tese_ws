@@ -9,7 +9,7 @@ from math import cos, sin, sqrt
 import tf_transformations
 
 def calculate_trailer_yaw(tractor_yaw, trailer_yaw, velocity, dt):
-    rtr = 0.8
+    rtr = 0.5625 # Distance between the hitch and the trailer's axle center
 
     yaw = trailer_yaw + ((velocity / rtr) * sin(tractor_yaw - trailer_yaw)) * dt
 
@@ -44,10 +44,10 @@ class TrailerJointStatePublisher(Node):
 
     def publish_joint_state_and_tf(self):
         now = self.get_clock().now().to_msg()
-        self.get_logger().info('never func')
+        # self.get_logger().info('never func')
 
         dt = (now.sec + now.nanosec * 1e-9) - (self.time_now.sec + self.time_now.nanosec * 1e-9) 
-        self.get_logger().info(f"dt: {dt}")
+        # self.get_logger().info(f"dt: {dt}")
         self.time_now = now
 
         self.trailer_yaw = calculate_trailer_yaw(self.tractor_yaw, self.trailer_yaw,self.cur_vel, dt)
@@ -68,7 +68,7 @@ class TrailerJointStatePublisher(Node):
             dist = sqrt((new_pos[0] - self.tratcor_pos[0])**2 + (new_pos[1] - self.tratcor_pos[1])**2)
             self.tratcor_pos = new_pos
             self.cur_vel = dist / dt
-            self.get_logger().info(f"cur_vel: {self.cur_vel}")
+            # self.get_logger().info(f"cur_vel: {self.cur_vel}")
             m_to_bl_tf.header.stamp = self.get_clock().now().to_msg()
             m_to_bl_tf.header.frame_id = 'map'  # Parent frame
             m_to_bl_tf.child_frame_id = 'trailer_connector_link'  # Child frame

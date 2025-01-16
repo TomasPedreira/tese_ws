@@ -165,6 +165,25 @@ def generate_launch_description():
             ),
         )
     )
+    # trailer_pub = Node(
+    #     condition = IfCondition(use_trailer),
+    #     package="scout_nav2_gz",
+    #     executable="test_pub_hitch.py",
+    #     name="test_pub_hitch",
+    #     output="screen",
+    # )
+    # waiting_pub = RegisterEventHandler(
+    #     OnProcessIO(
+    #         target_action=trailer_pub,
+    #         on_stdout=on_matching_output(
+    #             navigation_ready_message,
+    #             [
+    #                 LogInfo(msg="Ready for publishing!"),
+    #             ],
+    #         ),
+    #     )
+    # )
+    
 
     return launch.LaunchDescription(
         [
@@ -190,8 +209,8 @@ def generate_launch_description():
                 name="world",
                 default_value=[
                     FindPackageShare("scout_nav2_gz"),
-                    "/world/ign_indoor/ign_indoor.sdf",
-                    #"/world/outdoor.sdf",
+                    # "/world/ign_indoor/ign_indoor.sdf",
+                    "/world/outdoor.sdf",
                 ],
                 description="Absolute path to the world file",
             ),
@@ -209,5 +228,6 @@ def generate_launch_description():
             waiting_toolbox,
             waiting_navigation,
             waiting_success,
+            # waiting_pub,
         ]
     )
