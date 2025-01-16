@@ -5,13 +5,18 @@ from rclpy.node import Node
 from sensor_msgs.msg import JointState
 from geometry_msgs.msg import TransformStamped, Twist
 from tf2_ros import TransformBroadcaster, TransformListener, Buffer
-from math import cos, sin, sqrt
+from math import cos, sin, sqrt, pi
 import tf_transformations
 
 def calculate_trailer_yaw(tractor_yaw, trailer_yaw, velocity, dt):
     rtr = 0.5625 # Distance between the hitch and the trailer's axle center
 
-    yaw = trailer_yaw + ((velocity / rtr) * sin(tractor_yaw - trailer_yaw)) * dt
+    yaw = trailer_yaw + ((velocity / rtr) * sin(tractor_yaw - trailer_yaw)) * 0.1
+
+    if tractor_yaw - trailer_yaw > 3.14159/4:
+        yaw = tractor_yaw - 3.14159/4
+    elif tractor_yaw - trailer_yaw < -3.14159/4:
+        yaw = tractor_yaw + 3.14159/4
 
     return yaw
 
@@ -64,11 +69,11 @@ class TrailerJointStatePublisher(Node):
 
         try:
             m_to_bl_tf: TransformStamped = self.tf_buffer.lookup_transform('map', 'base_link', rclpy.time.Time())
+            transform_to_pub = TransformStamped()
             new_pos = (m_to_bl_tf.transform.translation.x,m_to_bl_tf.transform.translation.y)
             dist = sqrt((new_pos[0] - self.tratcor_pos[0])**2 + (new_pos[1] - self.tratcor_pos[1])**2)
             self.tratcor_pos = new_pos
             self.cur_vel = dist / dt
-            # self.get_logger().info(f"cur_vel: {self.cur_vel}")
             m_to_bl_tf.header.stamp = self.get_clock().now().to_msg()
             m_to_bl_tf.header.frame_id = 'map'  # Parent frame
             m_to_bl_tf.child_frame_id = 'trailer_connector_link'  # Child frame
@@ -91,8 +96,19 @@ class TrailerJointStatePublisher(Node):
             m_to_bl_tf.transform.rotation.w = rot[3]
 
 
+            transform_to_pub.header.stamp = self.get_clock().now().to_msg()
+            transform_to_pub.header.frame_id = 'map'  # Parent frame
+            transform_to_pub.child_frame_id = 'trailer_connector_link'  # Child frame
+            transform_to_pub.transform.translation.x = m_to_bl_tf.transform.translation.x  # Update with the actual XYZ position
+            transform_to_pub.transform.translation.y = m_to_bl_tf.transform.translation.y
+            transform_to_pub.transform.translation.z = m_to_bl_tf.transform.translation.z
+            transform_to_pub.transform.rotation.x = m_to_bl_tf.transform.rotation.x
+            transform_to_pub.transform.rotation.y = m_to_bl_tf.transform.rotation.y
+            transform_to_pub.transform.rotation.z = m_to_bl_tf.transform.rotation.z
+            transform_to_pub.transform.rotation.w = m_to_bl_tf.transform.rotation.w
+            self.tf_broadcaster.sendTransform(transform_to_pub)
 
-            self.tf_broadcaster.sendTransform(m_to_bl_tf)
+            #self.tf_broadcaster.sendTransform(m_to_bl_tf)
         except Exception as e:
             transform = TransformStamped()
             transform.header.stamp = self.get_clock().now().to_msg()
