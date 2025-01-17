@@ -11,7 +11,7 @@ import tf_transformations
 def calculate_trailer_yaw(tractor_yaw, trailer_yaw, velocity, dt):
     rtr = 0.5625 # Distance between the hitch and the trailer's axle center
 
-    yaw = trailer_yaw + ((velocity / rtr) * sin(tractor_yaw - trailer_yaw)) * 0.1
+    yaw = trailer_yaw + ((velocity / rtr) * sin(tractor_yaw - trailer_yaw)) * dt # Forward Euler integration
 
     if tractor_yaw - trailer_yaw > 3.14159/4:
         yaw = tractor_yaw - 3.14159/4
@@ -31,10 +31,8 @@ class TrailerJointStatePublisher(Node):
         # Create a TF broadcaster to publish static transform
         self.tf_broadcaster = TransformBroadcaster(self)
 
-        # Create a timer to periodically publish the joint state and TF
         timer_period = 0.1  # seconds
         self.timer = self.create_timer(timer_period, self.publish_joint_state_and_tf)
-        # Create a timer to periodically publish the joint state and TF
 
         self.get_logger().info('Trailer Joint State Publisher started.')
         self.tf_buffer = Buffer()
@@ -57,7 +55,6 @@ class TrailerJointStatePublisher(Node):
 
         self.trailer_yaw = calculate_trailer_yaw(self.tractor_yaw, self.trailer_yaw,self.cur_vel, dt)
 
-        # Publish the joint state
         joint_state_msg = JointState()
         joint_state_msg.header.stamp = self.get_clock().now().to_msg()
         joint_state_msg.name = ['trailer_connector_joint']
@@ -153,21 +150,12 @@ class TrailerJointStatePublisher(Node):
             self.tf_broadcaster.sendTransform(trailer_left_wheel_tf)
             self.tf_broadcaster.sendTransform(trailer_right_wheel_tf)
 
-        except Exception as e:
-            transform = TransformStamped()
-            transform.header.stamp = self.get_clock().now().to_msg()
-            transform.header.frame_id = 'map'  # Parent frame
-            transform.child_frame_id = 'trailer_connector_link'  # Child frame
-            transform.transform.translation.x = -0.5  # Update with the actual XYZ position
-            transform.transform.translation.y = 0.0
-            transform.transform.translation.z = -0.065
-            transform.transform.rotation.x = 0.0
-            transform.transform.rotation.y = 0.0
-            transform.transform.rotation.z = 0.0
-            transform.transform.rotation.w = 1.0
-            self.get_logger().error(f"Failed to get transform: {str(e)}")
+            # avg = 0.001 seconds
+            aux = self.get_clock().now().to_msg()
+            self.get_logger().info(f"dt: {aux.sec + aux.nanosec * 1e-9 - now.sec - now.nanosec * 1e-9}")
 
-            #self.tf_broadcaster.sendTransform(transform)
+        except Exception as e:
+            self.get_logger().error(f"Failed to post transform: {e}")
 
 def main(args=None):
     rclpy.init(args=args)
