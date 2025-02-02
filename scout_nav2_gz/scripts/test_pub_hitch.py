@@ -47,10 +47,7 @@ class TrailerJointStatePublisher(Node):
 
     def publish_joint_state_and_tf(self):
         now = self.get_clock().now().to_msg()
-        # self.get_logger().info('never func')
-
         dt = (now.sec + now.nanosec * 1e-9) - (self.time_now.sec + self.time_now.nanosec * 1e-9) 
-        # self.get_logger().info(f"dt: {dt}")
         self.time_now = now
 
         self.trailer_yaw = calculate_trailer_yaw(self.tractor_yaw, self.trailer_yaw,self.cur_vel, dt)
@@ -82,10 +79,13 @@ class TrailerJointStatePublisher(Node):
 
         try:
             m_to_bl_tf: TransformStamped = self.tf_buffer.lookup_transform('map', 'base_link', rclpy.time.Time())
+
             trailer_tf = TransformStamped()
             trailer_left_wheel_tf = TransformStamped()
             trailer_right_wheel_tf = TransformStamped()
+
             new_pos = (m_to_bl_tf.transform.translation.x,m_to_bl_tf.transform.translation.y)
+            
             dist = sqrt((new_pos[0] - self.tratcor_pos[0])**2 + (new_pos[1] - self.tratcor_pos[1])**2)
             self.tratcor_pos = new_pos
             self.cur_vel = dist / dt
@@ -112,11 +112,11 @@ class TrailerJointStatePublisher(Node):
 
 
             trailer_tf.header.stamp = self.get_clock().now().to_msg()
-            trailer_tf.header.frame_id = 'map'  # Parent frame
+            trailer_tf.header.frame_id = 'base_link'  # Parent frame
             trailer_tf.child_frame_id = 'trailer_connector_link'  # Child frame
-            trailer_tf.transform.translation.x = m_to_bl_tf.transform.translation.x  # Update with the actual XYZ position
-            trailer_tf.transform.translation.y = m_to_bl_tf.transform.translation.y
-            trailer_tf.transform.translation.z = m_to_bl_tf.transform.translation.z
+            trailer_tf.transform.translation.x += -0.925/2  # Update with the actual XYZ position
+            trailer_tf.transform.translation.y = 0
+            trailer_tf.transform.translation.z += -0.065
             trailer_tf.transform.rotation.x = m_to_bl_tf.transform.rotation.x
             trailer_tf.transform.rotation.y = m_to_bl_tf.transform.rotation.y
             trailer_tf.transform.rotation.z = m_to_bl_tf.transform.rotation.z
