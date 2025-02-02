@@ -40,7 +40,7 @@ class TrailerJointStatePublisher(Node):
 
         self.tractor_yaw = 0.0
         self.trailer_yaw = 0.0
-        self.tratcor_pos = (0.0,0.0)
+        self.tractor_pos = (0.0,0.0)
         self.cur_vel = 0.0
 
  
@@ -86,8 +86,8 @@ class TrailerJointStatePublisher(Node):
 
             new_pos = (m_to_bl_tf.transform.translation.x,m_to_bl_tf.transform.translation.y)
             
-            dist = sqrt((new_pos[0] - self.tratcor_pos[0])**2 + (new_pos[1] - self.tratcor_pos[1])**2)
-            self.tratcor_pos = new_pos
+            dist = sqrt((new_pos[0] - self.tractor_pos[0])**2 + (new_pos[1] - self.tractor_pos[1])**2)
+            self.tractor_pos = new_pos
             self.cur_vel = dist / dt
             m_to_bl_tf.header.stamp = self.get_clock().now().to_msg()
             m_to_bl_tf.header.frame_id = 'map'  # Parent frame
@@ -97,19 +97,6 @@ class TrailerJointStatePublisher(Node):
             rot = tf_transformations.quaternion_from_euler(0, 0, self.trailer_yaw)
             self.tractor_yaw = yaw
 
-            added_x = -0.5 * cos(yaw)
-            added_y = -0.5 * sin(yaw)
-
-            m_to_bl_tf.transform.translation.x += added_x  # Update with the actual XYZ position
-            m_to_bl_tf.transform.translation.y += added_y
-
-            m_to_bl_tf.transform.translation.z += -0.065
-
-            m_to_bl_tf.transform.rotation.x = rot[0]
-            m_to_bl_tf.transform.rotation.y = rot[1]
-            m_to_bl_tf.transform.rotation.z = rot[2]
-            m_to_bl_tf.transform.rotation.w = rot[3]
-
 
             trailer_tf.header.stamp = self.get_clock().now().to_msg()
             trailer_tf.header.frame_id = 'base_link'  # Parent frame
@@ -117,10 +104,10 @@ class TrailerJointStatePublisher(Node):
             trailer_tf.transform.translation.x += -0.925/2  # Update with the actual XYZ position
             trailer_tf.transform.translation.y = 0
             trailer_tf.transform.translation.z += -0.065
-            trailer_tf.transform.rotation.x = m_to_bl_tf.transform.rotation.x
-            trailer_tf.transform.rotation.y = m_to_bl_tf.transform.rotation.y
-            trailer_tf.transform.rotation.z = m_to_bl_tf.transform.rotation.z
-            trailer_tf.transform.rotation.w = m_to_bl_tf.transform.rotation.w
+            trailer_tf.transform.rotation.x = m_to_bl_tf.transform.rotation.x + rot[0]
+            trailer_tf.transform.rotation.y = m_to_bl_tf.transform.rotation.y + rot[1]
+            trailer_tf.transform.rotation.z = m_to_bl_tf.transform.rotation.z + rot[2]
+            trailer_tf.transform.rotation.w = m_to_bl_tf.transform.rotation.w + rot[3]
 
             trailer_left_wheel_tf.header.stamp = self.get_clock().now().to_msg()
             trailer_left_wheel_tf.header.frame_id = 'trailer_connector_link'  # Parent frame
