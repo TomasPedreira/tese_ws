@@ -165,7 +165,7 @@ class TrailerJointStatePublisher(Node):
             transform.transform.rotation.y = 0.0
             transform.transform.rotation.z = 0.0
             transform.transform.rotation.w = 1.0
-            self.get_logger().error(f"Failed to get transform: {str(e)}")
+            # self.get_logger().error(f"Failed to get transform: {str(e)}")
 
             #self.tf_broadcaster.sendTransform(transform)
 

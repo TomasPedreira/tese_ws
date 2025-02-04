@@ -25,7 +25,7 @@ find_package(rclpy REQUIRED)
 # find_package(<dependency> REQUIRED)
 
 install(
-  DIRECTORY  scripts launch rviz config world models meshes urdf
+  DIRECTORY  scripts launch rviz config world models meshes urdf maps
   DESTINATION share/${PROJECT_NAME}
 )
 
