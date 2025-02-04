@@ -11,8 +11,10 @@ import tf_transformations
 def calculate_trailer_yaw(tractor_yaw, trailer_yaw, velocity, dt):
     rtr = 0.5625 # Distance between the hitch and the trailer's axle center
 
-    yaw = trailer_yaw + ((velocity / rtr) * sin(tractor_yaw - trailer_yaw)) * dt # Forward Euler integration
-
+    yaw_delta = ((velocity / rtr) * sin(tractor_yaw - trailer_yaw)) * dt
+    yaw_delta = max(min(yaw_delta, 0.05), -0.05)  # Limit yaw change per update
+    yaw = trailer_yaw + yaw_delta
+    
     if tractor_yaw - trailer_yaw > 3.14159/4:
         yaw = tractor_yaw - 3.14159/4
     elif tractor_yaw - trailer_yaw < -3.14159/4:
@@ -107,10 +109,10 @@ class TrailerJointStatePublisher(Node):
             trailer_tf.transform.translation.x += -0.925/2  # Update with the actual XYZ position
             trailer_tf.transform.translation.y = 0.0
             trailer_tf.transform.translation.z += -0.065
-            trailer_tf.transform.rotation.x = rot[0]
-            trailer_tf.transform.rotation.y = rot[1]
-            trailer_tf.transform.rotation.z = rot[2]
-            trailer_tf.transform.rotation.w = rot[3]
+            trailer_tf.transform.rotation.x = -(m_to_bl_tf.transform.rotation.x + rot[0])
+            trailer_tf.transform.rotation.y = -(m_to_bl_tf.transform.rotation.y + rot[1])
+            trailer_tf.transform.rotation.z = -(m_to_bl_tf.transform.rotation.z + rot[2])
+            trailer_tf.transform.rotation.w = -(m_to_bl_tf.transform.rotation.w + rot[3])
             trailer_left_wheel_tf.header.stamp = self.get_clock().now().to_msg()
             trailer_left_wheel_tf.header.frame_id = 'trailer_connector_link'  # Parent frame
             trailer_left_wheel_tf.child_frame_id = 'trailer_wheel_lr_link'  # Child frame
