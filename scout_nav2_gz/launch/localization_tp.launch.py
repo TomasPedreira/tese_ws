@@ -166,7 +166,8 @@ def generate_launch_description():
                 description="Absolute path to robot urdf file",
             ),
             bringup,
+            rviz_node,
             waiting_localization,
-            waiting_localization_rviz,
+            # waiting_localization_rviz,
         ]
     )
