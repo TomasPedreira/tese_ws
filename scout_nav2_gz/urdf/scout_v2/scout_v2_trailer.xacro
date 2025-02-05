@@ -262,11 +262,30 @@
   <joint name="trailer_connector_joint" type="revolute">
     <parent link="base_link"/>
     <child link="trailer_connector_link"/>
-    <origin xyz="${(-base_x_size/2)} 0 -0.065 " rpy="0 0 0"/> 
-    <axis xyz="0 0 1"/> 
-    <limit effort="0.0" velocity="10.0" lower="${-pi/4}" upper="${pi/4}"/> 
-    <dynamics damping="0.1"/>
+    <origin xyz="${(-base_x_size/2)} 0 -0.065" rpy="0 0 0"/> 
+    <axis xyz="0 0 1"/>
+    <limit effort="0.0" velocity="10.0" lower="-1.57" upper="1.57"/>
+    <dynamics damping="0.05" friction="0.1"/>
   </joint>
+  <gazebo reference="trailer_connector_joint">
+    <dynamics damping="0.05" friction="0.1"/>
+    <physics>
+      <ode>
+        <limit>
+          <cfm>0.1</cfm>
+          <erp>0.9</erp>
+        </limit>
+      </ode>
+    </physics>
+  </gazebo>
+
+
+  <!-- <joint name="trailer_connector_joint" type="fixed">
+    <parent link="base_link"/>
+    <child link="trailer_connector_link"/>
+    <origin xyz="${(-base_x_size/2)} 0 -0.065" rpy="0 0 0"/> 
+    <axis xyz="0 0 1"/>
+  </joint> -->
 
 
   <!-- Trailer Link -->
