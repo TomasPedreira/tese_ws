@@ -30,25 +30,22 @@ def on_matching_output(matcher: str, result: launch.SomeActionsType):
     return on_output
 
 
-# Lanch the robot and the navigation stack
-
+# Launch the robot and the navigation stack with localization
 
 def generate_launch_description():
     pkg_share = launch_ros.substitutions.FindPackageShare(
         package="scout_nav2_gz"
     ).find("scout_nav2_gz")
-    # Messages are from: https://navigation.ros.org/setup_guides/sensors/setup_sensors.html#launching-nav2
+    
     diff_drive_loaded_message = "Successfully loaded controller diff_drive_base_controller into state active"
     toolbox_ready_message = "Registering sensor"
     navigation_ready_message = "Creating bond timer"
     default_model_path = os.path.join(pkg_share, "urdf/scout_v2/scout_v2.xacro")
 
-
     run_headless = LaunchConfiguration("run_headless")
-    world = LaunchConfiguration("world")  
+    world = LaunchConfiguration("world")
     use_trailer = LaunchConfiguration("use_trailer")
     model = LaunchConfiguration("model")
-
 
     # Including launch files with execute process
     bringup = ExecuteProcess(
@@ -66,49 +63,16 @@ def generate_launch_description():
             "use_rviz:=false",
             ["run_headless:=", run_headless],
             ["world:=", world],
-            "use_localization:=false",
+            "use_localization:=true",  # Enable localization instead of SLAM
             ["use_trailer:=", use_trailer],
             ["model:=", model],
-
         ],
         shell=False,
         output="screen",
     )
 
-    toolbox = ExecuteProcess(
-        name="launch_slam_toolbox",
-        cmd=[
-            "ros2",
-            "launch",
-            PathJoinSubstitution(
-                [
-                    FindPackageShare("slam_toolbox"),
-                    "launch",
-                    "online_async_launch.py",
-                ]
-            ),
-        ],
-        shell=False,
-        output="screen",
-    )
-
-    waiting_toolbox = RegisterEventHandler(
-        OnProcessIO(
-            target_action=bringup,
-            on_stdout=on_matching_output(
-                diff_drive_loaded_message,
-                [
-                    LogInfo(
-                        msg="Diff drive controller loaded. Starting SLAM Toolbox..."
-                    ),
-                    toolbox,
-                ],
-            ),
-        )
-    )
-
-    navigation = ExecuteProcess(
-        name="launch_navigation",
+    localization = ExecuteProcess(
+        name="launch_localization",
         cmd=[
             "ros2",
             "launch",
@@ -116,7 +80,7 @@ def generate_launch_description():
                 [
                     FindPackageShare("nav2_bringup"),
                     "launch",
-                    "navigation_launch.py",
+                    "localization_launch.py",  # Replace SLAM with localization
                 ]
             ),
             "use_sim_time:=True",
@@ -124,6 +88,21 @@ def generate_launch_description():
         ],
         shell=False,
         output="screen",
+    )
+
+    waiting_localization = RegisterEventHandler(
+        OnProcessIO(
+            target_action=bringup,
+            on_stdout=on_matching_output(
+                diff_drive_loaded_message,
+                [
+                    LogInfo(
+                        msg="Diff drive controller loaded. Starting localization..."
+                    ),
+                    localization,
+                ],
+            ),
+        )
     )
 
     rviz_node = Node(
@@ -135,40 +114,18 @@ def generate_launch_description():
         arguments=["-d", LaunchConfiguration("rvizconfig")],
     )
 
-    waiting_navigation = RegisterEventHandler(
+    waiting_localization_rviz = RegisterEventHandler(
         OnProcessIO(
-            target_action=toolbox,
+            target_action=localization,
             on_stdout=on_matching_output(
-                # diff_drive_loaded_message,
                 toolbox_ready_message,
                 [
-                    LogInfo(msg="SLAM Toolbox loaded. Starting navigation..."),
-                    # TODO Debug: Navigation fails to start if it's launched right after the slam_toolbox
-                    TimerAction(
-                        period=20.0,
-                        actions=[navigation],
-                    ),
+                    LogInfo(msg="Localization launched. Starting RViz..."),
                     rviz_node,
                 ],
             ),
         )
     )
-
-    
-
-    waiting_success = RegisterEventHandler(
-        OnProcessIO(
-            target_action=navigation,
-            on_stdout=on_matching_output(
-                navigation_ready_message,
-                [
-                    LogInfo(msg="Ready for navigation!"),
-                ],
-            ),
-        )
-    )
-
-    
 
     return launch.LaunchDescription(
         [
@@ -194,9 +151,7 @@ def generate_launch_description():
                 name="world",
                 default_value=[
                     FindPackageShare("scout_nav2_gz"),
-                    # "/world/ign_indoor/ign_indoor.sdf",
                     "/world/ign_indoor/ign_indoor_features.sdf",
-                    # "/world/outdoor.sdf",
                 ],
                 description="Absolute path to the world file",
             ),
@@ -211,8 +166,7 @@ def generate_launch_description():
                 description="Absolute path to robot urdf file",
             ),
             bringup,
-            waiting_toolbox,
-            waiting_navigation,
-            waiting_success,
+            waiting_localization,
+            waiting_localization_rviz,
         ]
     )

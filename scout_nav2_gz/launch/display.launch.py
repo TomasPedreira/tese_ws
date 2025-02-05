@@ -95,7 +95,6 @@ def generate_launch_description():
     # Localize using odometry and IMU data. 
     # It can be turned off because the navigation stack uses AMCL with lidar data for localization
     robot_localization_node = Node(
-        condition=launch.conditions.IfCondition(use_localization),
         package="robot_localization",
         executable="ekf_node",
         name="ekf_filter_node",
@@ -311,7 +310,7 @@ def generate_launch_description():
             robot_state_publisher_node,
             # robot_state_publisher_node_trailer,
             spawn_entity,
-            #robot_localization_node,
+            robot_localization_node,
             rviz_node,
             RegisterEventHandler(
                 event_handler=OnProcessExit(
