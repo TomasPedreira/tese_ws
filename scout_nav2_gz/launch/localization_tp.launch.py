@@ -38,7 +38,7 @@ def generate_launch_description():
     ).find("scout_nav2_gz")
     
     diff_drive_loaded_message = "Successfully loaded controller diff_drive_base_controller into state active"
-    toolbox_ready_message = "Registering sensor"
+    ekf_ready_message = "Registering sensor"
     navigation_ready_message = "Creating bond timer"
     default_model_path = os.path.join(pkg_share, "urdf/scout_v2/scout_v2.xacro")
 
@@ -71,39 +71,6 @@ def generate_launch_description():
         output="screen",
     )
 
-    localization = ExecuteProcess(
-        name="launch_localization",
-        cmd=[
-            "ros2",
-            "launch",
-            PathJoinSubstitution(
-                [
-                    FindPackageShare("nav2_bringup"),
-                    "launch",
-                    "localization_launch.py",  # Replace SLAM with localization
-                ]
-            ),
-            "use_sim_time:=True",
-            ["params_file:=", LaunchConfiguration('params_file')]
-        ],
-        shell=False,
-        output="screen",
-    )
-
-    waiting_localization = RegisterEventHandler(
-        OnProcessIO(
-            target_action=bringup,
-            on_stdout=on_matching_output(
-                diff_drive_loaded_message,
-                [
-                    LogInfo(
-                        msg="Diff drive controller loaded. Starting localization..."
-                    ),
-                    localization,
-                ],
-            ),
-        )
-    )
 
     rviz_node = Node(
         condition=IfCondition(NotSubstitution(run_headless)),
@@ -114,14 +81,39 @@ def generate_launch_description():
         arguments=["-d", LaunchConfiguration("rvizconfig")],
     )
 
-    waiting_localization_rviz = RegisterEventHandler(
-        OnProcessIO(
-            target_action=localization,
-            on_stdout=on_matching_output(
-                toolbox_ready_message,
+    localization_nav = ExecuteProcess(
+        name="launch_localization_nav",
+        cmd=[
+            "ros2",
+            "launch",
+            PathJoinSubstitution(
                 [
-                    LogInfo(msg="Localization launched. Starting RViz..."),
-                    rviz_node,
+                    FindPackageShare("nav2_bringup"),
+                    "launch",
+                    "localization_launch.py",
+                ]
+            ),
+            "use_sim_time:=True",
+            
+            ["map:=/home/tomas/tt_ws/src/tese_ws/scout_nav2_gz/maps/tp_indoor_map.yaml"],
+
+        ],
+        output="screen",
+    )
+
+
+
+
+    waiting_localization_nav = RegisterEventHandler(
+        OnProcessIO(
+            target_action=bringup,
+            on_stdout=on_matching_output(
+                ekf_ready_message,
+                [
+                    LogInfo(
+                        msg="EKF ready. Starting navigation..."
+                    ),
+                    localization_nav,
                 ],
             ),
         )
@@ -167,7 +159,6 @@ def generate_launch_description():
             ),
             bringup,
             rviz_node,
-            waiting_localization,
-            # waiting_localization_rviz,
+            # waiting_localization_nav,
         ]
     )
