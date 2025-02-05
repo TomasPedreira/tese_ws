@@ -11,7 +11,7 @@ import tf_transformations
 def calculate_trailer_yaw(tractor_yaw, trailer_yaw, velocity, dt):
     rtr = 0.5625 # Distance between the hitch and the trailer's axle center
 
-    yaw = trailer_yaw + ((velocity / rtr) * sin(tractor_yaw - trailer_yaw)) * 0.1
+    yaw = trailer_yaw + ((velocity / rtr) * sin(tractor_yaw - trailer_yaw)) * dt # Forward Euler integration
 
     if tractor_yaw - trailer_yaw > 3.14159/4:
         yaw = tractor_yaw - 3.14159/4
@@ -31,10 +31,8 @@ class TrailerJointStatePublisher(Node):
         # Create a TF broadcaster to publish static transform
         self.tf_broadcaster = TransformBroadcaster(self)
 
-        # Create a timer to periodically publish the joint state and TF
         timer_period = 0.1  # seconds
         self.timer = self.create_timer(timer_period, self.publish_joint_state_and_tf)
-        # Create a timer to periodically publish the joint state and TF
 
         self.get_logger().info('Trailer Joint State Publisher started.')
         self.tf_buffer = Buffer()
@@ -57,7 +55,6 @@ class TrailerJointStatePublisher(Node):
 
         self.trailer_yaw = calculate_trailer_yaw(self.tractor_yaw, self.trailer_yaw,self.cur_vel, dt)
 
-        # Publish the joint state
         joint_state_msg = JointState()
         joint_state_msg.header.stamp = self.get_clock().now().to_msg()
         joint_state_msg.name = ['trailer_connector_joint']
