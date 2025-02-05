@@ -201,11 +201,15 @@ def generate_launch_description():
     )
 
     # Only launch joint_state_publisher_gui if 'use_trailer' is True
-    joint_state_publisher_gui_node = launch_ros.actions.Node(
-        condition=IfCondition(use_trailer),
-        package='joint_state_publisher_gui',
-        executable='joint_state_publisher_gui',
-        name='joint_state_publisher_gui',
+    joint_state_publisher_node = Node(
+        package='joint_state_publisher',
+        executable='joint_state_publisher',
+        name='joint_state_publisher',
+        output='screen',
+        parameters=[
+            {'source_list': ['input_joint_states']},
+            {'use_sim_time': True}
+        ]
     )
 
     relay_odom = Node(
@@ -326,10 +330,16 @@ def generate_launch_description():
             ),
             RegisterEventHandler(
                 event_handler=OnProcessExit(
-                    target_action=load_joint_state_controller,
-                    on_exit=[trailer_pub],
+                    target_action=load_joint_trajectory_controller,
+                    on_exit=[joint_state_publisher_node],
                 )
             ),
+            # RegisterEventHandler(
+            #     event_handler=OnProcessExit(
+            #         target_action=load_joint_state_controller,
+            #         on_exit=[trailer_pub],
+            #     )
+            # ),
 
             #joint_state_publisher_gui_node,
             relay_odom,

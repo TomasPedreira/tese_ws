@@ -264,7 +264,8 @@
     <child link="trailer_connector_link"/>
     <origin xyz="${(-base_x_size/2)} 0 -0.065 " rpy="0 0 0"/> 
     <axis xyz="0 0 1"/> 
-    <limit effort="100" velocity="2.0" lower="${-pi/4}" upper="${pi/4}"/> 
+    <limit effort="0.0" velocity="10.0" lower="${-pi/4}" upper="${pi/4}"/> 
+    <dynamics damping="0.1"/>
   </joint>
 
 
