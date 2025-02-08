@@ -4,7 +4,7 @@ import rclpy
 from rclpy.node import Node
 from sensor_msgs.msg import JointState
 from geometry_msgs.msg import TransformStamped, Twist
-from tf2_ros import StaticTransformBroadcaster, TransformListener, Buffer
+from tf2_ros import StaticTransformBroadcaster,TransformBroadcaster, TransformListener, Buffer
 from math import cos, sin, sqrt, pi
 import tf_transformations
 
@@ -31,7 +31,8 @@ class TrailerJointStatePublisher(Node):
         self.joint_state_pub = self.create_publisher(JointState, '/joint_states', 10)
 
         # Create a TF broadcaster to publish static transform
-        self.tf_broadcaster = StaticTransformBroadcaster(self)
+        self.tf_broadcaster = TransformBroadcaster(self)
+        self.static_tf_broadcaster = StaticTransformBroadcaster(self)
 
         timer_period = 0.1  # seconds
         self.timer = self.create_timer(timer_period, self.publish_joint_state_and_tf)
@@ -44,16 +45,57 @@ class TrailerJointStatePublisher(Node):
         self.trailer_yaw = 0.0
         self.tractor_pos = (0.0,0.0)
         self.cur_vel = 0.0
+        self.send_static_tf()
 
- 
+    def send_static_tf(self):
+        trailer_tf = TransformStamped()
+        trailer_left_wheel_tf = TransformStamped()
+        trailer_right_wheel_tf = TransformStamped()
+
+        trailer_tf.header.stamp = self.get_clock().now().to_msg()
+        trailer_tf.header.frame_id = 'base_link'  # Parent frame
+        trailer_tf.child_frame_id = 'trailer_connector_link'  # Child frame
+        trailer_tf.transform.translation.x += -0.925/2  # Update with the actual XYZ position
+        trailer_tf.transform.translation.y = 0.0
+        trailer_tf.transform.translation.z += -0.065
+        trailer_tf.transform.rotation.x = 0.0
+        trailer_tf.transform.rotation.y = 0.0
+        trailer_tf.transform.rotation.z = 0.0
+        trailer_tf.transform.rotation.w = 1.0
+
+        trailer_left_wheel_tf.header.stamp = self.get_clock().now().to_msg()
+        trailer_left_wheel_tf.header.frame_id = 'trailer_link'  # Parent frame
+        trailer_left_wheel_tf.child_frame_id = 'trailer_wheel_lr_link'  # Child frame
+        trailer_left_wheel_tf.transform.translation.x = -0.55/4 - 0.55/2
+        trailer_left_wheel_tf.transform.translation.y = -(0.4/2 + 0.045/2) 
+        trailer_left_wheel_tf.transform.translation.z = -0.105 
+        trailer_left_wheel_tf.transform.rotation.x = 0.0
+        trailer_left_wheel_tf.transform.rotation.y = 0.0
+        trailer_left_wheel_tf.transform.rotation.z = 0.0
+        trailer_left_wheel_tf.transform.rotation.w = 1.0   
+
+
+
+        trailer_right_wheel_tf.header.stamp = self.get_clock().now().to_msg()
+        trailer_right_wheel_tf.header.frame_id = 'trailer_link'  # Parent frame
+        trailer_right_wheel_tf.child_frame_id = 'trailer_wheel_rr_link'  # Child frame
+        trailer_right_wheel_tf.transform.translation.x = -0.55/4 - 0.55/2
+        trailer_right_wheel_tf.transform.translation.y = (0.4/2 + 0.045/2) 
+        trailer_right_wheel_tf.transform.translation.z =  -0.105  
+        trailer_right_wheel_tf.transform.rotation.x = 0.0
+        trailer_right_wheel_tf.transform.rotation.y = 0.0
+        trailer_right_wheel_tf.transform.rotation.z = 0.0
+        trailer_right_wheel_tf.transform.rotation.w = 1.0 
+
+        self.static_tf_broadcaster.sendTransform(trailer_tf)
+        self.static_tf_broadcaster.sendTransform(trailer_left_wheel_tf)
+        self.static_tf_broadcaster.sendTransform(trailer_right_wheel_tf)
+
 
     def publish_joint_state_and_tf(self):
         now = self.get_clock().now().to_msg()
         dt = (now.sec + now.nanosec * 1e-9) - (self.time_now.sec + self.time_now.nanosec * 1e-9) 
         self.time_now = now
-
-        
-        
 
         try:
             m_to_bl_tf: TransformStamped = self.tf_buffer.lookup_transform('map', 'base_link', rclpy.time.Time())
@@ -84,10 +126,8 @@ class TrailerJointStatePublisher(Node):
             left_wheel.effort = [0.0]    # Joint effort
             self.joint_state_pub.publish(left_wheel)
 
-            trailer_tf = TransformStamped()
-            trailer_left_wheel_tf = TransformStamped()
-            trailer_right_wheel_tf = TransformStamped()
-
+            trailer_link_tf = TransformStamped()
+            
             new_pos = (m_to_bl_tf.transform.translation.x,m_to_bl_tf.transform.translation.y)
             
             dist = sqrt((new_pos[0] - self.tractor_pos[0])**2 + (new_pos[1] - self.tractor_pos[1])**2)
@@ -100,51 +140,20 @@ class TrailerJointStatePublisher(Node):
             yaw = tf_transformations.euler_from_quaternion([m_to_bl_tf.transform.rotation.x, m_to_bl_tf.transform.rotation.y, m_to_bl_tf.transform.rotation.z, m_to_bl_tf.transform.rotation.w])[2]
             rot = tf_transformations.quaternion_from_euler(0, 0, self.trailer_yaw)
             self.tractor_yaw = yaw
-            # self.get_logger().info(f"Tractor yaw: {yaw} Trailer yaw: {self.trailer_yaw} Velocity: {self.cur_vel}")
 
+            trailer_link_tf.header.stamp = self.get_clock().now().to_msg()
+            trailer_link_tf.header.frame_id = 'trailer_connector_link'  # Parent frame
+            trailer_link_tf.child_frame_id = 'trailer_link'  # Child frame
+            trailer_link_tf.transform.translation.x = -0.15/2  # Update with the actual XYZ position
+            trailer_link_tf.transform.translation.y = 0.0
+            trailer_link_tf.transform.translation.z = 0.0
+            trailer_link_tf.transform.rotation.x = rot[0] 
+            trailer_link_tf.transform.rotation.y = rot[1]
+            trailer_link_tf.transform.rotation.z = rot[2]
+            trailer_link_tf.transform.rotation.w = rot[3]
 
-            trailer_tf.header.stamp = self.get_clock().now().to_msg()
-            trailer_tf.header.frame_id = 'base_link'  # Parent frame
-            trailer_tf.child_frame_id = 'trailer_connector_link'  # Child frame
-            trailer_tf.transform.translation.x += -0.925/2  # Update with the actual XYZ position
-            trailer_tf.transform.translation.y = 0.0
-            trailer_tf.transform.translation.z += -0.065
-            trailer_tf.transform.rotation.x = -(m_to_bl_tf.transform.rotation.x + rot[0])
-            trailer_tf.transform.rotation.y = -(m_to_bl_tf.transform.rotation.y + rot[1])
-            trailer_tf.transform.rotation.z = -(m_to_bl_tf.transform.rotation.z + rot[2])
-            trailer_tf.transform.rotation.w = -(m_to_bl_tf.transform.rotation.w + rot[3])
-            trailer_left_wheel_tf.header.stamp = self.get_clock().now().to_msg()
-            trailer_left_wheel_tf.header.frame_id = 'trailer_connector_link'  # Parent frame
-            trailer_left_wheel_tf.child_frame_id = 'trailer_wheel_lr_link'  # Child frame
-            trailer_left_wheel_tf.transform.translation.x = -0.55/4 - 0.55/2 - 0.15
-            trailer_left_wheel_tf.transform.translation.y = -(0.4/2 + 0.045/2) 
-            trailer_left_wheel_tf.transform.translation.z = -0.105 
-            trailer_left_wheel_tf.transform.rotation.x = 0.0
-            trailer_left_wheel_tf.transform.rotation.y = 0.0
-            trailer_left_wheel_tf.transform.rotation.z = 0.0
-            trailer_left_wheel_tf.transform.rotation.w = 1.0   
-
-
-            trailer_right_wheel_tf.header.stamp = self.get_clock().now().to_msg()
-            trailer_right_wheel_tf.header.frame_id = 'trailer_connector_link'  # Parent frame
-            trailer_right_wheel_tf.child_frame_id = 'trailer_wheel_rr_link'  # Child frame
-            trailer_right_wheel_tf.transform.translation.x = -0.55/4 - 0.55/2 - 0.15
-            trailer_right_wheel_tf.transform.translation.y = (0.4/2 + 0.045/2) 
-            trailer_right_wheel_tf.transform.translation.z =  -0.105  
-            trailer_right_wheel_tf.transform.rotation.x = 0.0
-            trailer_right_wheel_tf.transform.rotation.y = 0.0
-            trailer_right_wheel_tf.transform.rotation.z = 0.0
-            trailer_right_wheel_tf.transform.rotation.w = 1.0  
-
-
-            self.tf_broadcaster.sendTransform(trailer_tf)
-            self.tf_broadcaster.sendTransform(trailer_left_wheel_tf)
-            self.tf_broadcaster.sendTransform(trailer_right_wheel_tf)
-
-            # avg = 0.001 seconds
-            aux = self.get_clock().now().to_msg()
-            # self.get_logger().info(f"dt: {aux.sec + aux.nanosec * 1e-9 - now.sec - now.nanosec * 1e-9}")
-
+            self.tf_broadcaster.sendTransform(trailer_link_tf)
+            
         except Exception as e:
             self.get_logger().error(f"Failed to post transform: {e}")
 
