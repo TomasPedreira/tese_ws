@@ -34,7 +34,7 @@ class TrailerJointStatePublisher(Node):
         self.tf_broadcaster = TransformBroadcaster(self)
         self.static_tf_broadcaster = StaticTransformBroadcaster(self)
 
-        timer_period = 0.1  # seconds
+        timer_period = 0.05  # seconds
         self.timer = self.create_timer(timer_period, self.publish_joint_state_and_tf)
 
         self.get_logger().info('Trailer Joint State Publisher started.')
@@ -126,6 +126,7 @@ class TrailerJointStatePublisher(Node):
             left_wheel.effort = [0.0]    # Joint effort
             self.joint_state_pub.publish(left_wheel)
 
+
             trailer_link_tf = TransformStamped()
             
             new_pos = (m_to_bl_tf.transform.translation.x,m_to_bl_tf.transform.translation.y)
@@ -141,6 +142,21 @@ class TrailerJointStatePublisher(Node):
             rot = tf_transformations.quaternion_from_euler(0, 0, self.trailer_yaw)
             self.tractor_yaw = yaw
 
+            trailer_tf = TransformStamped()
+            trailer_left_wheel_tf = TransformStamped()
+            trailer_right_wheel_tf = TransformStamped()
+
+            trailer_tf.header.stamp = self.get_clock().now().to_msg()
+            trailer_tf.header.frame_id = 'base_link'  # Parent frame
+            trailer_tf.child_frame_id = 'trailer_connector_link'  # Child frame
+            trailer_tf.transform.translation.x += -0.925/2  # Update with the actual XYZ position
+            trailer_tf.transform.translation.y = 0.0
+            trailer_tf.transform.translation.z += -0.065
+            trailer_tf.transform.rotation.x = 0.0
+            trailer_tf.transform.rotation.y = 0.0
+            trailer_tf.transform.rotation.z = 0.0
+            trailer_tf.transform.rotation.w = 1.0
+
             trailer_link_tf.header.stamp = self.get_clock().now().to_msg()
             trailer_link_tf.header.frame_id = 'trailer_connector_link'  # Parent frame
             trailer_link_tf.child_frame_id = 'trailer_link'  # Child frame
@@ -152,7 +168,40 @@ class TrailerJointStatePublisher(Node):
             trailer_link_tf.transform.rotation.z = rot[2]
             trailer_link_tf.transform.rotation.w = rot[3]
 
+            trailer_left_wheel_tf.header.stamp = self.get_clock().now().to_msg()
+            trailer_left_wheel_tf.header.frame_id = 'trailer_link'  # Parent frame
+            trailer_left_wheel_tf.child_frame_id = 'trailer_wheel_lr_link'  # Child frame
+            trailer_left_wheel_tf.transform.translation.x = -0.55/4 - 0.55/2
+            trailer_left_wheel_tf.transform.translation.y = -(0.4/2 + 0.045/2) 
+            trailer_left_wheel_tf.transform.translation.z = -0.105 
+            trailer_left_wheel_tf.transform.rotation.x = 0.0
+            trailer_left_wheel_tf.transform.rotation.y = 0.0
+            trailer_left_wheel_tf.transform.rotation.z = 0.0
+            trailer_left_wheel_tf.transform.rotation.w = 1.0   
+
+
+
+            trailer_right_wheel_tf.header.stamp = self.get_clock().now().to_msg()
+            trailer_right_wheel_tf.header.frame_id = 'trailer_link'  # Parent frame
+            trailer_right_wheel_tf.child_frame_id = 'trailer_wheel_rr_link'  # Child frame
+            trailer_right_wheel_tf.transform.translation.x = -0.55/4 - 0.55/2
+            trailer_right_wheel_tf.transform.translation.y = (0.4/2 + 0.045/2) 
+            trailer_right_wheel_tf.transform.translation.z =  -0.105  
+            trailer_right_wheel_tf.transform.rotation.x = 0.0
+            trailer_right_wheel_tf.transform.rotation.y = 0.0
+            trailer_right_wheel_tf.transform.rotation.z = 0.0
+            trailer_right_wheel_tf.transform.rotation.w = 1.0 
+
+            
+            self.static_tf_broadcaster.sendTransform(trailer_tf)
             self.tf_broadcaster.sendTransform(trailer_link_tf)
+            # self.static_tf_broadcaster.sendTransform(trailer_link_tf)
+            self.static_tf_broadcaster.sendTransform(trailer_left_wheel_tf)
+            self.static_tf_broadcaster.sendTransform(trailer_right_wheel_tf)
+
+            
+
+            
             
         except Exception as e:
             self.get_logger().error(f"Failed to post transform: {e}")
