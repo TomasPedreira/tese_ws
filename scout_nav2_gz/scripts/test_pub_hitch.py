@@ -15,10 +15,6 @@ def calculate_trailer_yaw(tractor_yaw, trailer_yaw, velocity, dt):
     yaw_delta = max(min(yaw_delta, 0.05), -0.05)  # Limit yaw change per update
     yaw = trailer_yaw + yaw_delta
     
-    if tractor_yaw - trailer_yaw > 3.14159/4:
-        yaw = tractor_yaw - 3.14159/4
-    elif tractor_yaw - trailer_yaw < -3.14159/4:
-        yaw = tractor_yaw + 3.14159/4
 
     return yaw
 
@@ -139,7 +135,7 @@ class TrailerJointStatePublisher(Node):
             m_to_bl_tf.child_frame_id = 'trailer_connector_link'  # Child frame
 
             yaw = tf_transformations.euler_from_quaternion([m_to_bl_tf.transform.rotation.x, m_to_bl_tf.transform.rotation.y, m_to_bl_tf.transform.rotation.z, m_to_bl_tf.transform.rotation.w])[2]
-            rot = tf_transformations.quaternion_from_euler(0, 0, self.trailer_yaw)
+            rot = tf_transformations.quaternion_from_euler(0, 0, -yaw + self.trailer_yaw)
             self.tractor_yaw = yaw
 
             trailer_tf = TransformStamped()
@@ -194,8 +190,8 @@ class TrailerJointStatePublisher(Node):
 
             
             self.static_tf_broadcaster.sendTransform(trailer_tf)
-            self.tf_broadcaster.sendTransform(trailer_link_tf)
-            # self.static_tf_broadcaster.sendTransform(trailer_link_tf)
+            # self.tf_broadcaster.sendTransform(trailer_link_tf)
+            self.static_tf_broadcaster.sendTransform(trailer_link_tf)
             self.static_tf_broadcaster.sendTransform(trailer_left_wheel_tf)
             self.static_tf_broadcaster.sendTransform(trailer_right_wheel_tf)
 
