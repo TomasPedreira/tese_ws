@@ -7,11 +7,10 @@ from launch.actions import SetEnvironmentVariable
 
 def generate_launch_description():
     pkg_share = launch_ros.substitutions.FindPackageShare(package='scout_description').find('scout_description')
-    default_model_path = os.path.join(pkg_share, 'urdf/scout_v2/scout_v2.xacro')
-    default_rviz_config_path = os.path.join(pkg_share, 'rviz/urdf_config.rviz')
+    default_model_path = os.path.join(pkg_share, 'urdf/scout_v2/scout_v2_trailer.xacro')
+    default_rviz_config_path = os.path.join(pkg_share, 'rviz/navigation_config.rviz')
     gz_models_path = os.path.join(pkg_share, 'models')
-    default_world_path=os.path.join(pkg_share, 'world/indoor_2.world')
-    
+    default_world_path=os.path.join(pkg_share, 'world/indoor_2.world')    
     
     robot_state_publisher_node = launch_ros.actions.Node(
         package='robot_state_publisher',

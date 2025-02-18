@@ -41,51 +41,6 @@ class TrailerJointStatePublisher(Node):
         self.trailer_yaw = 0.0
         self.tractor_pos = (0.0,0.0)
         self.cur_vel = 0.0
-        self.send_static_tf()
-
-    def send_static_tf(self):
-        trailer_tf = TransformStamped()
-        trailer_left_wheel_tf = TransformStamped()
-        trailer_right_wheel_tf = TransformStamped()
-
-        trailer_tf.header.stamp = self.get_clock().now().to_msg()
-        trailer_tf.header.frame_id = 'base_link'  # Parent frame
-        trailer_tf.child_frame_id = 'trailer_connector_link'  # Child frame
-        trailer_tf.transform.translation.x += -0.925/2  # Update with the actual XYZ position
-        trailer_tf.transform.translation.y = 0.0
-        trailer_tf.transform.translation.z += -0.065
-        trailer_tf.transform.rotation.x = 0.0
-        trailer_tf.transform.rotation.y = 0.0
-        trailer_tf.transform.rotation.z = 0.0
-        trailer_tf.transform.rotation.w = 1.0
-
-        trailer_left_wheel_tf.header.stamp = self.get_clock().now().to_msg()
-        trailer_left_wheel_tf.header.frame_id = 'trailer_link'  # Parent frame
-        trailer_left_wheel_tf.child_frame_id = 'trailer_wheel_lr_link'  # Child frame
-        trailer_left_wheel_tf.transform.translation.x = -0.55/4 - 0.55/2
-        trailer_left_wheel_tf.transform.translation.y = -(0.4/2 + 0.045/2) 
-        trailer_left_wheel_tf.transform.translation.z = -0.105 
-        trailer_left_wheel_tf.transform.rotation.x = 0.0
-        trailer_left_wheel_tf.transform.rotation.y = 0.0
-        trailer_left_wheel_tf.transform.rotation.z = 0.0
-        trailer_left_wheel_tf.transform.rotation.w = 1.0   
-
-
-
-        trailer_right_wheel_tf.header.stamp = self.get_clock().now().to_msg()
-        trailer_right_wheel_tf.header.frame_id = 'trailer_link'  # Parent frame
-        trailer_right_wheel_tf.child_frame_id = 'trailer_wheel_rr_link'  # Child frame
-        trailer_right_wheel_tf.transform.translation.x = -0.55/4 - 0.55/2
-        trailer_right_wheel_tf.transform.translation.y = (0.4/2 + 0.045/2) 
-        trailer_right_wheel_tf.transform.translation.z =  -0.105  
-        trailer_right_wheel_tf.transform.rotation.x = 0.0
-        trailer_right_wheel_tf.transform.rotation.y = 0.0
-        trailer_right_wheel_tf.transform.rotation.z = 0.0
-        trailer_right_wheel_tf.transform.rotation.w = 1.0 
-
-        self.static_tf_broadcaster.sendTransform(trailer_tf)
-        self.static_tf_broadcaster.sendTransform(trailer_left_wheel_tf)
-        self.static_tf_broadcaster.sendTransform(trailer_right_wheel_tf)
 
 
     def publish_joint_state_and_tf(self):
@@ -104,7 +59,6 @@ class TrailerJointStatePublisher(Node):
             joint_state_msg.position = [self.trailer_yaw]  # Joint position (in radians)
             joint_state_msg.velocity = [0.0]  # Joint velocity
             joint_state_msg.effort = [0.0]    # Joint effort
-            self.joint_state_pub.publish(joint_state_msg)
 
             left_wheel = JointState()
             left_wheel.header.stamp = self.get_clock().now().to_msg()
@@ -112,7 +66,6 @@ class TrailerJointStatePublisher(Node):
             left_wheel.position = [0.0]  # Joint position (in radians)
             left_wheel.velocity = [0.0]  # Joint velocity
             left_wheel.effort = [0.0]    # Joint effort
-            self.joint_state_pub.publish(left_wheel)
 
             left_wheel = JointState()
             left_wheel.header.stamp = self.get_clock().now().to_msg()
@@ -120,10 +73,9 @@ class TrailerJointStatePublisher(Node):
             left_wheel.position = [0.0]  # Joint position (in radians)
             left_wheel.velocity = [0.0]  # Joint velocity
             left_wheel.effort = [0.0]    # Joint effort
-            self.joint_state_pub.publish(left_wheel)
+            
+            joint_states = [joint_state_msg, left_wheel, left_wheel]
 
-
-            trailer_link_tf = TransformStamped()
             
             new_pos = (m_to_bl_tf.transform.translation.x,m_to_bl_tf.transform.translation.y)
             
@@ -139,30 +91,33 @@ class TrailerJointStatePublisher(Node):
             self.tractor_yaw = yaw
 
             trailer_tf = TransformStamped()
+            trailer_link_tf = TransformStamped()
             trailer_left_wheel_tf = TransformStamped()
             trailer_right_wheel_tf = TransformStamped()
 
             trailer_tf.header.stamp = self.get_clock().now().to_msg()
             trailer_tf.header.frame_id = 'base_link'  # Parent frame
             trailer_tf.child_frame_id = 'trailer_connector_link'  # Child frame
-            trailer_tf.transform.translation.x += -0.925/2  # Update with the actual XYZ position
+            trailer_tf.transform.translation.x = -0.925/2  # Update with the actual XYZ position
             trailer_tf.transform.translation.y = 0.0
-            trailer_tf.transform.translation.z += -0.065
-            trailer_tf.transform.rotation.x = 0.0
-            trailer_tf.transform.rotation.y = 0.0
-            trailer_tf.transform.rotation.z = 0.0
-            trailer_tf.transform.rotation.w = 1.0
+            trailer_tf.transform.translation.z = -0.065
+            trailer_tf.transform.rotation.x = rot[0] 
+            trailer_tf.transform.rotation.y = rot[1]
+            trailer_tf.transform.rotation.z = rot[2]
+            trailer_tf.transform.rotation.w = rot[3]
 
             trailer_link_tf.header.stamp = self.get_clock().now().to_msg()
             trailer_link_tf.header.frame_id = 'trailer_connector_link'  # Parent frame
             trailer_link_tf.child_frame_id = 'trailer_link'  # Child frame
-            trailer_link_tf.transform.translation.x = -0.15/2  # Update with the actual XYZ position
+            trailer_link_tf.transform.translation.x = 0.55/2
             trailer_link_tf.transform.translation.y = 0.0
             trailer_link_tf.transform.translation.z = 0.0
-            trailer_link_tf.transform.rotation.x = rot[0] 
-            trailer_link_tf.transform.rotation.y = rot[1]
-            trailer_link_tf.transform.rotation.z = rot[2]
-            trailer_link_tf.transform.rotation.w = rot[3]
+            trailer_link_tf.transform.rotation.x = 0.0
+            trailer_link_tf.transform.rotation.y = 0.0
+            trailer_link_tf.transform.rotation.z = 0.0
+            trailer_link_tf.transform.rotation.w = 1.0
+
+
 
             trailer_left_wheel_tf.header.stamp = self.get_clock().now().to_msg()
             trailer_left_wheel_tf.header.frame_id = 'trailer_link'  # Parent frame
@@ -189,11 +144,17 @@ class TrailerJointStatePublisher(Node):
             trailer_right_wheel_tf.transform.rotation.w = 1.0 
 
             
-            self.static_tf_broadcaster.sendTransform(trailer_tf)
-            # self.tf_broadcaster.sendTransform(trailer_link_tf)
-            self.static_tf_broadcaster.sendTransform(trailer_link_tf)
-            self.static_tf_broadcaster.sendTransform(trailer_left_wheel_tf)
-            self.static_tf_broadcaster.sendTransform(trailer_right_wheel_tf)
+
+            transforms = [
+                trailer_tf, 
+                trailer_link_tf, 
+                trailer_left_wheel_tf, 
+                trailer_right_wheel_tf
+            ]
+
+            self.tf_broadcaster.sendTransform(transforms)
+            self.joint_state_pub.publish(left_wheel)
+
 
             
 
