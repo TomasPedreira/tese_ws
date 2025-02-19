@@ -1,0 +1,18 @@
+slam_toolbox:
+  ros__parameters:
+    use_sim_time: true
+    scan_topic: /scan
+    base_frame: base_link
+    odom_frame: odom
+    map_frame: map
+    mode: mapping
+    debug_logging: true
+    stack_size_to_use: 40000000
+
+    # Add timeout settings
+    transform_timeout: 0.5
+    tf_buffer_duration: 30.0
+    
+    # Reduce processing load
+    throttle_scans: 2
+    map_update_interval: 10.0
