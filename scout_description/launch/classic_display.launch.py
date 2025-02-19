@@ -23,7 +23,6 @@ def generate_launch_description():
         name='joint_state_publisher',
         arguments=[LaunchConfiguration('model')],
         parameters=[{'use_sim_time': LaunchConfiguration('use_sim_time')}]
-
     )
     rviz_node = launch_ros.actions.Node(
         package='rviz2',

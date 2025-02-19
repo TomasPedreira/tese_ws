@@ -186,48 +186,45 @@
       <origin xyz="-0.01 0 0.025" rpy="0 0 0"/> 
   </joint>
 
-    <!--                TRAILER             -->
+   <!--                TRAILER             -->
 
-    <!-- Trailer wheel macro -->
-    <xacro:macro name="trailer_wheel" params="prefix x_reflect y_reflect wheel_offset">
-        <link name="${prefix}_link">
-        <visual>
-            <geometry>
-            <cylinder radius="${trailer_wheel_radius}" length="${trailer_wheel_length}"/>
-            </geometry>
-            <origin xyz="0 0 0" rpy="${pi/2} ${pi/2} 0"/> 
-            <material name="Gray">
-            <color rgba="0.5 0.5 0.5 1.0"/>
-            </material>
-        </visual>
-        
-        <collision>
-            <geometry>
-            <cylinder radius="${trailer_wheel_radius}" length="${trailer_wheel_length}"/>
-            </geometry>
-            <origin xyz="0 0 0" rpy="${pi/2} ${pi/2} 0"/> 
-        </collision>
-        
-        <xacro:cylinder_inertia m="${trailer_wheel_mass}" r="${trailer_wheel_radius}" h="${trailer_wheel_length}"/>
-        </link>
+  <!-- Trailer wheel macro -->
+  <xacro:macro name="trailer_wheel" params="prefix x_reflect y_reflect wheel_offset">
+    <link name="${prefix}_link">
+      <visual>
+        <geometry>
+          <cylinder radius="${trailer_wheel_radius}" length="${trailer_wheel_length}"/>
+        </geometry>
+        <origin xyz="0 0 0" rpy="${pi/2} ${pi/2} 0"/> 
+        <material name="Gray">
+          <color rgba="0.5 0.5 0.5 1.0"/>
+        </material>
+      </visual>
+      
+      <collision>
+        <geometry>
+          <cylinder radius="${trailer_wheel_radius}" length="${trailer_wheel_length}"/>
+        </geometry>
+        <origin xyz="0 0 0" rpy="${pi/2} ${pi/2} 0"/> 
+      </collision>
+      
+      <xacro:cylinder_inertia m="${trailer_wheel_mass}" r="${trailer_wheel_radius}" h="${trailer_wheel_length}"/>
+    </link>
 
-        <gazebo reference="${prefix}_link">
-            <mu1>0.1</mu1>
-            <mu2>0.1</mu2>
-        </gazebo>
+    <gazebo reference="${prefix}_link">
+      <mu1>0.1</mu1>
+      <mu2>0.1</mu2>
+    </gazebo>
 
-        <joint name="${prefix}_joint" type="continuous">
-        <parent link="trailer_link"/>
-        <child link="${prefix}_link"/>
-        <origin xyz="${(x_reflect * wheel_offset) - (trailer_length/2)} ${y_reflect * (trailer_width / 2 + trailer_wheel_length / 2)} ${-trailer_height / 2}" rpy="0 0 0"/>
-        <axis xyz="0 1 0"/>
-        </joint>
-    </xacro:macro>
+    <joint name="${prefix}_joint" type="continuous">
+      <parent link="trailer_link"/>
+      <child link="${prefix}_link"/>
+      <origin xyz="${(x_reflect * wheel_offset) - (trailer_length/2)} ${y_reflect * (trailer_width / 2 + trailer_wheel_length / 2)} ${-trailer_height / 2}" rpy="0 0 0"/>
+      <axis xyz="0 1 0"/>
+    </joint>
+  </xacro:macro>
 
-
-
-
-    <!-- Trailer Connector Link -->
+  <!-- Trailer Connector Link -->
     <link name="trailer_connector_link">
     <visual>
         <geometry>
@@ -257,7 +254,7 @@
     <child link="trailer_connector_link"/>
     <origin xyz="${(-base_x_size/2)} 0 -0.065 " rpy="0 0 0"/> 
     <axis xyz="0 0 1"/> 
-    <limit effort="100" velocity="2.0" lower="${-pi/4}" upper="${pi/4}"/> 
+    <limit effort="1000" velocity="1000.0" lower="${-pi/4}" upper="${pi/4}"/> 
   </joint>
 
 
@@ -288,7 +285,6 @@
     <child link="trailer_link"/>
     <origin xyz="${-(connector_length)} 0 0" rpy="0 0 0"/> 
     <axis xyz="0 0 1"/>
-    <limit effort="100" lower="-3.14159" upper="3.14159" velocity="1"/>
   </joint>
 
 
@@ -332,8 +328,7 @@
         <sensor name="imu_sensor" type="imu">
         <plugin filename="libgazebo_ros_imu_sensor.so" name="imu_plugin">
             <ros>
-            <!-- <namespace>/demo</namespace> -->
-            <remapping>~/out:=imu</remapping>
+                <remapping>~/out:=imu</remapping>
             </ros>
             <initial_orientation_as_reference>false</initial_orientation_as_reference>
         </plugin>
@@ -426,11 +421,11 @@
         <!-- limits -->
         <max_wheel_torque>1000</max_wheel_torque>
         <max_wheel_acceleration>1.0</max_wheel_acceleration>
-        <updateRate>100</updateRate>
+        <!-- <updateRate>100</updateRate>
 
         <covariance_x>0.000100</covariance_x>
         <covariance_y>0.000100</covariance_y>
-        <covariance_yaw>0.010000</covariance_yaw>
+        <covariance_yaw>0.010000</covariance_yaw> -->
 
 
         <!-- output -->
@@ -477,31 +472,31 @@
     <gazebo reference="lidar_link">
         <sensor name="lidar" type="ray">
         <always_on>true</always_on>
-        <visualize>false</visualize>
+        <visualize>true</visualize>
         <update_rate>5</update_rate>
         <ray>
             <scan>
-            <horizontal>
-                <samples>360</samples>
-                <resolution>1.000000</resolution>
-                <min_angle>0.000000</min_angle>
-                <max_angle>6.280000</max_angle>
-            </horizontal>
+                <horizontal>
+                    <samples>360</samples>
+                    <resolution>1.000000</resolution>
+                    <min_angle>0.000000</min_angle>
+                    <max_angle>6.280000</max_angle>
+                </horizontal>
             </scan>
             <range>
-            <min>0.150000</min>
-            <max>20</max>
-            <resolution>0.015000</resolution>
+                <min>0.150000</min>
+                <max>30</max>
+                <resolution>0.015000</resolution>
             </range>
             <noise>
-            <type>gaussian</type>
-            <mean>0.0</mean>
-            <stddev>0.01</stddev>
+                <type>gaussian</type>
+                <mean>0.0</mean>
+                <stddev>0.01</stddev>
             </noise>
         </ray>
         <plugin name="scan" filename="libgazebo_ros_ray_sensor.so">
             <ros>
-            <remapping>~/out:=scan</remapping>
+                <remapping>~/out:=scan</remapping>
             </ros>
             <output_type>sensor_msgs/LaserScan</output_type>
             <frame_name>lidar_link</frame_name>
