@@ -20,3 +20,5 @@ TODO list:
 ...
 
 Profit!
+
+distancia entre arvores é 3.5 metros
