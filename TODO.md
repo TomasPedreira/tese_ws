@@ -6,7 +6,10 @@ TODO list:
 
 distancia entre arvores é 3.5 metros
 
+### 26/02
+[ ] Configure launch for new world;
+[ ] Test localization problem with classic;
+
 ### next time
 
 [ ] Make A*;
-[ ] Test localization problem with classic;
