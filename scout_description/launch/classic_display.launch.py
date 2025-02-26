@@ -11,7 +11,8 @@ def generate_launch_description():
     default_rviz_config_path = os.path.join(pkg_share, 'rviz/navigation_config.rviz')
     gz_models_path = os.path.join(pkg_share, 'models')
     # default_world_path=os.path.join(pkg_share, 'world/indoor_2.world')
-    default_world_path=os.path.join(pkg_share, 'world/wallworld.world')    
+    default_world_path=os.path.join(pkg_share, 'world/wallworld.world')
+    
     
     robot_state_publisher_node = launch_ros.actions.Node(
         package='robot_state_publisher',
@@ -24,6 +25,7 @@ def generate_launch_description():
         name='joint_state_publisher',
         arguments=[LaunchConfiguration('model')],
         parameters=[{'use_sim_time': LaunchConfiguration('use_sim_time')}]
+
     )
     rviz_node = launch_ros.actions.Node(
         package='rviz2',
@@ -33,10 +35,25 @@ def generate_launch_description():
         arguments=['-d', LaunchConfiguration('rvizconfig')],
         parameters=[{'use_sim_time': LaunchConfiguration('use_sim_time')}]
     )
+    # spawn_entity = launch_ros.actions.Node(
+    #     package='gazebo_ros',
+    #     executable='spawn_entity.py',
+    #     arguments=['-entity', 'scout_v2', '-topic', 'robot_description'],
+    #     output='screen'
+    # )
     spawn_entity = launch_ros.actions.Node(
         package='gazebo_ros',
         executable='spawn_entity.py',
-        arguments=['-entity', 'scout_v2', '-topic', 'robot_description'],
+        arguments=[
+            '-entity', 'scout_v2',
+            '-topic', 'robot_description',
+            '-x', '0.0',    # X position
+            '-y', '0.0',    # Y position 
+            '-z', '0.0',    # Z position
+            '-R', '0.0',    # Roll in radians
+            '-P', '0.0',    # Pitch in radians
+            '-Y', '1.57',   # Yaw in radians (this is 90 degrees in radians)
+        ],
         output='screen'
     )
     robot_localization_node = launch_ros.actions.Node(
@@ -45,12 +62,6 @@ def generate_launch_description():
        name='ekf_filter_node',
        output='screen',
        parameters=[os.path.join(pkg_share, 'config/ekf.yaml'), {'use_sim_time': LaunchConfiguration('use_sim_time')}]
-    )
-    trailer_pub = launch_ros.actions.Node(
-        package="scout_description",
-        executable="test_pub_hitch.py",
-        name="test_pub_hitch",
-        output="screen",
     )
     return launch.LaunchDescription([
         SetEnvironmentVariable(
@@ -72,6 +83,5 @@ def generate_launch_description():
         robot_state_publisher_node,
         spawn_entity,
         robot_localization_node,
-        rviz_node,
-        trailer_pub
+        rviz_node
     ])

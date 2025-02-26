@@ -7,8 +7,9 @@ TODO list:
 distancia entre arvores é 3.5 metros
 
 ### 26/02
-[ ] Configure launch for new world;
-[ ] Test localization problem with classic;
+[x] 15:22 Theres an invisible wall in front of the tractor (trailer wheel height)
+[ ] ??:?? Configure launch for new world;
+[ ] ??:?? Test localization problem with classic;
 
 ### next time
 
