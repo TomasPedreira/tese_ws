@@ -11,10 +11,7 @@ import tf_transformations
 def calculate_trailer_yaw(tractor_yaw, trailer_yaw, velocity, dt):
     rtr = 0.5625 # Distance between the hitch and the trailer's axle center
 
-    yaw_delta = ((velocity / rtr) * sin(tractor_yaw - trailer_yaw)) * dt
-    # yaw_delta = max(min(yaw_delta, 0.05), -0.05)  # Limit yaw change per update
-    yaw = trailer_yaw + yaw_delta
-    
+    yaw = trailer_yaw + ((velocity / rtr) * sin(tractor_yaw - trailer_yaw)) * dt 
 
     return yaw
 
@@ -95,11 +92,11 @@ class TrailerJointStatePublisher(Node):
             trailer_tf.header.frame_id = 'map'  # Parent frame
             trailer_tf.child_frame_id = 'trailer_connector_link'  # Child frame
 
-            x_mov = -0.925/2 * cos(self.trailer_yaw)
-            y_mov = -0.925/2 * sin(self.trailer_yaw)
-            trailer_tf.transform.translation.x += m_to_bl_tf.transform.translation.x + x_mov
-            trailer_tf.transform.translation.y += m_to_bl_tf.transform.translation.y + y_mov
-            trailer_tf.transform.translation.z += m_to_bl_tf.transform.translation.z + -0.065
+            x_mov = -0.5 * cos(self.trailer_yaw)
+            y_mov = -0.5 * sin(self.trailer_yaw)
+            trailer_tf.transform.translation.x = m_to_bl_tf.transform.translation.x + x_mov
+            trailer_tf.transform.translation.y = m_to_bl_tf.transform.translation.y + y_mov
+            trailer_tf.transform.translation.z = m_to_bl_tf.transform.translation.z + -0.065
             trailer_tf.transform.rotation.x = rot[0] 
             trailer_tf.transform.rotation.y = rot[1]
             trailer_tf.transform.rotation.z = rot[2]

@@ -2,8 +2,26 @@ import launch
 from launch.substitutions import Command, LaunchConfiguration
 import launch_ros
 import os
-from launch.actions import SetEnvironmentVariable
+from launch.actions import SetEnvironmentVariable, ExecuteProcess, LogInfo
+from launch.actions import (
+    ExecuteProcess,
+    DeclareLaunchArgument,
+    LogInfo,
+    RegisterEventHandler,
+    TimerAction,
+)
 
+from launch.events.process import ProcessIO
+from launch.event_handlers import OnProcessIO
+import tf_transformations
+
+def on_matching_output(matcher: str, result: launch.SomeActionsType):
+    def on_output(event: ProcessIO):
+        for line in event.text.decode().splitlines():
+            if matcher in line:
+                return result
+
+    return on_output
 
 def generate_launch_description():
     pkg_share = launch_ros.substitutions.FindPackageShare(package='scout_description').find('scout_description')
@@ -49,7 +67,7 @@ def generate_launch_description():
             '-topic', 'robot_description',
             '-x', '0.0',    # X position
             '-y', '0.0',    # Y position 
-            '-z', '0.0',    # Z position
+            '-z', '0.4',    # Z position
             '-R', '0.0',    # Roll in radians
             '-P', '0.0',    # Pitch in radians
             '-Y', '1.57',   # Yaw in radians (this is 90 degrees in radians)
@@ -63,6 +81,40 @@ def generate_launch_description():
        output='screen',
        parameters=[os.path.join(pkg_share, 'config/ekf.yaml'), {'use_sim_time': LaunchConfiguration('use_sim_time')}]
     )
+
+    trailer_pub = launch_ros.actions.Node(
+        package="scout_description",
+        executable="test_pub_hitch.py",
+        name="test_pub_hitch",
+        output="screen",
+    )
+    nav_loc = ExecuteProcess(
+        cmd=[
+            "ros2",
+            "launch",
+            "nav2_bringup",
+            "localization_launch.py",
+            "map:=/home/tomas/tt_ws/src/tese_ws/scout_description/maps/wall_map.yaml",
+            "use_sim_time:=True",
+        ],
+        output="screen",
+    )
+    # initial_pose = launch_ros.actions.Node(
+    #     package='tf2_ros',
+    #     executable='static_transform_publisher',
+    #     name='static_transform_publisher',
+    #     arguments=[
+    #         "0.0", "0.0", "0.0",   # x, y, z
+    #         "0.0", "0.0", "0.0",   # roll, pitch, yaw
+    #         "map", "base_link",
+    #     ],
+    #     output="screen",
+    # )
+    rot = tf_transformations.quaternion_from_euler(0, 0, 1.57)
+    orientation_str = f"orientation: {{x: {rot[0]}, y: {rot[1]}, z: {rot[2]}, w: {rot[3]}}}, "
+
+  
+
     return launch.LaunchDescription([
         SetEnvironmentVariable(
             name="GAZEBO_MODEL_PATH",
@@ -83,5 +135,7 @@ def generate_launch_description():
         robot_state_publisher_node,
         spawn_entity,
         robot_localization_node,
-        rviz_node
+        rviz_node,
+        trailer_pub,
+        nav_loc,
     ])
