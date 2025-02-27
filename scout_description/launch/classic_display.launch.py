@@ -99,19 +99,18 @@ def generate_launch_description():
         ],
         output="screen",
     )
-    # initial_pose = launch_ros.actions.Node(
-    #     package='tf2_ros',
-    #     executable='static_transform_publisher',
-    #     name='static_transform_publisher',
-    #     arguments=[
-    #         "0.0", "0.0", "0.0",   # x, y, z
-    #         "0.0", "0.0", "0.0",   # roll, pitch, yaw
-    #         "map", "base_link",
-    #     ],
-    #     output="screen",
-    # )
-    rot = tf_transformations.quaternion_from_euler(0, 0, 1.57)
-    orientation_str = f"orientation: {{x: {rot[0]}, y: {rot[1]}, z: {rot[2]}, w: {rot[3]}}}, "
+    nav_nav = ExecuteProcess(
+        cmd=[
+            "ros2",
+            "launch",
+            "nav2_bringup",
+            "navigation_launch.py",
+            "params_file:=/home/tomas/tt_ws/src/tese_ws/scout_description/config/nav2_params.yaml",
+            "use_sim_time:=True",
+        ],
+        output="screen",
+    )
+  
 
   
 
@@ -138,4 +137,5 @@ def generate_launch_description():
         rviz_node,
         trailer_pub,
         nav_loc,
+        nav_nav
     ])

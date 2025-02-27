@@ -20,9 +20,9 @@ def calculate_trailer_yaw(tractor_yaw, trailer_yaw, velocity, dt):
         yaw += 2*pi
 
     # Limit the yaw to 45 degrees
-    if (-tractor_yaw + trailer_yaw) > pi/4:
+    if (-tractor_yaw + yaw) > pi/4:
         yaw = tractor_yaw - pi/4
-    elif (-tractor_yaw + trailer_yaw) < -pi/4:
+    elif (-tractor_yaw + yaw) < -pi/4:
         yaw = tractor_yaw + pi/4
 
 
@@ -47,7 +47,7 @@ class TrailerJointStatePublisher(Node):
         self.tf_listener = TransformListener(self.tf_buffer, self)
 
         self.tractor_yaw = 0.0
-        self.trailer_yaw = 0.0
+        self.trailer_yaw = -90.0
         self.tractor_pos = (0.0,0.0)
         self.cur_vel = 0.0
 
@@ -59,30 +59,12 @@ class TrailerJointStatePublisher(Node):
 
         try:
             m_to_bl_tf: TransformStamped = self.tf_buffer.lookup_transform('map', 'base_link', rclpy.time.Time())
-
-            self.trailer_yaw = calculate_trailer_yaw(self.tractor_yaw, self.trailer_yaw,self.cur_vel, dt)
-
-            joint_state_msg = JointState()
-            joint_state_msg.header.stamp = self.get_clock().now().to_msg()
-            joint_state_msg.name = ['trailer_connector_joint']
-            joint_state_msg.position = [self.trailer_yaw]  # Joint position (in radians)
-            joint_state_msg.velocity = [0.0]  # Joint velocity
-            joint_state_msg.effort = [0.0]    # Joint effort
-
-            left_wheel = JointState()
-            left_wheel.header.stamp = self.get_clock().now().to_msg()
-            left_wheel.name = ['trailer_wheel_lr_joint']
-            left_wheel.position = [0.0]  # Joint position (in radians)
-            left_wheel.velocity = [0.0]  # Joint velocity
-            left_wheel.effort = [0.0]    # Joint effort
-
-            right_wheel = JointState()
-            right_wheel.header.stamp = self.get_clock().now().to_msg()
-            right_wheel.name = ['trailer_wheel_rr_joint']
-            right_wheel.position = [0.0]  # Joint position (in radians)
-            right_wheel.velocity = [0.0]  # Joint velocity
-            right_wheel.effort = [0.0]    # Joint effort
-            
+            if self.trailer_yaw != -90.0:   
+                self.trailer_yaw = calculate_trailer_yaw(self.tractor_yaw, self.trailer_yaw,self.cur_vel, dt)
+            else:
+                self.trailer_yaw = tf_transformations.euler_from_quaternion([m_to_bl_tf.transform.rotation.x, m_to_bl_tf.transform.rotation.y, m_to_bl_tf.transform.rotation.z, m_to_bl_tf.transform.rotation.w])[2]
+                self.get_logger().info("WHAT DI HEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEL")     
+                self.get_logger().info(f"{self.trailer_yaw}")                
 
             
             new_pos = (m_to_bl_tf.transform.translation.x,m_to_bl_tf.transform.translation.y)
@@ -104,8 +86,8 @@ class TrailerJointStatePublisher(Node):
             trailer_tf.header.frame_id = 'map'  # Parent frame
             trailer_tf.child_frame_id = 'trailer_connector_link'  # Child frame
 
-            x_mov = -(0.9250000/2) * cos(self.trailer_yaw)
-            y_mov = -(0.9250000/2) * sin(self.trailer_yaw)
+            x_mov = -(0.9250000/2) * cos(self.tractor_yaw)
+            y_mov = -(0.9250000/2) * sin(self.tractor_yaw)
 
             trailer_tf.transform.translation.x = m_to_bl_tf.transform.translation.x + x_mov
             trailer_tf.transform.translation.y = m_to_bl_tf.transform.translation.y + y_mov
@@ -171,20 +153,8 @@ class TrailerJointStatePublisher(Node):
     
             
         except Exception as e:
-            transform = TransformStamped()
-            transform.header.stamp = self.get_clock().now().to_msg()
-            transform.header.frame_id = 'map'  # Parent frame
-            transform.child_frame_id = 'trailer_connector_link'  # Child frame
-            transform.transform.translation.x = -0.5  # Update with the actual XYZ position
-            transform.transform.translation.y = 0.0
-            transform.transform.translation.z = -0.065
-            transform.transform.rotation.x = 0.0
-            transform.transform.rotation.y = 0.0
-            transform.transform.rotation.z = 0.0
-            transform.transform.rotation.w = 1.0
             self.get_logger().error(f"Failed to get transform: {str(e)}")
 
-            #self.tf_broadcaster.sendTransform(transform)
 
 def main(args=None):
     rclpy.init(args=args)
