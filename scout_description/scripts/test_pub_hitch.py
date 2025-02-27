@@ -11,7 +11,20 @@ import tf_transformations
 def calculate_trailer_yaw(tractor_yaw, trailer_yaw, velocity, dt):
     rtr = 0.5625 # Distance between the hitch and the trailer's axle center
 
-    yaw = trailer_yaw + ((velocity / rtr) * sin(tractor_yaw - trailer_yaw)) * dt 
+    yaw = trailer_yaw + ((velocity / rtr) * sin(tractor_yaw - trailer_yaw)) * dt
+
+    # wrap yaw to [-pi, pi]
+    if yaw > pi:
+        yaw -= 2*pi
+    elif yaw < -pi:
+        yaw += 2*pi
+
+    # Limit the yaw to 45 degrees
+    if (-tractor_yaw + trailer_yaw) > pi/4:
+        yaw = tractor_yaw - pi/4
+    elif (-tractor_yaw + trailer_yaw) < -pi/4:
+        yaw = tractor_yaw + pi/4
+
 
     return yaw
 
@@ -46,7 +59,6 @@ class TrailerJointStatePublisher(Node):
 
         try:
             m_to_bl_tf: TransformStamped = self.tf_buffer.lookup_transform('map', 'base_link', rclpy.time.Time())
-            self.get_logger().info(f"Got transform: x: {m_to_bl_tf.transform.translation.x}, y: {m_to_bl_tf.transform.translation.y}, z: {m_to_bl_tf.transform.translation.z}")
 
             self.trailer_yaw = calculate_trailer_yaw(self.tractor_yaw, self.trailer_yaw,self.cur_vel, dt)
 
@@ -92,8 +104,9 @@ class TrailerJointStatePublisher(Node):
             trailer_tf.header.frame_id = 'map'  # Parent frame
             trailer_tf.child_frame_id = 'trailer_connector_link'  # Child frame
 
-            x_mov = -0.5 * cos(self.trailer_yaw)
-            y_mov = -0.5 * sin(self.trailer_yaw)
+            x_mov = -(0.9250000/2) * cos(self.trailer_yaw)
+            y_mov = -(0.9250000/2) * sin(self.trailer_yaw)
+
             trailer_tf.transform.translation.x = m_to_bl_tf.transform.translation.x + x_mov
             trailer_tf.transform.translation.y = m_to_bl_tf.transform.translation.y + y_mov
             trailer_tf.transform.translation.z = m_to_bl_tf.transform.translation.z + -0.065
@@ -102,16 +115,16 @@ class TrailerJointStatePublisher(Node):
             trailer_tf.transform.rotation.z = rot[2]
             trailer_tf.transform.rotation.w = rot[3]
 
-            # trailer_link_tf.header.stamp = self.get_clock().now().to_msg()
-            # trailer_link_tf.header.frame_id = 'trailer_connector_link'  # Parent frame
-            # trailer_link_tf.child_frame_id = 'trailer_link'  # Child frame
-            # trailer_link_tf.transform.translation.x = 0.55/2
-            # trailer_link_tf.transform.translation.y = 0.0
-            # trailer_link_tf.transform.translation.z = 0.0
-            # trailer_link_tf.transform.rotation.x = 0.0
-            # trailer_link_tf.transform.rotation.y = 0.0
-            # trailer_link_tf.transform.rotation.z = 0.0
-            # trailer_link_tf.transform.rotation.w = 1.0
+            trailer_link_tf.header.stamp = self.get_clock().now().to_msg()
+            trailer_link_tf.header.frame_id = 'trailer_connector_link'  # Parent frame
+            trailer_link_tf.child_frame_id = 'trailer_link'  # Child frame
+            trailer_link_tf.transform.translation.x = -0.15
+            trailer_link_tf.transform.translation.y = 0.0
+            trailer_link_tf.transform.translation.z = 0.0
+            trailer_link_tf.transform.rotation.x = 0.0
+            trailer_link_tf.transform.rotation.y = 0.0
+            trailer_link_tf.transform.rotation.z = 0.0
+            trailer_link_tf.transform.rotation.w = 1.0
 
 
 
@@ -143,15 +156,15 @@ class TrailerJointStatePublisher(Node):
 
             transforms = [
                 trailer_tf, 
-                # trailer_link_tf, 
+                trailer_link_tf, 
                 trailer_left_wheel_tf, 
                 trailer_right_wheel_tf
             ]
 
             self.tf_broadcaster.sendTransform(transforms)
-            self.joint_state_pub.publish(joint_state_msg)
-            self.joint_state_pub.publish(right_wheel)
-            self.joint_state_pub.publish(left_wheel)
+            # self.joint_state_pub.publish(joint_state_msg)
+            # self.joint_state_pub.publish(right_wheel)
+            # self.joint_state_pub.publish(left_wheel)
             # self.get_logger().info(f"Trailer yaw: {self.trailer_yaw}, Tractor yaw: {self.tractor_yaw}, Trailer pos: {self.tractor_pos}")
 
 

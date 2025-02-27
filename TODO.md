@@ -12,6 +12,7 @@ distancia entre arvores é 3.5 metros
 [x] 16:32 Configure launch for new world;
 
 ### 27/02
+[ ] ??:?? Fix the transformation of the publisher;
 [ ] ??:?? Start making the plugin (make a straight planner);
 
 ### next time
