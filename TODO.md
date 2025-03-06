@@ -14,10 +14,11 @@
 [x] 17:13 Include navigation in the launch file;
 [x] 17:14 Bound the transformation from -45 to 45;
 
+## 06/03
+[ ] ??:?? Start making the plugin (make a straight planner);
 
 ## next time
 
-[ ] ??:?? Start making the plugin (make a straight planner);
 [ ] Make A*;
 [ ] Make voronoi;
 [ ] Make forward PP;
