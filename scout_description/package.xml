@@ -23,6 +23,8 @@
   <export>
     <build_type>ament_cmake</build_type>
 
+    <nav2_core plugin="${prefix}/global_planner_plugin.xml" />
+
     <gazebo_ros gazebo_media_path="${prefix}/meshes/scout_v2"/>
     <gazebo_ros gazebo_model_path="${prefix}/meshes/scout_v2"/>
   </export>

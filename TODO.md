@@ -15,11 +15,12 @@
 [x] 17:14 Bound the transformation from -45 to 45;
 
 ## 06/03
-[ ] ??:?? Start making the plugin (make a straight planner);
+[x] 14:57 Start making the plugin (make a straight planner);
+[ ] ??:?? Make A*;
+
+
 
 ## next time
-
-[ ] Make A*;
 [ ] Make voronoi;
 [ ] Make forward PP;
 [ ] Make Backwards PP;

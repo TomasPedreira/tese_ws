@@ -106,6 +106,7 @@ def generate_launch_description():
             "nav2_bringup",
             "navigation_launch.py",
             "params_file:=/home/tomas/tt_ws/src/tese_ws/scout_description/config/nav2_params.yaml",
+            # "params_file:=/home/tomas/tt_ws/src/tese_ws/scout_description/config/straight_planner.yaml",
             "use_sim_time:=True",
         ],
         output="screen",
