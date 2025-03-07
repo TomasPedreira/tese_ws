@@ -20,11 +20,11 @@
 
 ## 07/03
 [x] 15:37 Make a simple A* where you can interact with obstacle layers;
-[ ] ??:?? Make Hybrid A*;
- 
+[ ] ??:?? Study node approach;
 
 
 ## next time
+[ ] ??:?? Make Hybrid A*;
 [ ] Make voronoi;
 [ ] Make forward PP;
 [ ] Make Backwards PP;
