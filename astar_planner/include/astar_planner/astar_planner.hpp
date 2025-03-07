@@ -20,11 +20,7 @@
 namespace astar_planner
 {
 
-  typedef struct node_
-  {
-    unsigned int x, y;
-    double f, g;
-  } Node;
+  typedef struct node_ Node;
 class Astar : public nav2_core::GlobalPlanner
 {
 public:
@@ -60,6 +56,8 @@ private:
   std::string global_frame_, name_;
 
   double interpolation_resolution_;
+  bool allow_diagonal_;
+  double heuristic_weight_;
 };
 
 }  // namespace astar_planner

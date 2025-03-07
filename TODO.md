@@ -17,7 +17,10 @@
 ## 06/03
 [x] 14:57 Start making the plugin (make a straight planner);
 [x] 16:53 Interact with costmap in straight planner;
-[ ] ??:?? Make a simple A* where you cant interact with obstacle layers;
+
+## 07/03
+[x] 15:37 Make a simple A* where you can interact with obstacle layers;
+[x] 15:37 Make Hybrid A*;
  
 
 
