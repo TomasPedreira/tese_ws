@@ -15,6 +15,7 @@ namespace astar_planner
 struct node_ {
   unsigned int x, y;  // Changed from int to unsigned int to match costmap types
   double f, g, h;
+  double yaw;
   std::shared_ptr<Node> parent;
 
   // For priority queue comparison
@@ -46,33 +47,21 @@ double calculateOrientation(double x1, double y1, double x2, double y2)
 {
   return std::atan2(y2 - y1, x2 - x1);
 }
-std::vector<std::vector<int>> calculatePossibleDirectionsx(int scale)
+
+std::vector<std::pair<int, int>>calculatePossibleDirectionsx(int scale)
 {
-  const int max_dir = (2 * scale + 1);
-    const int total_directions = max_dir * max_dir - 1;  // Exclude (0, 0)
-    std::vector<std::vector<int>> dir(2, std::vector<int>(total_directions));  // Create and resize the vector
+  std::vector<std::pair<int, int>> dir;
 
-    int index = 0;  // Index for filling the dir vector
-
-    for (int i = -scale; i <= scale; i++) {
-        for (int j = -scale; j <= scale; j++) {
-            if (i == 0 && j == 0) {
-                continue;  // Skip the (0, 0) direction
-            }
-            dir[0][index] = i;
-            dir[1][index] = j;
-            index++;
-        }
-    }
-
-    return dir;  // Return the computed directions
-}
-void printDirections(const std::vector<std::vector<int>> & dir)
-{
-  for (size_t i = 0; i < dir[0].size(); i++) {
-    RCLCPP_INFO(
-      rclcpp::get_logger("astar_planner"), "Direction %zu: (%d, %d)", i, dir[0][i], dir[1][i]);
+  for (int i = -scale; i <= scale; i++) {
+      for (int j = -scale; j <= scale; j++) {
+          if (i == 0 && j == 0) {
+              continue;  // Skip the (0, 0) direction
+          }
+          dir.push_back({i, j});
+      }
   }
+
+  return dir;  // Return the computed directions
 }
 
 void Astar::configure(
@@ -86,19 +75,13 @@ void Astar::configure(
   costmap_ = costmap_ros->getCostmap();
   global_frame_ = costmap_ros->getGlobalFrameID();
   
-  // Parameter initialization
-  nav2_util::declare_parameter_if_not_declared(
-    node_, name_ + ".interpolation_resolution", rclcpp::ParameterValue(0.1));
-  node_->get_parameter(name_ + ".interpolation_resolution", interpolation_resolution_);
-  
-  // Additional parameters for A*
-  nav2_util::declare_parameter_if_not_declared(
-    node_, name_ + ".allow_diagonal", rclcpp::ParameterValue(true));
-  node_->get_parameter(name_ + ".allow_diagonal", allow_diagonal_);
-  
   nav2_util::declare_parameter_if_not_declared(
     node_, name_ + ".heuristic_weight", rclcpp::ParameterValue(0.0));
   node_->get_parameter(name_ + ".heuristic_weight", heuristic_weight_);
+
+  nav2_util::declare_parameter_if_not_declared(
+    node_, name_ + ".max_steer", rclcpp::ParameterValue(90.0));
+  node_->get_parameter(name_ + ".max_steer", max_steer_);
 }
 
 void Astar::cleanup()
@@ -147,6 +130,8 @@ nav_msgs::msg::Path Astar::createPlan(
   global_path.header.stamp = node_->now();
   global_path.header.frame_id = global_frame_;
 
+  double start_orientation = tf2::getYaw(start.pose.orientation); 
+
   unsigned int start_x, start_y, goal_x, goal_y;
   if (!costmap_->worldToMap(
       start.pose.position.x, start.pose.position.y, start_x, start_y))
@@ -192,6 +177,7 @@ nav_msgs::msg::Path Astar::createPlan(
     start.pose.position.x, start.pose.position.y,
     goal.pose.position.x, goal.pose.position.y);
   start_node->f = start_node->g + start_node->h;
+  start_node->yaw = start_orientation;
   start_node->parent = nullptr;
   
   // Add start node to open list
@@ -205,13 +191,13 @@ nav_msgs::msg::Path Astar::createPlan(
   std::unordered_map<unsigned int, std::unordered_map<unsigned int, std::shared_ptr<Node>>> node_map;
   node_map[start_x][start_y] = start_node;
   
-  const int scale_dir = 1;
-  std::vector<std::vector<int>> dir = calculatePossibleDirectionsx(scale_dir);
-  printDirections(dir);
+  const int scale_dir = 3;
+  std::vector<std::pair<int, int>> dir = calculatePossibleDirectionsx(scale_dir);
+  
 
 
   // int dir_limit = allow_diagonal_ ? 8 : 4;  // Use 8 directions if diagonals allowed, else 4
-  int dir_limit = dir[0].size();
+  int dir_limit = dir.size();
   RCLCPP_INFO(node_->get_logger(), "dir_limit: %d", dir_limit);
   RCLCPP_INFO(node_->get_logger(), "Res: %f", costmap_->getResolution());
   RCLCPP_INFO(node_->get_logger(), "Distance to goal: %f", calculateDist(start_node->x, start_node->y, goal_x, goal_y));
@@ -252,8 +238,8 @@ nav_msgs::msg::Path Astar::createPlan(
     
     for (int i = 0; i < dir_limit; i++) {
       // Use signed int for calculations to avoid underflow
-      int new_x_signed = static_cast<int>(current_node.x) + dir[0][i];
-      int new_y_signed = static_cast<int>(current_node.y) + dir[1][i];
+      int new_x_signed = static_cast<int>(current_node.x) + dir[i].first;
+      int new_y_signed = static_cast<int>(current_node.y) + dir[i].second;
       
       // Skip if outside map bounds
       if (new_x_signed < 0 || new_x_signed >= static_cast<int>(costmap_->getSizeInCellsX()) || 
@@ -266,15 +252,32 @@ nav_msgs::msg::Path Astar::createPlan(
       unsigned int new_y = static_cast<unsigned int>(new_y_signed);
       
       // Skip if in collision or already in closed set
-      Node neighbor = {new_x, new_y, 0, 0, 0, nullptr};
+      Node neighbor = {new_x, new_y, 0, 0, 0,0.0, nullptr};
       if (costmap_->getCost(new_x, new_y) >= nav2_costmap_2d::LETHAL_OBSTACLE ||
           closed_set.find(neighbor) != closed_set.end()) {
         continue;
       }
       
       // Calculate cost to this neighbor as distance
-      double movement_cost = calculateDist(dir[0][i], dir[1][i], 0, 0);
-      // double movement_cost = (i < 4) ? 1.0 : 1.414; 
+      double movement_cost = calculateDist(dir[i].first, dir[i].second, 0, 0);
+
+      // Calculate orientation to this neighbor
+      double orientation = calculateOrientation(
+        current_node.x, current_node.y, new_x, new_y);
+      double orientation_diff = std::abs(current_node.yaw - orientation);
+      // RCLCPP_INFO(
+      //   node_->get_logger(), "Current orientation: %f, New orientation: %f, Diff: %f",
+      //   current_node.yaw, orientation, orientation_diff);
+      double max_steer_rad = max_steer_ * 2 * M_PI / 360.0;
+
+      // Check if orientation is within limits
+      if (orientation_diff > max_steer_rad) {
+        // print x1 , y1 , x2, y2 and orientation and orientation_diff
+        RCLCPP_INFO(
+          node_->get_logger(), "Orientation out of limits: %d, %d, %d, %d, %f, %f",
+          current_node.x, current_node.y, new_x, new_y, orientation, orientation_diff);
+        continue;
+      }
       
       // Cost also depends on the cell's cost value
       unsigned char cost = costmap_->getCost(new_x, new_y);
@@ -302,6 +305,7 @@ nav_msgs::msg::Path Astar::createPlan(
         new_node->g = tentative_g;
         new_node->h = heuristic_weight_ * calculateDist(wx, wy, goal.pose.position.x, goal.pose.position.y);
         new_node->f = new_node->g + new_node->h;
+        new_node->yaw = orientation;
         new_node->parent = node_map[current_node.x][current_node.y];
         
         // Update best path to this position

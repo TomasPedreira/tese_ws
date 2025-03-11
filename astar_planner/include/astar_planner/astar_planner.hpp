@@ -58,6 +58,7 @@ private:
   double interpolation_resolution_;
   bool allow_diagonal_;
   double heuristic_weight_;
+  double max_steer_;
 };
 
 }  // namespace astar_planner
