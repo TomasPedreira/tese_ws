@@ -319,7 +319,7 @@ planner_server:
     use_sim_time: True
     GridBased:
       plugin: "astar_planner/Astar"
-      max_steer: 30.0
+      max_steer: 45.0
 
 planner_server_rclcpp_node:
   ros__parameters:

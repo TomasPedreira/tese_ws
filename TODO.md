@@ -22,7 +22,10 @@
 [x] 15:37 Make a simple A* where you can interact with obstacle layers;
 
 ## 11/03
-[x] 15:35 Add max steering to the ybrid astar;
+[x] 15:35 Add max steering to the hybrid astar;
+
+## 12/03
+[x] 15:00 Remake astar to me more scalable;
 
 
 ## next time

@@ -20,7 +20,6 @@
 namespace astar_planner
 {
 
-  typedef struct node_ Node;
 class Astar : public nav2_core::GlobalPlanner
 {
 public:
