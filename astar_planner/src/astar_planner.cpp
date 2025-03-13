@@ -43,7 +43,7 @@ namespace astar_planner
     return std::atan2(y2 - y1, x2 - x1);
   }
 
-  Node get_lowest_f_node(
+  int get_lowest_f_node(
     std::vector<Node> & open_list
   )
   {
@@ -51,17 +51,17 @@ namespace astar_planner
       throw std::runtime_error("open_list is empty!"); // Handle empty case
     }
 
-    auto lowest_it = open_list.begin();
-    for (auto it = open_list.begin(); it != open_list.end(); ++it) {
-        if (*it < *lowest_it) {  // Assuming `operator<` is defined for Node
-            lowest_it = it;
-        }
+    int index = 0;
+    double min_f = 999999;
+    for (size_t i = 0; i < open_list.size(); i++) {
+      if (open_list[i].f < min_f) {
+        min_f = open_list[i].f;
+        index = i;
+      }
     }
-
-    Node lowest_f_node = *lowest_it;
     
 
-    return lowest_f_node;
+    return index;
   }
 
   void update_neighbours
@@ -101,20 +101,23 @@ namespace astar_planner
       successor.f = successor.g + successor.h;
       successor.yaw = calculateOrientation(current_node.x, current_node.y, x, y);
       successor.parent = std::make_shared<Node>(current_node);
-      if (f_cost_map[x][y] != -1) {
-        if (successor.f < f_cost_map[x][y]) {
-          f_cost_map[x][y] = successor.f;
-          node_map[x][y] = successor;
-        }
-      } else {
+      if (successor.f < f_cost_map[x][y]){
         node_map[x][y] = successor;
         f_cost_map[x][y] = successor.f;
       }
-      auto it_open = std::find(open_list.begin(), open_list.end(), successor);
+        
+      bool found = false;
+      for (size_t i = 0; i < open_list.size(); i++) {
+        if (open_list[i].x == x && open_list[i].y == y) {
+          found = true;
+          break;
+        }
+      }
 
-      if (it_open == open_list.end() && !closed_list[x][y]) {
+      if (!found && !closed_list[x][y]) {
         open_list.push_back(successor);
       }
+
       if (x == goal_x && y == goal_y) {
         *path_found = true;
         node_map[x][y] = successor;
@@ -269,13 +272,19 @@ namespace astar_planner
     
     // compute a path
     while (!path_found) {
-      Node current = get_lowest_f_node(open_list);
-      open_list.erase(std::remove(open_list.begin(), open_list.end(), current), open_list.end());
-      if (prev_coord.first == current.x || prev_coord.second == current.y) {
+
+      int current_index = get_lowest_f_node(open_list);
+      Node current = open_list[current_index];  
+      open_list.erase(open_list.begin() + current_index);
+      closed_list[current.x][current.y] = true;
+      
+
+      if (prev_coord.first == current.x && prev_coord.second == current.y) {
         RCLCPP_INFO(
           node_->get_logger(), "REPEATED OH MY MGOD Current node: %d, %d", current.x, current.y);
       }
       prev_coord = {current.x, current.y};
+      
 
       if (current.f == 9999999) {
         RCLCPP_ERROR(
@@ -283,7 +292,7 @@ namespace astar_planner
         return global_path;
       }
       update_neighbours(current, open_list, closed_list, node_map, f_cost_map,dir, &path_found, goal_x, goal_y, costmap_);
-      closed_list[current.x][current.y] = true;
+      
     }
     Node current = node_map[goal_x][goal_y];
     while (current.parent != nullptr) {
