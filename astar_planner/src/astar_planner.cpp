@@ -48,10 +48,10 @@ namespace astar_planner
   )
   {
     if (open_list.empty()) {
-      throw std::runtime_error("open_list is empty!"); // Handle empty case
+      return -1;
     }
 
-    int index = 0;
+    int index = -1;
     double min_f = 999999;
     for (size_t i = 0; i < open_list.size(); i++) {
       if (open_list[i].f < min_f) {
@@ -276,6 +276,11 @@ namespace astar_planner
     while (!path_found) {
 
       int current_index = get_lowest_f_node(open_list);
+      if (current_index == -1) {
+        RCLCPP_ERROR(
+          node_->get_logger(), "No path found");
+        return global_path;
+      }
       Node current = open_list[current_index];  
       open_list.erase(open_list.begin() + current_index);
       closed_list[current.x][current.y] = true;
@@ -287,12 +292,7 @@ namespace astar_planner
       }
       prev_coord = {current.x, current.y};
       
-
-      if (current.f == 9999999) {
-        RCLCPP_ERROR(
-          node_->get_logger(), "No path found");
-        return global_path;
-      }
+      
       update_neighbours(current, open_list, closed_list, node_map, f_cost_map,dir, &path_found, goal_x, goal_y, costmap_);
       
     }
