@@ -54,10 +54,8 @@ private:
   // The global frame of the costmap
   std::string global_frame_, name_;
 
-  double interpolation_resolution_;
-  bool allow_diagonal_;
-  double heuristic_weight_;
   double max_steer_;
+  double tolerance_;
 };
 
 }  // namespace astar_planner

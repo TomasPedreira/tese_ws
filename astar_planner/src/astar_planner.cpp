@@ -7,33 +7,12 @@
 #include <algorithm>
 #include "nav2_util/node_utils.hpp"
 #include "astar_planner/astar_planner.hpp"
+#include "astar_planner/node2d.hpp"
 
 namespace astar_planner
 {
 
-  // Node structure for A* algorithm
-  struct Node {
-    unsigned int x, y;  // Changed from int to unsigned int to match costmap types
-    double f, g, h;
-    double yaw;
-    std::shared_ptr<Node> parent;
-
-    // For priority queue comparison
-    bool operator>(const Node & other) const
-    {
-      return f > other.f;
-    }
-    bool operator<(const Node & other) const
-    {
-      return f < other.f;
-    }
-
-    // For hash table
-    bool operator==(const Node & other) const
-    {
-      return x == other.x && y == other.y && yaw == other.yaw;
-    }
-  };
+  
   double calculateDist(double x1, double y1, double x2, double y2)
   {
     return std::hypot(x2 - x1, y2 - y1);
@@ -44,7 +23,7 @@ namespace astar_planner
   }
 
   int get_lowest_f_node(
-    std::vector<Node> & open_list
+    std::vector<node2d> & open_list
   )
   {
     if (open_list.empty()) {
@@ -66,18 +45,21 @@ namespace astar_planner
 
   void update_neighbours
   (
-    Node current_node, 
-    std::vector<Node> & open_list, 
+    node2d current_node, 
+    std::vector<node2d> & open_list, 
     std::vector<std::vector<bool>> & closed_list,
-    std::vector<std::vector<Node>> & node_map,
+    std::vector<std::vector<node2d>> & node_map,
     std::vector<std::vector<int>> & f_cost_map,
     std::vector<std::pair<int, int>> & dir, 
     bool * path_found,
-    unsigned int goal_x,
-    unsigned int goal_y,
+    node2d goal_node,
+    double tolerance,
     nav2_costmap_2d::Costmap2D * costmap_
   )
   {
+
+    unsigned int goal_x = goal_node.x;
+    unsigned int goal_y = goal_node.y;
     for (size_t i = 0; i < dir.size(); i++) {
       if (current_node.x == 0 && dir[i].first < 0) {
         continue;
@@ -93,14 +75,14 @@ namespace astar_planner
       if (costmap_->getCost(x, y) != 0) {
         continue;
       }
-      Node successor;
+      node2d successor = node2d();
       successor.x = x;
       successor.y = y;
       successor.g = current_node.g + calculateDist(current_node.x, current_node.y, x, y);
-      successor.h = calculateDist(x, y, goal_x, goal_y);
+      successor.h = calculateDist(x, y, goal_node.x, goal_node.y);
       successor.f = successor.g + successor.h;
       successor.yaw = calculateOrientation(current_node.x, current_node.y, x, y);
-      successor.parent = std::make_shared<Node>(current_node);
+      successor.parent = std::make_shared<node2d>(current_node);
       if (successor.f < f_cost_map[x][y]){
         node_map[x][y] = successor;
         f_cost_map[x][y] = successor.f;
@@ -117,10 +99,18 @@ namespace astar_planner
       if (!found && !closed_list[x][y]) {
         open_list.push_back(successor);
       }
-
-      if (x == goal_x && y == goal_y) {
+      if (calculateDist(x, y, goal_x, goal_y) <=  tolerance) {
         *path_found = true;
         node_map[x][y] = successor;
+        if (x != goal_node.x || y != goal_node.y) {
+          goal_node.h = 0;
+          goal_node.g = successor.g + calculateDist(x, y, goal_x, goal_y);
+          goal_node.f = goal_node.g + goal_node.h;
+          goal_node.parent = std::make_shared<node2d>(successor);
+          node_map[goal_x][goal_y] = goal_node;
+        }
+        RCLCPP_INFO(
+          rclcpp::get_logger("Vitoria"), "Path found");
         return;
       }
     }
@@ -141,6 +131,11 @@ namespace astar_planner
             dir.push_back({i, j});
         }
     }
+    // print every dir
+    // for (size_t i = 0; i < dir.size(); i++) {
+    //   RCLCPP_INFO(
+    //     rclcpp::get_logger("rclcpp"), "Direction: %d, %d", dir[i].first, dir[i].second);
+    // }
 
     return dir;  // Return the computed directions
   }
@@ -159,6 +154,9 @@ namespace astar_planner
     nav2_util::declare_parameter_if_not_declared(
       node_, name_ + ".max_steer", rclcpp::ParameterValue(90.0));
     node_->get_parameter(name_ + ".max_steer", max_steer_);
+    nav2_util::declare_parameter_if_not_declared(
+      node_, name_ + ".tolerance", rclcpp::ParameterValue(1.0));
+    node_->get_parameter(name_ + ".tolerance", tolerance_);
   }
 
   void Astar::cleanup()
@@ -208,7 +206,7 @@ namespace astar_planner
     global_path.header.stamp = node_->now();
     global_path.header.frame_id = global_frame_;
 
-    double start_orientation = tf2::getYaw(start.pose.orientation); 
+    // double start_orientation = tf2::getYaw(start.pose.orientation); 
 
     unsigned int start_x, start_y, goal_x, goal_y;
     if (!costmap_->worldToMap(
@@ -244,30 +242,31 @@ namespace astar_planner
     bool path_found = false;
     // create list of nodes
 
-    auto dir = calculatePossibleDirectionsx(1);
-    std::vector<Node> open_list;
+    auto dir = calculatePossibleDirectionsx(tolerance_);
+    int dir_size = dir.size();
+    std::vector<node2d> open_list;
     std::vector<std::vector<bool>> closed_list(costmap_->getSizeInCellsX(), std::vector<bool>(costmap_->getSizeInCellsY(), false));
-    std::vector<std::vector<Node>> node_map = std::vector<std::vector<Node>>(costmap_->getSizeInCellsX(), std::vector<Node>(costmap_->getSizeInCellsY()));
+    std::vector<std::vector<node2d>> node_map = std::vector<std::vector<node2d>>(costmap_->getSizeInCellsX(), std::vector<node2d>(costmap_->getSizeInCellsY()));
     std::vector<std::vector<int>> f_cost_map(costmap_->getSizeInCellsX(), std::vector<int>(costmap_->getSizeInCellsY(), -1));
    
 
     
-    Node start_node;
+    node2d start_node = node2d();
     start_node.x = start_x;
     start_node.y = start_y;
     start_node.g = 0;
     start_node.h = calculateDist(start.pose.position.x, start.pose.position.y, goal.pose.position.x, goal.pose.position.y);
     start_node.f = start_node.g + start_node.h;
-    start_node.yaw = start_orientation;
     start_node.parent = nullptr;
 
     open_list.push_back(start_node);
     node_map[start_x][start_y] = start_node;
 
-    Node goal_node;
+    node2d goal_node = node2d();
     goal_node.x = goal_x;
     goal_node.y = goal_y;
     goal_node.h = 0;
+    goal_node.yaw = tf2::getYaw(goal.pose.orientation);
     std::pair<unsigned int, unsigned int> prev_coord = {start_x, start_y};
     
     // get current tiimestamp
@@ -281,19 +280,19 @@ namespace astar_planner
           node_->get_logger(), "No path found");
         return global_path;
       }
-      Node current = open_list[current_index];  
+      node2d current = open_list[current_index];  
       open_list.erase(open_list.begin() + current_index);
       closed_list[current.x][current.y] = true;
       
 
-      if (prev_coord.first == current.x && prev_coord.second == current.y) {
+      if (prev_coord.first == current.x && prev_coord.second == current.y && prev_coord.first != start_x && prev_coord.second != start_y) {
         RCLCPP_INFO(
           node_->get_logger(), "REPEATED OH MY MGOD Current node: %d, %d", current.x, current.y);
       }
       prev_coord = {current.x, current.y};
       
       
-      update_neighbours(current, open_list, closed_list, node_map, f_cost_map,dir, &path_found, goal_x, goal_y, costmap_);
+      update_neighbours(current, open_list, closed_list, node_map, f_cost_map,dir, &path_found, goal_node, tolerance_,costmap_);
       
     }
     // print the time taken to compute the path
@@ -301,7 +300,7 @@ namespace astar_planner
     auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end_time - start_time);
     RCLCPP_INFO(
       node_->get_logger(), "Time taken to compute path: %ld ms", duration.count());
-    Node current = node_map[goal_x][goal_y];
+    node2d current = node_map[goal_x][goal_y];
     while (current.parent != nullptr) {
       geometry_msgs::msg::PoseStamped pose;
       pose.header.stamp = node_->now();
@@ -312,8 +311,7 @@ namespace astar_planner
       global_path.poses.insert(global_path.poses.begin(), pose);
       current = *current.parent;
     }
-    RCLCPP_INFO(
-      node_->get_logger(), "Path found");
+    
     return global_path;
   }
 }  // namespace astar_planner

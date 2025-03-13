@@ -30,12 +30,15 @@
 ## 13/03
 [x] 15:40 Finished remaking Astar to be more like mine;
 [X] 15:41 Start remaking hybrid astar (creating node object?????);
-[ ] ??:?? Add node in algorithm
+[x] 16:47 Add node in algorithm
+
 
 
 
 ## next time
-[x] 14:09 start making voronoi (ask teacher due to complication);
+[ ] Add directions;
+[ ] Add tolerance;
+[ ] Start making voronoi not in ros;
 [ ] Look for Voronoi creation packsges;
 [ ] Make Hybrid A*;
 [ ] Make voronoi;

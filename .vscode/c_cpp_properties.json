@@ -7,15 +7,14 @@
             },
             "includePath": [
                 "/opt/ros/humble/include/**",
-                "/home/rafael/ros2_ws/src/novamob_description/include/**",
-                "/home/rafael/ros2_ws/src/sam_bot_description/include/**",
+                "/home/tomas/tt_ws/src/tese_ws/astar_planner/include/**",
                 "/usr/include/**",
-                "${workspaceFolder}/build/scout_msgs/rosidl_generator_cpp"
+                "${workspaceFolder}/**"
             ],
             "name": "ROS",
             "intelliSenseMode": "gcc-x64",
             "compilerPath": "/usr/bin/gcc",
-            "cStandard": "gnu11",
+            "cStandard": "c11",
             "cppStandard": "c++14"
         }
     ],
