@@ -270,6 +270,8 @@ namespace astar_planner
     goal_node.h = 0;
     std::pair<unsigned int, unsigned int> prev_coord = {start_x, start_y};
     
+    // get current tiimestamp
+    auto start_time = std::chrono::high_resolution_clock::now();
     // compute a path
     while (!path_found) {
 
@@ -294,6 +296,11 @@ namespace astar_planner
       update_neighbours(current, open_list, closed_list, node_map, f_cost_map,dir, &path_found, goal_x, goal_y, costmap_);
       
     }
+    // print the time taken to compute the path
+    auto end_time = std::chrono::high_resolution_clock::now();
+    auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end_time - start_time);
+    RCLCPP_INFO(
+      node_->get_logger(), "Time taken to compute path: %ld ms", duration.count());
     Node current = node_map[goal_x][goal_y];
     while (current.parent != nullptr) {
       geometry_msgs::msg::PoseStamped pose;

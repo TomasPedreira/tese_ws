@@ -27,6 +27,12 @@
 ## 12/03
 [x] 15:00 Remake astar to me more scalable;
 
+## 13/03
+[x] 15:40 Finished remaking Astar to be more like mine;
+[X] 15:41 Start remaking hybrid astar (creating node object?????);
+[ ] ??:?? Add node in algorithm
+
+
 
 ## next time
 [x] 14:09 start making voronoi (ask teacher due to complication);
