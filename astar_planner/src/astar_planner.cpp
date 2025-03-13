@@ -43,74 +43,34 @@ namespace astar_planner
     return std::atan2(y2 - y1, x2 - x1);
   }
 
-  bool has_been_checked(
-    std::vector<std::pair<unsigned int, unsigned int>> & checked_coords,
-    unsigned int x,
-    unsigned int y
+  Node get_lowest_f_node(
+    std::vector<Node> & open_list
   )
   {
-    for (size_t i = 0; i < checked_coords.size(); i++) {
-      if (x == checked_coords[i].first && y == checked_coords[i].second) {
-        return true;
-      }
+    if (open_list.empty()) {
+      throw std::runtime_error("open_list is empty!"); // Handle empty case
     }
-    return false;
-  }
 
-  bool has_non_checked_neighbours(
-    std::vector<std::pair<unsigned int, unsigned int>> & checked_coords,
-    std::vector<std::pair<int, int>> & dir,
-    Node current_node,
-    nav2_costmap_2d::Costmap2D * costmap_
-  )
-  {
-    for (size_t i = 0; i < dir.size(); i++) {
-      if (current_node.x == 0 && dir[i].first < 0) {
-        continue;
-      }
-      if (current_node.y == 0 && dir[i].second < 0) {
-        continue;
-      }
-      unsigned int x = current_node.x + dir[i].first;
-      unsigned int y = current_node.y + dir[i].second;
-      if (x >= costmap_->getSizeInCellsX() || y >= costmap_->getSizeInCellsY()) {
-        continue;
-      }
-      if (costmap_->getCost(x, y) != 0) {
-        continue;
-      }
-      if (!has_been_checked(checked_coords, x, y)) {
-        return true;
-      }
+    auto lowest_it = open_list.begin();
+    for (auto it = open_list.begin(); it != open_list.end(); ++it) {
+        if (*it < *lowest_it) {  // Assuming `operator<` is defined for Node
+            lowest_it = it;
+        }
     }
-    return false;
-  }
+
+    Node lowest_f_node = *lowest_it;
     
 
-  Node get_lowest_f_node(
-    std::vector<std::vector<Node>> & checked_nodes,
-    std::vector<std::pair<unsigned int, unsigned int>> & checked_coords,
-    std::vector<std::pair<int, int>> & dir,
-    nav2_costmap_2d::Costmap2D * costmap_
-  )
-  {
-    Node lowest_f_node;
-    lowest_f_node.f = 9999999;
-    for (size_t i = 0; i < checked_coords.size(); i++) {
-      if (has_non_checked_neighbours(checked_coords, dir,checked_nodes[checked_coords[i].first][checked_coords[i].second], costmap_)) {
-        if (checked_nodes[checked_coords[i].first][checked_coords[i].second] < lowest_f_node) {
-          lowest_f_node = checked_nodes[checked_coords[i].first][checked_coords[i].second];
-        }
-      }
-    }
     return lowest_f_node;
   }
 
   void update_neighbours
   (
     Node current_node, 
-    std::vector<std::vector<Node>> & checked_nodes, 
-    std::vector<std::pair<unsigned int, unsigned int>> & checked_coords, 
+    std::vector<Node> & open_list, 
+    std::vector<std::vector<bool>> & closed_list,
+    std::vector<std::vector<Node>> & node_map,
+    std::vector<std::vector<int>> & f_cost_map,
     std::vector<std::pair<int, int>> & dir, 
     bool * path_found,
     unsigned int goal_x,
@@ -141,16 +101,23 @@ namespace astar_planner
       successor.f = successor.g + successor.h;
       successor.yaw = calculateOrientation(current_node.x, current_node.y, x, y);
       successor.parent = std::make_shared<Node>(current_node);
-      if (has_been_checked(checked_coords, x, y)) {
-        if (successor < checked_nodes[x][y]) {
-          checked_nodes[x][y] = successor;
+      if (f_cost_map[x][y] != -1) {
+        if (successor.f < f_cost_map[x][y]) {
+          f_cost_map[x][y] = successor.f;
+          node_map[x][y] = successor;
         }
       } else {
-        checked_nodes[x][y] = successor;
-        checked_coords.push_back({x, y});
+        node_map[x][y] = successor;
+        f_cost_map[x][y] = successor.f;
+      }
+      auto it_open = std::find(open_list.begin(), open_list.end(), successor);
+
+      if (it_open == open_list.end() && !closed_list[x][y]) {
+        open_list.push_back(successor);
       }
       if (x == goal_x && y == goal_y) {
         *path_found = true;
+        node_map[x][y] = successor;
         return;
       }
     }
@@ -275,9 +242,11 @@ namespace astar_planner
     // create list of nodes
 
     auto dir = calculatePossibleDirectionsx(1);
-    std::vector<std::vector<Node>> checked_nodes(costmap_->getSizeInCellsX(), std::vector<Node>(costmap_->getSizeInCellsY()));
-    // list of pairs of int checked
-    std::vector<std::pair<unsigned int, unsigned int>> checked_coords;
+    std::vector<Node> open_list;
+    std::vector<std::vector<bool>> closed_list(costmap_->getSizeInCellsX(), std::vector<bool>(costmap_->getSizeInCellsY(), false));
+    std::vector<std::vector<Node>> node_map = std::vector<std::vector<Node>>(costmap_->getSizeInCellsX(), std::vector<Node>(costmap_->getSizeInCellsY()));
+    std::vector<std::vector<int>> f_cost_map(costmap_->getSizeInCellsX(), std::vector<int>(costmap_->getSizeInCellsY(), -1));
+   
 
     
     Node start_node;
@@ -288,31 +257,35 @@ namespace astar_planner
     start_node.f = start_node.g + start_node.h;
     start_node.yaw = start_orientation;
     start_node.parent = nullptr;
-    checked_nodes[start_x][start_y] = start_node;
-    checked_coords.push_back({start_x, start_y});
-    update_neighbours(start_node, checked_nodes, checked_coords, dir, &path_found, goal_x, goal_y, costmap_);
+
+    open_list.push_back(start_node);
+    node_map[start_x][start_y] = start_node;
 
     Node goal_node;
     goal_node.x = goal_x;
     goal_node.y = goal_y;
     goal_node.h = 0;
-
+    std::pair<unsigned int, unsigned int> prev_coord = {start_x, start_y};
     
-
+    // compute a path
     while (!path_found) {
-      Node current = get_lowest_f_node(checked_nodes, checked_coords, dir, costmap_);
-      // log curent node position and statrting node position
-      RCLCPP_INFO(node_->get_logger(), "Current node position: %d, %d, starting psition: %d, %d", current.x, current.y, start_x, start_y);
+      Node current = get_lowest_f_node(open_list);
+      open_list.erase(std::remove(open_list.begin(), open_list.end(), current), open_list.end());
+      if (prev_coord.first == current.x || prev_coord.second == current.y) {
+        RCLCPP_INFO(
+          node_->get_logger(), "REPEATED OH MY MGOD Current node: %d, %d", current.x, current.y);
+      }
+      prev_coord = {current.x, current.y};
 
       if (current.f == 9999999) {
         RCLCPP_ERROR(
           node_->get_logger(), "No path found");
         return global_path;
       }
-      update_neighbours(current, checked_nodes, checked_coords, dir, &path_found, goal_x, goal_y, costmap_);
+      update_neighbours(current, open_list, closed_list, node_map, f_cost_map,dir, &path_found, goal_x, goal_y, costmap_);
+      closed_list[current.x][current.y] = true;
     }
-
-    Node current = checked_nodes[goal_x][goal_y];
+    Node current = node_map[goal_x][goal_y];
     while (current.parent != nullptr) {
       geometry_msgs::msg::PoseStamped pose;
       pose.header.stamp = node_->now();
@@ -322,10 +295,9 @@ namespace astar_planner
       pose.pose.orientation = tf2::toMsg(tf2::Quaternion(tf2::Vector3(0, 0, 1), current.yaw));
       global_path.poses.insert(global_path.poses.begin(), pose);
       current = *current.parent;
-    
-    
-      
     }
+    RCLCPP_INFO(
+      node_->get_logger(), "Path found");
     return global_path;
   }
 }  // namespace astar_planner

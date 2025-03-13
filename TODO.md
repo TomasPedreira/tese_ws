@@ -30,7 +30,8 @@
 
 ## next time
 [x] 14:09 start making voronoi (ask teacher due to complication);
-[ ] ??:?? Make Hybrid A*;
+[ ] Look for Voronoi creation packsges;
+[ ] Make Hybrid A*;
 [ ] Make voronoi;
 [ ] Make forward PP;
 [ ] Make Backwards PP;
