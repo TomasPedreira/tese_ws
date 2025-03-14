@@ -31,12 +31,26 @@ class VoronoiGraphNode(Node):
     
     def get_obstacle_edges(self, image):
         """Extract obstacle edges from the map using Canny edge detection."""
-        blurred = cv2.GaussianBlur(image, (5, 5), 0)
-        edges = cv2.Canny(blurred, 200, 254)
+        # blurred = cv2.GaussianBlur(image, (5, 5), 0)
+        edges = cv2.Canny(image, 200, 254)
+        
+        # Dilate the edges to create a buffer zone around obstacles
+        kernel = np.ones((5, 5), np.uint8)  # Adjust kernel size as needed
+        
         obstacle_points = np.column_stack(np.where(edges > 0))
         if not self.saved:
-            cv2.imwrite('/home/tomas/tt_ws/edges_map_V9.png', edges)
+            cv2.imwrite('/home/tomas/tt_ws/edges_map_V12.png', edges)
         return obstacle_points
+    
+    def is_line_in_free_space(self, image, p1, p2):
+        """Check if the line segment between p1 and p2 is in free space."""
+        line_points = np.linspace(p1, p2, num=100)
+        for point in line_points:
+            x, y = int(point[0]), int(point[1])
+            if 0 <= x < image.shape[0] and 0 <= y < image.shape[1]:
+                if image[x, y] <= 128:  # Obstacle is black
+                    return False
+        return True
     
     def compute_voronoi(self, obstacle_points):
         """Compute the Voronoi diagram from obstacle edge points."""
@@ -44,15 +58,26 @@ class VoronoiGraphNode(Node):
         return vor
     
     def filter_voronoi_nodes(self, image, vor):
-        """Filter Voronoi nodes to ensure they are in free space."""
+        """Filter Voronoi nodes to ensure they are in free space and not too close to obstacles."""
         free_space_mask = image > 128  # Free space is white
+        obstacle_mask = (image <= 128).astype(np.uint8)  # Convert boolean to uint8
+        
         valid_vertices = []
+        min_distance_to_obstacle = 10  # Minimum distance to obstacles (in pixels)
         
         for point in vor.vertices:
             x, y = int(point[0]), int(point[1])
             if 0 <= x < image.shape[0] and 0 <= y < image.shape[1]:
                 if free_space_mask[x, y]:
-                    valid_vertices.append(point)
+                    # Check distance to nearest obstacle
+                    distance_to_obstacle = cv2.distanceTransform(
+                        cv2.bitwise_not(obstacle_mask),  # Invert obstacle mask
+                        cv2.DIST_L2, 
+                        5
+                    )[x, y]
+                    
+                    if distance_to_obstacle >= min_distance_to_obstacle:
+                        valid_vertices.append(point)
         
         return np.array(valid_vertices)
     
@@ -65,7 +90,8 @@ class VoronoiGraphNode(Node):
             if -1 not in simplex:
                 p1, p2 = vor.vertices[simplex].astype(int)
                 if tuple(p1) in valid_vertices.tolist() and tuple(p2) in valid_vertices.tolist():
-                    cv2.line(output, tuple(p1[::-1]), tuple(p2[::-1]), (0, 0, 255), 1)
+                    if self.is_line_in_free_space(image, p1, p2):
+                        cv2.line(output, tuple(p1[::-1]), tuple(p2[::-1]), (0, 0, 255), 1)
         
         # Draw Voronoi nodes only if they are valid
         for point in valid_vertices:
@@ -82,12 +108,15 @@ class VoronoiGraphNode(Node):
         
         # Convert to ROS Image and publish
         if not self.saved:
-            cv2.imwrite('/home/tomas/tt_ws/voronoi_map_V9.png', voronoi_image)
+            cv2.imwrite('/home/tomas/tt_ws/voronoi_map_V12.png', voronoi_image)
             self.saved = True
 
         ros_image = self.bridge.cv2_to_imgmsg(voronoi_image, encoding='bgr8')
         self.publisher.publish(ros_image)
         self.get_logger().info("Published Voronoi Graph")
+        
+        # Stop the timer after processing once
+        self.timer.cancel()
 
 
 def main(args=None):
