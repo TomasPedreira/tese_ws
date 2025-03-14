@@ -21,6 +21,8 @@ find_package(tf2_ros REQUIRED)
 find_package(nav2_costmap_2d REQUIRED)
 find_package(nav2_core REQUIRED)
 find_package(pluginlib REQUIRED)
+find_package(ament_cmake_python REQUIRED)
+
 
 include_directories(
   include
@@ -66,12 +68,20 @@ install(TARGETS ${library_name}
   RUNTIME DESTINATION lib/${PROJECT_NAME}
 )
 
-install(DIRECTORY include/
+install(DIRECTORY include/ 
   DESTINATION include/
+)
+
+install(DIRECTORY scripts src include      
+  DESTINATION share/${PROJECT_NAME}
 )
 
 install(FILES global_planner_plugin.xml
   DESTINATION share/${PROJECT_NAME}
+)
+install(PROGRAMS
+  scripts/create_voronoi.py
+  DESTINATION lib/${PROJECT_NAME}
 )
 
 if(BUILD_TESTING)

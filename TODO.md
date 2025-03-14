@@ -33,6 +33,9 @@
 [x] 16:47 Add node in algorithm
 [x] 17:33 Add tolerance;
 
+## 14/03
+[X] 16:40 Create voronoigraph using python;
+
 
 
 
