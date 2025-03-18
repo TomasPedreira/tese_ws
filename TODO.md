@@ -37,11 +37,13 @@
 [X] 16:40 Create voronoigraph using python;
 
 ## 18/03
-[ ] ??:?? Make export of the nodes to be read;
-[ ] ??:?? Read nodes' positions in the planner;
+[x] 16:03 Make export of the nodes to be read (csv with some issues);
+[x] 16:15 Make export of the nodes to be read (txt);
 
 
 ## next time
+[ ] ??:?? Make voronoi class;
+[ ] ??:?? Read nodes' positions in the planner;
 [ ] Add directions;
 [ ] Start making voronoi not in ros;
 [ ] Look for Voronoi creation packsges;
