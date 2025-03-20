@@ -40,9 +40,12 @@
 [x] 16:03 Make export of the nodes to be read (csv with some issues);
 [x] 16:15 Make export of the nodes to be read (txt);
 
+## 20/03
+[x] 15:42 Make voronoi class;
+
+
 
 ## next time
-[ ] ??:?? Make voronoi class;
 [ ] ??:?? Read nodes' positions in the planner;
 [ ] Add directions;
 [ ] Look for Voronoi creation packsges;

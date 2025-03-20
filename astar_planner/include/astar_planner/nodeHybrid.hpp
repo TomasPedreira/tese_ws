@@ -3,20 +3,18 @@
 
 
 #include <memory>
-
-using namespace std;
+#include <vector>
 
 class nodeHybrid {
     public:
         unsigned int x, y;
-        double f, g, h, yaw, steer;
+        double f, g, h, yaw;
         std::shared_ptr<nodeHybrid> parent;
-        std::vector<double> steer_list;
+        std::vector<std::pair<int, int>> neighbours;
 
         nodeHybrid() {};
 
-        nodeHybrid(unsigned int x, unsigned int y, double f, double g, double h, std::shared_ptr<nodeHybrid> parent)
-        {
+        nodeHybrid(unsigned int x, unsigned int y, double f, double g, double h, std::shared_ptr<nodeHybrid> parent, std::vector<std::pair<int, int>> neighbours) {
             this->x = x;
             this->y = y;
             this->f = f;
@@ -24,6 +22,7 @@ class nodeHybrid {
             this->h = h;
             this->parent = parent;
             this->yaw = 0.0;
+            this->neighbours = neighbours;
         };
 
         bool operator>(const nodeHybrid & other) const
@@ -37,7 +36,7 @@ class nodeHybrid {
 
         bool operator==(const nodeHybrid & other) const
         {
-            return x == other.x && y == other.y && steer == other.steer;
+            return x == other.x && y == other.y;
         }
         
 };

@@ -146,16 +146,10 @@ class VoronoiGraphNode(Node):
                     
                     # Check if the edge is in free space
                     if self.is_line_in_free_space(image, vor.vertices[v1], vor.vertices[v2]):
-                        # Convert to map coordinates to calculate actual distance
-                        p1_map_x, p1_map_y = self.pixel_to_map_coords(vor.vertices[v1][0], vor.vertices[v1][1])
-                        p2_map_x, p2_map_y = self.pixel_to_map_coords(vor.vertices[v2][0], vor.vertices[v2][1])
-                        
-                        # Calculate Euclidean distance in map coordinates
-                        dist = np.sqrt((p1_map_x - p2_map_x)**2 + (p1_map_y - p2_map_y)**2)
-                        
+                    
                         # Add connections (bidirectional)
-                        adjacency_list[new_v1].append((new_v2, dist))
-                        adjacency_list[new_v2].append((new_v1, dist))
+                        adjacency_list[new_v1].append((new_v2))
+                        adjacency_list[new_v2].append((new_v1))
         
         return adjacency_list, vertex_mapping
     
@@ -171,12 +165,18 @@ class VoronoiGraphNode(Node):
                 map_x, map_y = self.pixel_to_map_coords(valid_vertices[i][0], valid_vertices[i][1])
                 neighbors = adjacency_list[i]
                 
-                # Format: node_id x y num_neighbors neighbor_id1:distance1 neighbor_id2:distance2 ...
-                neighbor_str = " ".join([f"{n}:{d:.4f}" for n, d in neighbors])
+                # Format: node_id x y num_neighbors neighbor_x1 neighbor_y1 neighbor_x2 neighbor_y2 ...
+                neighbor_coords = []
+                for n in neighbors:
+                    # Convert neighbor pixel coordinates to map coordinates
+                    n_map_x, n_map_y = self.pixel_to_map_coords(valid_vertices[n][0], valid_vertices[n][1])
+                    neighbor_coords.append(f"{n_map_x:.4f} {n_map_y:.4f}")
+                
+                neighbor_str = " ".join(neighbor_coords)
                 f.write(f"{i} {map_x:.4f} {map_y:.4f} {len(neighbors)} {neighbor_str}\n")
         
         self.get_logger().info(f"Exported {len(valid_vertices)} nodes to {output_file}")
-    
+
     def plot_voronoi(self, image, vor, valid_vertices, adjacency_list, vertex_mapping):
         """Draw the Voronoi diagram overlay on the map, highlighting valid nodes and connections."""
         output = cv2.cvtColor(image, cv2.COLOR_GRAY2BGR)
@@ -184,7 +184,7 @@ class VoronoiGraphNode(Node):
         # Draw valid Voronoi edges based on adjacency list
         for i, neighbors in adjacency_list.items():
             p1 = valid_vertices[i].astype(int)
-            for j, _ in neighbors:
+            for j in neighbors:
                 p2 = valid_vertices[j].astype(int)
                 cv2.line(output, tuple(p1[::-1]), tuple(p2[::-1]), (0, 0, 255), 1)
         
