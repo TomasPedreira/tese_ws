@@ -9,8 +9,9 @@ using namespace std;
 class nodeHybrid {
     public:
         unsigned int x, y;
-        double f, g, h, yaw;
+        double f, g, h, yaw, steer;
         std::shared_ptr<nodeHybrid> parent;
+        std::vector<double> steer_list;
 
         nodeHybrid() {};
 
@@ -36,7 +37,7 @@ class nodeHybrid {
 
         bool operator==(const nodeHybrid & other) const
         {
-            return x == other.x && y == other.y;
+            return x == other.x && y == other.y && steer == other.steer;
         }
         
 };

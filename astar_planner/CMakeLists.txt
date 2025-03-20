@@ -72,7 +72,7 @@ install(DIRECTORY include/
   DESTINATION include/
 )
 
-install(DIRECTORY scripts src include      
+install(DIRECTORY scripts src include map     
   DESTINATION share/${PROJECT_NAME}
 )
 

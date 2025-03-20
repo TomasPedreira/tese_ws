@@ -45,7 +45,6 @@
 [ ] ??:?? Make voronoi class;
 [ ] ??:?? Read nodes' positions in the planner;
 [ ] Add directions;
-[ ] Start making voronoi not in ros;
 [ ] Look for Voronoi creation packsges;
 [ ] Make Hybrid A*;
 [ ] Make voronoi;
