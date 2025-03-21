@@ -5,12 +5,77 @@
 #include <vector>
 #include <unordered_set>
 #include <algorithm>
+#include <fstream>
 #include "nav2_util/node_utils.hpp"
 #include "astar_planner/astar_planner.hpp"
 #include "astar_planner/node2d.hpp"
+#include "astar_planner/nodeHybrid.hpp"
+
 
 namespace astar_planner
 {
+
+
+  std::vector<std::vector<nodeHybrid>> read_nodes(string filename, nav2_costmap_2d::Costmap2D * costmap_, rclcpp::Logger logger)
+  {
+      // open file
+
+      // read file and store in node_map
+      // file struture is index x y numofneighbours neighbour1x neighbour1y neighbour2x neighbour2y ... neighbourNx neighbourNy
+      // first line is the number of nodes
+      // node map is a 2d vector of hybrid nodes indexed by x and y positions
+      // x and y is in aboslute coordinates, and need to be converted to costmap coordinates
+      std::vector<std::vector<nodeHybrid>> node_map = std::vector<std::vector<nodeHybrid>>(costmap_->getSizeInCellsX(), std::vector<nodeHybrid>(costmap_->getSizeInCellsY()));
+      std::ifstream file;
+      file.open(filename);
+      if (!file.is_open()) {
+          return node_map;
+      }
+      int num_nodes;
+      file >> num_nodes;
+      // log the number of nodes
+      RCLCPP_INFO(
+        logger, "Number of nodes: %d", num_nodes);
+      for (int i = 0; i < num_nodes; i++) {
+          float x, y;
+          int index, num_neighbours;
+          file >> index >> x >> y >> num_neighbours;
+          unsigned int costmap_x, costmap_y;
+          std::vector<std::pair<int, int>> neighbours;
+          // log the node
+          RCLCPP_INFO(
+            logger, "Node: %f, %f", x, y);
+          if (!costmap_->worldToMap(x, y, costmap_x, costmap_y)) {
+              
+          }
+          for (int j = 0; j < num_neighbours; j++) {
+              float neighbour_x, neighbour_y;
+              file >> neighbour_x >> neighbour_y;
+              unsigned int costmap_neighbour_x, costmap_neighbour_y;
+              if (!costmap_->worldToMap(neighbour_x, neighbour_y, costmap_neighbour_x, costmap_neighbour_y)) {
+                  
+              }
+              neighbours.push_back(std::make_pair(costmap_neighbour_x, costmap_neighbour_y));
+              // log the neighbour
+              RCLCPP_INFO(
+                logger, "Neighbour: %f, %f", neighbour_x, neighbour_y);
+          }
+          // log creating node
+          RCLCPP_INFO(logger, "Creating node: %d, %d, %d", i, costmap_x, costmap_y);
+          nodeHybrid node = nodeHybrid(costmap_x, costmap_y, 0, 0, 0, nullptr, neighbours);
+          // log created node
+          RCLCPP_INFO(
+            logger, "Created node: %d", i);
+          node_map[costmap_x][costmap_y] = node;
+          // log finished first node
+          RCLCPP_INFO(
+            logger, "Finished node: %d", i);
+
+      }
+      file.close();
+      return node_map;
+
+  }
 
   
   double calculateDist(double x1, double y1, double x2, double y2)
@@ -151,6 +216,8 @@ namespace astar_planner
     costmap_ = costmap_ros->getCostmap();
     global_frame_ = costmap_ros->getGlobalFrameID();
 
+    
+
     nav2_util::declare_parameter_if_not_declared(
       node_, name_ + ".max_steer", rclcpp::ParameterValue(90.0));
     node_->get_parameter(name_ + ".max_steer", max_steer_);
@@ -242,8 +309,16 @@ namespace astar_planner
     bool path_found = false;
     // create list of nodes
 
+    
+    voronoi_nodes_ = read_nodes("/home/tomas/tt_ws/src/tese_ws/astar_planner/map/voronoi_nodes.txt", costmap_, node_->get_logger());
+    // for (size_t i = 0; i < voronoi_nodes_.size(); i++) {
+    //   for (size_t j = 0; j < voronoi_nodes_[i].size(); j++) {
+    //       RCLCPP_INFO(
+    //         node_->get_logger(), "Node: %d, %d", voronoi_nodes_[i][j].x, voronoi_nodes_[i][j].y);
+        
+    //   }
+    // }
     auto dir = calculatePossibleDirectionsx(tolerance_);
-    int dir_size = dir.size();
     std::vector<node2d> open_list;
     std::vector<std::vector<bool>> closed_list(costmap_->getSizeInCellsX(), std::vector<bool>(costmap_->getSizeInCellsY(), false));
     std::vector<std::vector<node2d>> node_map = std::vector<std::vector<node2d>>(costmap_->getSizeInCellsX(), std::vector<node2d>(costmap_->getSizeInCellsY()));

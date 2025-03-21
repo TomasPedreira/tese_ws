@@ -43,10 +43,11 @@
 ## 20/03
 [x] 15:42 Make voronoi class;
 
-
+## 21/03
+[x] 15:44 Read nodes' positions in the planner;
+[ ] Use the readnodes instead of sampling cspace;
 
 ## next time
-[ ] ??:?? Read nodes' positions in the planner;
 [ ] Add directions;
 [ ] Look for Voronoi creation packsges;
 [ ] Make Hybrid A*;

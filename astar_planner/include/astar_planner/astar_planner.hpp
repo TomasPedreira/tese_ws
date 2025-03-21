@@ -16,6 +16,8 @@
 #include "nav2_util/robot_utils.hpp"
 #include "nav2_util/lifecycle_node.hpp"
 #include "nav2_costmap_2d/costmap_2d_ros.hpp"
+#include "astar_planner/nodeHybrid.hpp"
+
 
 namespace astar_planner
 {
@@ -53,6 +55,8 @@ private:
 
   // The global frame of the costmap
   std::string global_frame_, name_;
+
+  std::vector<std::vector<nodeHybrid>> voronoi_nodes_;
 
   double max_steer_;
   double tolerance_;

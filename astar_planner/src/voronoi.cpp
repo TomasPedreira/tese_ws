@@ -10,7 +10,7 @@
 #include "nav2_costmap_2d/costmap_2d.hpp"
 
 
-std::vector<std::vector<nodeHybrid>> read_nodes(char* filename, nav2_costmap_2d::Costmap2D * costmap_)
+std::vector<std::vector<nodeHybrid>> read_nodes(string filename, nav2_costmap_2d::Costmap2D * costmap_)
 {
     // open file
 
@@ -19,7 +19,8 @@ std::vector<std::vector<nodeHybrid>> read_nodes(char* filename, nav2_costmap_2d:
     // first line is the number of nodes
     // node map is a 2d vector of hybrid nodes indexed by x and y positions
     // x and y is in aboslute coordinates, and need to be converted to costmap coordinates
-    
+    std::vector<std::vector<nodeHybrid>> node_map;
+    return node_map;
     std::ifstream file;
     file.open(filename);
     if (!file.is_open()) {
@@ -27,7 +28,7 @@ std::vector<std::vector<nodeHybrid>> read_nodes(char* filename, nav2_costmap_2d:
     }
     int num_nodes;
     file >> num_nodes;
-    std::vector<std::vector<nodeHybrid>> node_map;
+    
     for (int i = 0; i < num_nodes; i++) {
         int x, y, num_neighbours;
         file >> x >> y >> num_neighbours;
