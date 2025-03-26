@@ -55,7 +55,7 @@ It is equipped with the following sensors:
 - **GPS sensor**
 
 ### Novamob
-Novamob is a small 4 wheel drive custom robot designed for indoor environments. This is not the focus of this thesis ad is a result of a previous project developed in the original repo.
+Novamob is a small 4 wheel drive custom robot designed for indoor environments. This is not the focus of this thesis and is a result of a previous project developed in the original repo.
 
 ## Launch files
 
