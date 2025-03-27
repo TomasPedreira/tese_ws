@@ -56,7 +56,7 @@ private:
   // The global frame of the costmap
   std::string global_frame_, name_;
 
-  std::vector<std::vector<nodeHybrid>> voronoi_nodes_;
+  std::vector<nodeHybrid> voronoi_nodes_;
 
   double max_steer_;
   double tolerance_;

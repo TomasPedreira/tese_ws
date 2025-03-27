@@ -165,15 +165,13 @@ class VoronoiGraphNode(Node):
                 map_x, map_y = self.pixel_to_map_coords(valid_vertices[i][0], valid_vertices[i][1])
                 neighbors = adjacency_list[i]
                 
-                # Format: node_id x y num_neighbors neighbor_x1 neighbor_y1 neighbor_x2 neighbor_y2 ...
+                # Format: node_id x y num_neighbors neighbor_id1 ... neighbor_idN
+                f.write(f"{i} {map_x:.3f} {map_y:.3f} {len(neighbors)}")
+                for neighbor in neighbors:
+                    f.write(f" {neighbor}")
+                f.write("\n")
                 neighbor_coords = []
-                for n in neighbors:
-                    # Convert neighbor pixel coordinates to map coordinates
-                    n_map_x, n_map_y = self.pixel_to_map_coords(valid_vertices[n][0], valid_vertices[n][1])
-                    neighbor_coords.append(f"{n_map_x:.4f} {n_map_y:.4f}")
                 
-                neighbor_str = " ".join(neighbor_coords)
-                f.write(f"{i} {map_x:.4f} {map_y:.4f} {len(neighbors)} {neighbor_str}\n")
         
         self.get_logger().info(f"Exported {len(valid_vertices)} nodes to {output_file}")
 

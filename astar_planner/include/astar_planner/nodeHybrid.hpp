@@ -8,21 +8,22 @@
 class nodeHybrid {
     public:
         unsigned int x, y;
+        int id;
         double f, g, h, yaw;
         std::shared_ptr<nodeHybrid> parent;
-        std::vector<std::pair<int, int>> neighbours;
+        std::vector<int> neighbours;
+        bool is_outside;
 
         nodeHybrid() {};
 
-        nodeHybrid(unsigned int x, unsigned int y, double f, double g, double h, std::shared_ptr<nodeHybrid> parent, std::vector<std::pair<int, int>> neighbours) {
+        nodeHybrid(int id, bool outside, unsigned int x, unsigned int y, std::shared_ptr<nodeHybrid> parent, std::vector<int> neighbours) {
+            this->id = id;
             this->x = x;
             this->y = y;
-            this->f = f;
-            this->g = g;
-            this->h = h;
             this->parent = parent;
             this->yaw = 0.0;
             this->neighbours = neighbours;
+            this->is_outside = outside;
         };
 
         bool operator>(const nodeHybrid & other) const

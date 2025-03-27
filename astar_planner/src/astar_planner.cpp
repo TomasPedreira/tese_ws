@@ -10,71 +10,103 @@
 #include "astar_planner/astar_planner.hpp"
 #include "astar_planner/node2d.hpp"
 #include "astar_planner/nodeHybrid.hpp"
+// #include "astar_planner/voronoi.hpp"
 
 
 namespace astar_planner
 {
 
+  double euclidean_distance(unsigned int x1, unsigned int y1, unsigned int x2, unsigned int y2) {
+    return std::sqrt(std::pow(static_cast<double>(x1) - x2, 2) + std::pow(static_cast<double>(y1) - y2, 2));
+  }
+  std::vector<nodeHybrid> read_nodes(const std::string& filename, nav2_costmap_2d::Costmap2D* costmap_) {
+    std::vector<nodeHybrid> voronoi_nodes;
+    std::ifstream file(filename);
+    if (!file) {
+        std::cerr << "Failed to open file: " << filename << std::endl;
+        return voronoi_nodes;
+    }
 
-  std::vector<std::vector<nodeHybrid>> read_nodes(string filename, nav2_costmap_2d::Costmap2D * costmap_, rclcpp::Logger logger)
-  {
-      // open file
+    int num_nodes;
+    file >> num_nodes;
+    if (file.fail()) {
+        std::cerr << "Error: Failed to read number of nodes" << std::endl;
+        return voronoi_nodes;
+    }
+    file.ignore(); // Ignore newline after reading num_nodes
 
-      // read file and store in node_map
-      // file struture is index x y numofneighbours neighbour1x neighbour1y neighbour2x neighbour2y ... neighbourNx neighbourNy
-      // first line is the number of nodes
-      // node map is a 2d vector of hybrid nodes indexed by x and y positions
-      // x and y is in aboslute coordinates, and need to be converted to costmap coordinates
-      std::vector<std::vector<nodeHybrid>> node_map = std::vector<std::vector<nodeHybrid>>(costmap_->getSizeInCellsX(), std::vector<nodeHybrid>(costmap_->getSizeInCellsY()));
-      std::ifstream file;
-      file.open(filename);
-      if (!file.is_open()) {
-          return node_map;
+    std::cout << "Reading " << num_nodes << " nodes from file" << std::endl;
+
+    for (int i = 0; i < num_nodes; ++i) {
+        std::string line;
+        if (!std::getline(file, line)) {
+            std::cerr << "Error: Unexpected end of file at node " << i << std::endl;
+            break;
+        }
+
+        std::istringstream iss(line);
+        int id, num_neighbors;
+        float x, y;
+
+        if (!(iss >> id >> x >> y >> num_neighbors)) {
+            std::cerr << "Error reading node " << i << " from line: " << line << std::endl;
+            continue;
+        }
+
+        //std::cout << "Node " << id << " at (" << x << ", " << y << ") with " << num_neighbors << " neighbors" << std::endl;
+
+        std::vector<int> neighbors;
+        for (int j = 0; j < num_neighbors; ++j) {
+            int neighbor_id;
+            if (!(iss >> neighbor_id)) {
+                std::cerr << "Error reading neighbor " << j << " for node " << id << " from line: " << line << std::endl;
+                break;
+            }
+            neighbors.push_back(neighbor_id);
+        }
+
+        unsigned int costmap_x, costmap_y;
+        if (!costmap_->worldToMap(x, y, costmap_x, costmap_y)) {
+            std::cerr << "Node " << id << " is outside costmap bounds" << std::endl;
+            voronoi_nodes.emplace_back(id, true, 999999, 99999, nullptr, neighbors);
+            continue;
+        }
+
+        voronoi_nodes.emplace_back(id, false, costmap_x, costmap_y, nullptr, neighbors);
+    }
+
+    std::cout << "Successfully loaded " << voronoi_nodes.size() << " nodes" << std::endl;
+    return voronoi_nodes;
+  }
+  std::vector<int> get_neighbours(const std::vector<nodeHybrid>& voronoi_nodes, 
+    const nodeHybrid& start_node, 
+    nav2_costmap_2d::Costmap2D* costmap_, 
+    int k) 
+  {  
+    std::vector<std::pair<int, double>> nearest_nodes; // (Node ID, Distance)
+
+    for (const auto& node : voronoi_nodes) {
+      double distance = euclidean_distance(start_node.x, start_node.y, node.x, node.y);
+
+      // Check if the node is traversable (not an obstacle)
+      unsigned char cost = costmap_->getCost(node.x, node.y);
+      if (cost < nav2_costmap_2d::LETHAL_OBSTACLE) {  
+        nearest_nodes.push_back({node.id, distance});
       }
-      int num_nodes;
-      file >> num_nodes;
-      // log the number of nodes
-      RCLCPP_INFO(
-        logger, "Number of nodes: %d", num_nodes);
-      for (int i = 0; i < num_nodes; i++) {
-          float x, y;
-          int index, num_neighbours;
-          file >> index >> x >> y >> num_neighbours;
-          unsigned int costmap_x, costmap_y;
-          std::vector<std::pair<int, int>> neighbours;
-          // log the node
-          RCLCPP_INFO(
-            logger, "Node: %f, %f", x, y);
-          if (!costmap_->worldToMap(x, y, costmap_x, costmap_y)) {
-              
-          }
-          for (int j = 0; j < num_neighbours; j++) {
-              float neighbour_x, neighbour_y;
-              file >> neighbour_x >> neighbour_y;
-              unsigned int costmap_neighbour_x, costmap_neighbour_y;
-              if (!costmap_->worldToMap(neighbour_x, neighbour_y, costmap_neighbour_x, costmap_neighbour_y)) {
-                  
-              }
-              neighbours.push_back(std::make_pair(costmap_neighbour_x, costmap_neighbour_y));
-              // log the neighbour
-              RCLCPP_INFO(
-                logger, "Neighbour: %f, %f", neighbour_x, neighbour_y);
-          }
-          // log creating node
-          RCLCPP_INFO(logger, "Creating node: %d, %d, %d", i, costmap_x, costmap_y);
-          nodeHybrid node = nodeHybrid(costmap_x, costmap_y, 0, 0, 0, nullptr, neighbours);
-          // log created node
-          RCLCPP_INFO(
-            logger, "Created node: %d", i);
-          node_map[costmap_x][costmap_y] = node;
-          // log finished first node
-          RCLCPP_INFO(
-            logger, "Finished node: %d", i);
+    }
 
-      }
-      file.close();
-      return node_map;
+    // Sort nodes by distance (ascending)
+    std::sort(nearest_nodes.begin(), nearest_nodes.end(), [](const auto& a, const auto& b) {
+      return a.second < b.second;
+    });
 
+    // Collect the `k` nearest nodes
+    std::vector<int> closest_node_ids;
+    for (int i = 0; i < std::min(k, static_cast<int>(nearest_nodes.size())); i++) {
+      closest_node_ids.push_back(nearest_nodes[i].first);
+    }
+
+    return closest_node_ids;
   }
 
   
@@ -307,17 +339,22 @@ namespace astar_planner
     }
 
     bool path_found = false;
-    // create list of nodes
 
-    
-    voronoi_nodes_ = read_nodes("/home/tomas/tt_ws/src/tese_ws/astar_planner/map/voronoi_nodes.txt", costmap_, node_->get_logger());
-    // for (size_t i = 0; i < voronoi_nodes_.size(); i++) {
-    //   for (size_t j = 0; j < voronoi_nodes_[i].size(); j++) {
-    //       RCLCPP_INFO(
-    //         node_->get_logger(), "Node: %d, %d", voronoi_nodes_[i][j].x, voronoi_nodes_[i][j].y);
-        
-    //   }
-    // }
+    voronoi_nodes_ = read_nodes(
+      "/home/tomas/tt_ws/src/tese_ws/astar_planner/map/voronoi_nodes.txt", 
+      costmap_
+    );
+
+    nodeHybrid start_nodeh = nodeHybrid();
+    start_nodeh.x = start_x;
+    start_nodeh.y = start_y;
+    start_nodeh.g = 0;
+    start_nodeh.h = calculateDist(start.pose.position.x, start.pose.position.y, goal.pose.position.x, goal.pose.position.y);
+    start_nodeh.f = start_nodeh.g + start_nodeh.h;
+    start_nodeh.parent = nullptr;
+    start_nodeh.neighbours = get_neighbours(voronoi_nodes_, start_nodeh, costmap_, 5);
+
+
     auto dir = calculatePossibleDirectionsx(tolerance_);
     std::vector<node2d> open_list;
     std::vector<std::vector<bool>> closed_list(costmap_->getSizeInCellsX(), std::vector<bool>(costmap_->getSizeInCellsY(), false));
