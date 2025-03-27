@@ -320,7 +320,7 @@ planner_server:
     GridBased:
       plugin: "astar_planner/Astar"
       max_steer: 45.0
-      tolerance: 3.0
+      tolerance: 8.0
 
 planner_server_rclcpp_node:
   ros__parameters:

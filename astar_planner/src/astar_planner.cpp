@@ -19,6 +19,7 @@ namespace astar_planner
   double euclidean_distance(unsigned int x1, unsigned int y1, unsigned int x2, unsigned int y2) {
     return std::sqrt(std::pow(static_cast<double>(x1) - x2, 2) + std::pow(static_cast<double>(y1) - y2, 2));
   }
+
   std::vector<nodeHybrid> read_nodes(const std::string& filename, nav2_costmap_2d::Costmap2D* costmap_) {
     std::vector<nodeHybrid> voronoi_nodes;
     std::ifstream file(filename);
@@ -78,23 +79,22 @@ namespace astar_planner
     std::cout << "Successfully loaded " << voronoi_nodes.size() << " nodes" << std::endl;
     return voronoi_nodes;
   }
+
   std::vector<int> get_neighbours(const std::vector<nodeHybrid>& voronoi_nodes, 
     const nodeHybrid& start_node, 
     nav2_costmap_2d::Costmap2D* costmap_, 
     int k) 
   {  
     std::vector<std::pair<int, double>> nearest_nodes; // (Node ID, Distance)
-
     for (const auto& node : voronoi_nodes) {
       double distance = euclidean_distance(start_node.x, start_node.y, node.x, node.y);
-
-      // Check if the node is traversable (not an obstacle)
-      unsigned char cost = costmap_->getCost(node.x, node.y);
-      if (cost < nav2_costmap_2d::LETHAL_OBSTACLE) {  
-        nearest_nodes.push_back({node.id, distance});
+      if (!node.is_outside){
+        unsigned char cost = costmap_->getCost(node.x, node.y);
+        if (cost < nav2_costmap_2d::LETHAL_OBSTACLE) {  
+          nearest_nodes.push_back({node.id, distance});
+        }
       }
     }
-
     // Sort nodes by distance (ascending)
     std::sort(nearest_nodes.begin(), nearest_nodes.end(), [](const auto& a, const auto& b) {
       return a.second < b.second;
@@ -120,7 +120,7 @@ namespace astar_planner
   }
 
   int get_lowest_f_node(
-    std::vector<node2d> & open_list
+    std::vector<nodeHybrid> & open_list
   )
   {
     if (open_list.empty()) {
@@ -142,44 +142,43 @@ namespace astar_planner
 
   void update_neighbours
   (
-    node2d current_node, 
-    std::vector<node2d> & open_list, 
+    nodeHybrid current_node, 
+    std::vector<nodeHybrid> voronoi_nodes,
+    std::vector<nodeHybrid> & open_list, 
     std::vector<std::vector<bool>> & closed_list,
-    std::vector<std::vector<node2d>> & node_map,
+    std::vector<std::vector<nodeHybrid>> & node_map,
     std::vector<std::vector<int>> & f_cost_map,
     std::vector<std::pair<int, int>> & dir, 
     bool * path_found,
-    node2d goal_node,
+    nodeHybrid goal_node,
     double tolerance,
     nav2_costmap_2d::Costmap2D * costmap_
   )
   {
-
     unsigned int goal_x = goal_node.x;
     unsigned int goal_y = goal_node.y;
-    for (size_t i = 0; i < dir.size(); i++) {
+    for (size_t i = 0; i < current_node.neighbours.size(); i++) {
       if (current_node.x == 0 && dir[i].first < 0) {
         continue;
       }
       if (current_node.y == 0 && dir[i].second < 0) {
         continue;
       }
-      unsigned int x = current_node.x + dir[i].first;
-      unsigned int y = current_node.y + dir[i].second;
+      nodeHybrid successor = voronoi_nodes[current_node.neighbours[i]];
+      unsigned int x = successor.x;
+      unsigned int y = successor.y;
       if (x >= costmap_->getSizeInCellsX() || y >= costmap_->getSizeInCellsY()) {
         continue;
       }
       if (costmap_->getCost(x, y) != 0) {
         continue;
       }
-      node2d successor = node2d();
-      successor.x = x;
-      successor.y = y;
+      
       successor.g = current_node.g + calculateDist(current_node.x, current_node.y, x, y);
       successor.h = calculateDist(x, y, goal_node.x, goal_node.y);
       successor.f = successor.g + successor.h;
       successor.yaw = calculateOrientation(current_node.x, current_node.y, x, y);
-      successor.parent = std::make_shared<node2d>(current_node);
+      successor.parent = std::make_shared<nodeHybrid>(current_node);
       if (successor.f < f_cost_map[x][y]){
         node_map[x][y] = successor;
         f_cost_map[x][y] = successor.f;
@@ -203,7 +202,7 @@ namespace astar_planner
           goal_node.h = 0;
           goal_node.g = successor.g + calculateDist(x, y, goal_x, goal_y);
           goal_node.f = goal_node.g + goal_node.h;
-          goal_node.parent = std::make_shared<node2d>(successor);
+          goal_node.parent = std::make_shared<nodeHybrid>(successor);
           node_map[goal_x][goal_y] = goal_node;
         }
         RCLCPP_INFO(
@@ -345,54 +344,68 @@ namespace astar_planner
       costmap_
     );
 
-    nodeHybrid start_nodeh = nodeHybrid();
-    start_nodeh.x = start_x;
-    start_nodeh.y = start_y;
-    start_nodeh.g = 0;
-    start_nodeh.h = calculateDist(start.pose.position.x, start.pose.position.y, goal.pose.position.x, goal.pose.position.y);
-    start_nodeh.f = start_nodeh.g + start_nodeh.h;
-    start_nodeh.parent = nullptr;
-    start_nodeh.neighbours = get_neighbours(voronoi_nodes_, start_nodeh, costmap_, 5);
-
-
-    auto dir = calculatePossibleDirectionsx(tolerance_);
-    std::vector<node2d> open_list;
-    std::vector<std::vector<bool>> closed_list(costmap_->getSizeInCellsX(), std::vector<bool>(costmap_->getSizeInCellsY(), false));
-    std::vector<std::vector<node2d>> node_map = std::vector<std::vector<node2d>>(costmap_->getSizeInCellsX(), std::vector<node2d>(costmap_->getSizeInCellsY()));
-    std::vector<std::vector<int>> f_cost_map(costmap_->getSizeInCellsX(), std::vector<int>(costmap_->getSizeInCellsY(), -1));
-   
-
-    
-    node2d start_node = node2d();
+    nodeHybrid start_node = nodeHybrid();
     start_node.x = start_x;
     start_node.y = start_y;
     start_node.g = 0;
     start_node.h = calculateDist(start.pose.position.x, start.pose.position.y, goal.pose.position.x, goal.pose.position.y);
     start_node.f = start_node.g + start_node.h;
     start_node.parent = nullptr;
+    
+
+    start_node.neighbours = get_neighbours(voronoi_nodes_, start_node, costmap_, 5);
+    for (size_t i = 0; i < start_node.neighbours.size(); i++) {
+      RCLCPP_INFO(
+        node_->get_logger(), "Neighbour: %d", start_node.neighbours[i]);
+    }
+
+    auto dir = calculatePossibleDirectionsx(tolerance_);
+    // std::vector<node2d> open_list;
+    std::vector<nodeHybrid> open_list;
+    std::vector<std::vector<bool>> closed_list(costmap_->getSizeInCellsX(), std::vector<bool>(costmap_->getSizeInCellsY(), false));
+    // std::vector<std::vector<node2d>> node_map = std::vector<std::vector<node2d>>(costmap_->getSizeInCellsX(), std::vector<node2d>(costmap_->getSizeInCellsY()));
+    std::vector<std::vector<nodeHybrid>> node_map = std::vector<std::vector<nodeHybrid>>(costmap_->getSizeInCellsX(), std::vector<nodeHybrid>(costmap_->getSizeInCellsY()));
+    std::vector<std::vector<int>> f_cost_map(costmap_->getSizeInCellsX(), std::vector<int>(costmap_->getSizeInCellsY(), -1));
+   
+
+    
+    // node2d start_node = node2d();
+    // start_node.x = start_x;
+    // start_node.y = start_y;
+    // start_node.g = 0;
+    // start_node.h = calculateDist(start.pose.position.x, start.pose.position.y, goal.pose.position.x, goal.pose.position.y);
+    // start_node.f = start_node.g + start_node.h;
+    // start_node.parent = nullptr;
 
     open_list.push_back(start_node);
     node_map[start_x][start_y] = start_node;
 
-    node2d goal_node = node2d();
+    // node2d goal_node = node2d();
+    // goal_node.x = goal_x;
+    // goal_node.y = goal_y;
+    // goal_node.h = 0;
+    // goal_node.yaw = tf2::getYaw(goal.pose.orientation);
+    // std::pair<unsigned int, unsigned int> prev_coord = {start_x, start_y};
+    nodeHybrid goal_node = nodeHybrid();
     goal_node.x = goal_x;
     goal_node.y = goal_y;
     goal_node.h = 0;
     goal_node.yaw = tf2::getYaw(goal.pose.orientation);
     std::pair<unsigned int, unsigned int> prev_coord = {start_x, start_y};
+
     
     // get current tiimestamp
     auto start_time = std::chrono::high_resolution_clock::now();
     // compute a path
     while (!path_found) {
-
+    
       int current_index = get_lowest_f_node(open_list);
       if (current_index == -1) {
         RCLCPP_ERROR(
           node_->get_logger(), "No path found");
         return global_path;
       }
-      node2d current = open_list[current_index];  
+      nodeHybrid current = open_list[current_index];  
       open_list.erase(open_list.begin() + current_index);
       closed_list[current.x][current.y] = true;
       
@@ -403,8 +416,7 @@ namespace astar_planner
       }
       prev_coord = {current.x, current.y};
       
-      
-      update_neighbours(current, open_list, closed_list, node_map, f_cost_map,dir, &path_found, goal_node, tolerance_,costmap_);
+      update_neighbours(current, voronoi_nodes_,open_list, closed_list, node_map, f_cost_map,dir, &path_found, goal_node, tolerance_,costmap_);
       
     }
     // print the time taken to compute the path
@@ -412,7 +424,7 @@ namespace astar_planner
     auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end_time - start_time);
     RCLCPP_INFO(
       node_->get_logger(), "Time taken to compute path: %ld ms", duration.count());
-    node2d current = node_map[goal_x][goal_y];
+    nodeHybrid current = node_map[goal_x][goal_y];
     while (current.parent != nullptr) {
       geometry_msgs::msg::PoseStamped pose;
       pose.header.stamp = node_->now();
