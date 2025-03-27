@@ -47,9 +47,9 @@ namespace astar_planner
 
         std::istringstream iss(line);
         int id, num_neighbors;
-        float x, y;
+        unsigned int x, y;
 
-        if (!(iss >> id >> x >> y >> num_neighbors)) {
+        if (!(iss >> id >> y >> x >> num_neighbors)) {
             std::cerr << "Error reading node " << i << " from line: " << line << std::endl;
             continue;
         }
@@ -66,14 +66,13 @@ namespace astar_planner
             neighbors.push_back(neighbor_id);
         }
 
-        unsigned int costmap_x, costmap_y;
-        if (!costmap_->worldToMap(x, y, costmap_x, costmap_y)) {
-            std::cerr << "Node " << id << " is outside costmap bounds" << std::endl;
+        if (x > costmap_->getSizeInCellsX() || y > costmap_->getSizeInCellsY()) {
+            std::cerr << "Node " << id << " is outside costmap bounds" << costmap_->getSizeInCellsX() << costmap_->getSizeInCellsY() << std::endl;
             voronoi_nodes.emplace_back(id, true, 999999, 99999, nullptr, neighbors);
             continue;
         }
 
-        voronoi_nodes.emplace_back(id, false, costmap_x, costmap_y, nullptr, neighbors);
+        voronoi_nodes.emplace_back(id, false, x, y, nullptr, neighbors);
     }
 
     std::cout << "Successfully loaded " << voronoi_nodes.size() << " nodes" << std::endl;

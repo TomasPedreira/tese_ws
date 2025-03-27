@@ -56,18 +56,6 @@ class VoronoiGraphNode(Node):
                 'free_thresh': 0.25
             }
     
-    def pixel_to_map_coords(self, pixel_x, pixel_y):
-        """Convert pixel coordinates to map coordinates."""
-        map_x = pixel_y * self.map_params['resolution'] + self.map_params['origin'][0]
-        map_y = pixel_x * self.map_params['resolution'] + self.map_params['origin'][1]
-        return map_x, map_y
-    
-    def map_to_pixel_coords(self, map_x, map_y):
-        """Convert map coordinates to pixel coordinates."""
-        pixel_y = int((map_x - self.map_params['origin'][0]) / self.map_params['resolution'])
-        pixel_x = int((map_y - self.map_params['origin'][1]) / self.map_params['resolution'])
-        return pixel_x, pixel_y
-    
     def load_pgm_map(self):
         """Load a PGM file as a NumPy array."""
         image = cv2.imread(self.pgm_file, cv2.IMREAD_GRAYSCALE)
@@ -154,24 +142,22 @@ class VoronoiGraphNode(Node):
         return adjacency_list, vertex_mapping
     
     def export_nodes_to_file(self, valid_vertices, adjacency_list, output_file):
-        """Export nodes and their neighbors to a text file."""
+        """Export nodes and their neighbors to a text file using pixel coordinates."""
         with open(output_file, 'w') as f:
             # Write number of nodes first
             f.write(f"{len(valid_vertices)}\n")
             
             # Write each node's position and its neighbors
             for i in range(len(valid_vertices)):
-                # Convert pixel coordinates to map coordinates
-                map_x, map_y = self.pixel_to_map_coords(valid_vertices[i][0], valid_vertices[i][1])
+                # Use pixel coordinates directly
+                x, y = int(valid_vertices[i][0]), int(valid_vertices[i][1])
                 neighbors = adjacency_list[i]
                 
                 # Format: node_id x y num_neighbors neighbor_id1 ... neighbor_idN
-                f.write(f"{i} {map_x:.3f} {map_y:.3f} {len(neighbors)}")
+                f.write(f"{i} {x} {y} {len(neighbors)}")
                 for neighbor in neighbors:
                     f.write(f" {neighbor}")
                 f.write("\n")
-                neighbor_coords = []
-                
         
         self.get_logger().info(f"Exported {len(valid_vertices)} nodes to {output_file}")
 
@@ -187,13 +173,8 @@ class VoronoiGraphNode(Node):
                 cv2.line(output, tuple(p1[::-1]), tuple(p2[::-1]), (0, 0, 255), 1)
         
         # Draw Voronoi nodes
-        for i, point in enumerate(valid_vertices):
-            # Convert to map coordinates for display
-            map_x, map_y = self.pixel_to_map_coords(point[0], point[1])
-        
-            
+        for point in valid_vertices:
             cv2.circle(output, tuple(point[::-1].astype(int)), 2, (255, 0, 0), -1)
-        
         
         return output
     
@@ -206,10 +187,10 @@ class VoronoiGraphNode(Node):
         # Build adjacency graph
         adjacency_list, vertex_mapping = self.build_adjacency_graph(vor, valid_indices, image)
         
-        # Export nodes and neighbors to file with map coordinates
+        # Export nodes and neighbors to file with pixel coordinates
         self.export_nodes_to_file(valid_vertices, adjacency_list, self.output_file)
         
-        # Create visualization with node IDs and map coordinates
+        # Create visualization with node IDs and pixel coordinates
         voronoi_image = self.plot_voronoi(image, vor, valid_vertices, adjacency_list, vertex_mapping)
         
         # Save visualization
