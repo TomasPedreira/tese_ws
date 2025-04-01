@@ -18,7 +18,7 @@ class VoronoiGraphNode(Node):
         self.declare_parameter('pgm_file', '/home/tomas/tt_ws/wall_map.pgm')
         self.declare_parameter('yaml_file', '/home/tomas/tt_ws/wall_map.yaml')
         self.declare_parameter('output_file', '/home/tomas/tt_ws/voronoi_nodes.txt')
-        self.declare_parameter('min_node_distance', 5.0)  # Adjustable distance
+        self.declare_parameter('min_node_distance', 10.0)
         self.pgm_file = self.get_parameter('pgm_file').value
         self.yaml_file = self.get_parameter('yaml_file').value
         self.output_file = self.get_parameter('output_file').value
@@ -40,8 +40,6 @@ class VoronoiGraphNode(Node):
         """Extract obstacle edges from the map using Canny edge detection."""
         edges = cv2.Canny(image, 200, 254)
         obstacle_points = np.column_stack(np.where(edges > 0))
-        if not self.saved:
-            cv2.imwrite('/home/tomas/tt_ws/edges_map_V30.png', edges)
         return obstacle_points
     
     def is_line_in_free_space(self, image, p1, p2):
@@ -73,23 +71,24 @@ class VoronoiGraphNode(Node):
         
         return np.array(valid_vertices), valid_indices
     
-    def find_closest_node(self, image, pos, vertices, exclude_idx=None):
-        """Find the closest node to pos in free space, excluding exclude_idx."""
+    def find_closest_exclusive_node(self, image, pos, vertices, current_neighbors, adjacency_list, exclude_idx):
+        """Find the closest node not connected to current_neighbors."""
         min_dist = float('inf')
         closest_idx = None
         for i, vertex in enumerate(vertices):
-            if i != exclude_idx:
-                dist = np.linalg.norm(pos - vertex)
-                if dist < min_dist and self.is_line_in_free_space(image, pos, vertex):
-                    min_dist = dist
-                    closest_idx = i
+            if i != exclude_idx and i not in current_neighbors:
+                all_neighbors = set(adjacency_list[i])
+                if not (all_neighbors & set(current_neighbors)):  # No overlap with current neighbors
+                    dist = np.linalg.norm(pos - vertex)
+                    if dist < min_dist and self.is_line_in_free_space(image, pos, vertex):
+                        min_dist = dist
+                        closest_idx = i
         return closest_idx, min_dist
     
     def prune_and_reconnect_nodes(self, image, valid_vertices, adjacency_list):
-        """Prune nodes and reconnect to closest nodes for optimal connectivity."""
+        """Prune nodes and ensure each has at least 2 exclusive neighbors."""
         kept_vertices = []
         kept_indices = []
-        new_adjacency_list = {}
         
         # Prune nodes with minimum distance constraint
         for i, vertex in enumerate(valid_vertices):
@@ -107,7 +106,7 @@ class VoronoiGraphNode(Node):
         num_nodes = len(kept_vertices)
         new_adjacency_list = {i: [] for i in range(num_nodes)}
         
-        # Transfer original edges for kept nodes
+        # Transfer original edges
         for old_idx in index_mapping:
             new_idx = index_mapping[old_idx]
             for neighbor in adjacency_list[old_idx]:
@@ -116,42 +115,44 @@ class VoronoiGraphNode(Node):
                     if new_neighbor_idx not in new_adjacency_list[new_idx]:
                         new_adjacency_list[new_idx].append(new_neighbor_idx)
         
-        # Reconnect pruned nodes' neighbors to their closest kept nodes
+        # Reconnect pruned nodes' neighbors
         for old_idx in range(len(valid_vertices)):
-            if old_idx not in index_mapping:  # Pruned node
-                pruned_pos = valid_vertices[old_idx]
+            if old_idx not in index_mapping:
                 neighbors = adjacency_list[old_idx]
                 kept_neighbors = [n for n in neighbors if n in index_mapping]
-                if kept_neighbors:
-                    # For each kept neighbor, connect it to its closest kept node
-                    for n in kept_neighbors:
-                        n_idx = index_mapping[n]
-                        n_pos = kept_vertices[n_idx]
-                        closest_idx, _ = self.find_closest_node(image, n_pos, kept_vertices, exclude_idx=n_idx)
-                        if closest_idx is not None and closest_idx not in new_adjacency_list[n_idx]:
-                            new_adjacency_list[n_idx].append(closest_idx)
-                            if n_idx not in new_adjacency_list[closest_idx]:
-                                new_adjacency_list[closest_idx].append(n_idx)
+                for n in kept_neighbors:
+                    n_idx = index_mapping[n]
+                    n_pos = kept_vertices[n_idx]
+                    closest_idx, _ = self.find_closest_exclusive_node(image, n_pos, kept_vertices, new_adjacency_list[n_idx], new_adjacency_list, n_idx)
+                    if closest_idx is not None and closest_idx not in new_adjacency_list[n_idx]:
+                        new_adjacency_list[n_idx].append(closest_idx)
+                        if n_idx not in new_adjacency_list[closest_idx]:
+                            new_adjacency_list[closest_idx].append(n_idx)
         
-        # Ensure no isolated nodes by connecting to closest neighbor
+        # Enforce at least 2 exclusive neighbors
         for i in range(num_nodes):
-            if not new_adjacency_list[i]:
-                pos = kept_vertices[i]
-                closest_idx, _ = self.find_closest_node(image, pos, kept_vertices, exclude_idx=i)
+            neighbors = new_adjacency_list[i]
+            pos = kept_vertices[i]
+            exclusive_count = 0
+            
+            # Count exclusive neighbors
+            for n in neighbors:
+                n_neighbors = set(new_adjacency_list[n]) - {i}
+                if not (n_neighbors & set(neighbors) - {n}):
+                    exclusive_count += 1
+            
+            # Add exclusive neighbors if needed
+            while exclusive_count < 2:
+                closest_idx, _ = self.find_closest_exclusive_node(image, pos, kept_vertices, neighbors, new_adjacency_list, i)
                 if closest_idx is not None:
                     new_adjacency_list[i].append(closest_idx)
                     if i not in new_adjacency_list[closest_idx]:
                         new_adjacency_list[closest_idx].append(i)
-        
-        # Optional: Add additional connections to nearby nodes for robustness
-        for i in range(num_nodes):
-            pos = kept_vertices[i]
-            for j in range(num_nodes):
-                if i != j and j not in new_adjacency_list[i]:
-                    dist = np.linalg.norm(pos - kept_vertices[j])
-                    if dist < self.min_node_distance * 2 and self.is_line_in_free_space(image, pos, kept_vertices[j]):
-                        new_adjacency_list[i].append(j)
-                        new_adjacency_list[j].append(i)
+                    neighbors = new_adjacency_list[i]
+                    exclusive_count += 1
+                else:
+                    self.get_logger().warn(f"Node {i} at {pos} could not find enough exclusive neighbors.")
+                    break
         
         return np.array(kept_vertices), new_adjacency_list
     
@@ -195,7 +196,7 @@ class VoronoiGraphNode(Node):
                 cv2.line(output, tuple(p1[::-1]), tuple(p2[::-1]), (0, 0, 255), 1)
         for point in valid_vertices:
             cv2.circle(output, tuple(point[::-1].astype(int)), 2, (255, 0, 0), -1)
-        cv2.imwrite('/home/tomas/tt_ws/voronoi_graph.png', output)
+        cv2.imwrite('/home/tomas/tt_ws/voronoi_graph_V33.png', output)
         self.get_logger().info("Saved Voronoi graph visualization")
         
     def process_map(self):
@@ -205,8 +206,19 @@ class VoronoiGraphNode(Node):
         valid_vertices, valid_indices = self.filter_voronoi_nodes(image, vor)
         adjacency_list = self.build_adjacency_graph(vor, valid_indices, image)
         
-        # Prune and reconnect nodes
+        # Prune and reconnect nodes with new rule
         valid_vertices, adjacency_list = self.prune_and_reconnect_nodes(image, valid_vertices, adjacency_list)
+        
+        # Debug connectivity
+        isolated = sum(1 for i in adjacency_list if not adjacency_list[i])
+        avg_neighbors = sum(len(adjacency_list[i]) for i in adjacency_list) / len(adjacency_list)
+        exclusive_counts = []
+        for i in adjacency_list:
+            neighbors = adjacency_list[i]
+            exclusive_count = sum(1 for n in neighbors if not (set(adjacency_list[n]) & set(neighbors) - {n, i}))
+            exclusive_counts.append(exclusive_count)
+        min_exclusive = min(exclusive_counts) if exclusive_counts else 0
+        self.get_logger().info(f"Isolated nodes: {isolated}, Avg neighbors: {avg_neighbors:.2f}, Min exclusive neighbors: {min_exclusive}")
         
         self.export_nodes_to_file(valid_vertices, adjacency_list, self.output_file)
         self.save_voronoi_image(image, valid_vertices, adjacency_list)
