@@ -18,43 +18,18 @@ class VoronoiGraphNode(Node):
         self.declare_parameter('pgm_file', '/home/tomas/tt_ws/wall_map.pgm')
         self.declare_parameter('yaml_file', '/home/tomas/tt_ws/wall_map.yaml')
         self.declare_parameter('output_file', '/home/tomas/tt_ws/voronoi_nodes.txt')
+        self.declare_parameter('min_node_distance', 5.0)  # Adjustable distance
         self.pgm_file = self.get_parameter('pgm_file').value
         self.yaml_file = self.get_parameter('yaml_file').value
         self.output_file = self.get_parameter('output_file').value
-        
-        # Load map parameters
-        self.map_params = self.load_map_params()
-        self.get_logger().info(f"Map parameters: {self.map_params}")
-        
+        self.min_node_distance = self.get_parameter('min_node_distance').value
+                
         self.bridge = CvBridge()
         self.publisher = self.create_publisher(Image, 'voronoi_graph', 10)
         
         self.timer = self.create_timer(2.0, self.process_map)
         self.get_logger().info("Voronoi Graph Node Initialized")
         self.saved = False
-    
-    def load_map_params(self):
-        """Load map parameters from YAML file."""
-        try:
-            with open(self.yaml_file, 'r') as f:
-                params = yaml.safe_load(f)
-                
-            # Default values if not in YAML
-            if 'resolution' not in params:
-                params['resolution'] = 0.05
-            if 'origin' not in params:
-                params['origin'] = [0.0, 0.0, 0.0]
-                
-            return params
-        except Exception as e:
-            self.get_logger().error(f"Failed to load map parameters: {e}")
-            # Use defaults from your provided YAML
-            return {
-                'resolution': 0.05,
-                'origin': [-8.84, -4.63, 0.0],
-                'occupied_thresh': 0.65,
-                'free_thresh': 0.25
-            }
     
     def load_pgm_map(self):
         """Load a PGM file as a NumPy array."""
@@ -64,18 +39,14 @@ class VoronoiGraphNode(Node):
     def get_obstacle_edges(self, image):
         """Extract obstacle edges from the map using Canny edge detection."""
         edges = cv2.Canny(image, 200, 254)
-        
-        # Dilate the edges to create a buffer zone around obstacles
-        kernel = np.ones((5, 5), np.uint8)  # Adjust kernel size as needed
-        
         obstacle_points = np.column_stack(np.where(edges > 0))
         if not self.saved:
-            cv2.imwrite('/home/tomas/tt_ws/edges_map_V20.png', edges)
+            cv2.imwrite('/home/tomas/tt_ws/edges_map_V30.png', edges)
         return obstacle_points
     
     def is_line_in_free_space(self, image, p1, p2):
         """Check if the line segment between p1 and p2 is in free space."""
-        line_points = np.linspace(p1, p2, num=100)
+        line_points = np.linspace(p1, p2, num=50)
         for point in line_points:
             x, y = int(point[0]), int(point[1])
             if 0 <= x < image.shape[0] and 0 <= y < image.shape[1]:
@@ -89,123 +60,158 @@ class VoronoiGraphNode(Node):
         return vor
     
     def filter_voronoi_nodes(self, image, vor):
-        """Filter Voronoi nodes to ensure they are in free space and not too close to obstacles."""
+        """Filter Voronoi nodes to ensure they are in free space."""
         free_space_mask = image > 128  # Free space is white
-        obstacle_mask = (image <= 128).astype(np.uint8)  # Convert boolean to uint8
-        
         valid_vertices = []
-        valid_indices = []  # Store indices of valid vertices
-        min_distance_to_obstacle = 10  # Minimum distance to obstacles (in pixels)
+        valid_indices = []
         
         for idx, point in enumerate(vor.vertices):
             x, y = int(point[0]), int(point[1])
-            if 0 <= x < image.shape[0] and 0 <= y < image.shape[1]:
-                if free_space_mask[x, y]:
-                    # Check distance to nearest obstacle
-                    distance_to_obstacle = cv2.distanceTransform(
-                        cv2.bitwise_not(obstacle_mask),  # Invert obstacle mask
-                        cv2.DIST_L2, 
-                        5
-                    )[x, y]
-                    
-                    if distance_to_obstacle >= min_distance_to_obstacle:
-                        valid_vertices.append(point)
-                        valid_indices.append(idx)
+            if 0 <= x < image.shape[0] and 0 <= y < image.shape[1] and free_space_mask[x, y]:
+                valid_vertices.append(point)
+                valid_indices.append(idx)
         
         return np.array(valid_vertices), valid_indices
     
-    def build_adjacency_graph(self, vor, valid_indices, image):
-        """Build an adjacency graph of valid Voronoi vertices."""
-        # Create a mapping from original vertex indices to new indices
-        vertex_mapping = {old_idx: new_idx for new_idx, old_idx in enumerate(valid_indices)}
+    def find_closest_node(self, image, pos, vertices, exclude_idx=None):
+        """Find the closest node to pos in free space, excluding exclude_idx."""
+        min_dist = float('inf')
+        closest_idx = None
+        for i, vertex in enumerate(vertices):
+            if i != exclude_idx:
+                dist = np.linalg.norm(pos - vertex)
+                if dist < min_dist and self.is_line_in_free_space(image, pos, vertex):
+                    min_dist = dist
+                    closest_idx = i
+        return closest_idx, min_dist
+    
+    def prune_and_reconnect_nodes(self, image, valid_vertices, adjacency_list):
+        """Prune nodes and reconnect to closest nodes for optimal connectivity."""
+        kept_vertices = []
+        kept_indices = []
+        new_adjacency_list = {}
         
-        # Create adjacency list
+        # Prune nodes with minimum distance constraint
+        for i, vertex in enumerate(valid_vertices):
+            keep = True
+            for kept_vertex in kept_vertices:
+                if np.linalg.norm(vertex - kept_vertex) < self.min_node_distance:
+                    keep = False
+                    break
+            if keep:
+                kept_vertices.append(vertex)
+                kept_indices.append(i)
+        
+        # Create mapping from old to new indices
+        index_mapping = {old_idx: new_idx for new_idx, old_idx in enumerate(kept_indices)}
+        num_nodes = len(kept_vertices)
+        new_adjacency_list = {i: [] for i in range(num_nodes)}
+        
+        # Transfer original edges for kept nodes
+        for old_idx in index_mapping:
+            new_idx = index_mapping[old_idx]
+            for neighbor in adjacency_list[old_idx]:
+                if neighbor in index_mapping:
+                    new_neighbor_idx = index_mapping[neighbor]
+                    if new_neighbor_idx not in new_adjacency_list[new_idx]:
+                        new_adjacency_list[new_idx].append(new_neighbor_idx)
+        
+        # Reconnect pruned nodes' neighbors to their closest kept nodes
+        for old_idx in range(len(valid_vertices)):
+            if old_idx not in index_mapping:  # Pruned node
+                pruned_pos = valid_vertices[old_idx]
+                neighbors = adjacency_list[old_idx]
+                kept_neighbors = [n for n in neighbors if n in index_mapping]
+                if kept_neighbors:
+                    # For each kept neighbor, connect it to its closest kept node
+                    for n in kept_neighbors:
+                        n_idx = index_mapping[n]
+                        n_pos = kept_vertices[n_idx]
+                        closest_idx, _ = self.find_closest_node(image, n_pos, kept_vertices, exclude_idx=n_idx)
+                        if closest_idx is not None and closest_idx not in new_adjacency_list[n_idx]:
+                            new_adjacency_list[n_idx].append(closest_idx)
+                            if n_idx not in new_adjacency_list[closest_idx]:
+                                new_adjacency_list[closest_idx].append(n_idx)
+        
+        # Ensure no isolated nodes by connecting to closest neighbor
+        for i in range(num_nodes):
+            if not new_adjacency_list[i]:
+                pos = kept_vertices[i]
+                closest_idx, _ = self.find_closest_node(image, pos, kept_vertices, exclude_idx=i)
+                if closest_idx is not None:
+                    new_adjacency_list[i].append(closest_idx)
+                    if i not in new_adjacency_list[closest_idx]:
+                        new_adjacency_list[closest_idx].append(i)
+        
+        # Optional: Add additional connections to nearby nodes for robustness
+        for i in range(num_nodes):
+            pos = kept_vertices[i]
+            for j in range(num_nodes):
+                if i != j and j not in new_adjacency_list[i]:
+                    dist = np.linalg.norm(pos - kept_vertices[j])
+                    if dist < self.min_node_distance * 2 and self.is_line_in_free_space(image, pos, kept_vertices[j]):
+                        new_adjacency_list[i].append(j)
+                        new_adjacency_list[j].append(i)
+        
+        return np.array(kept_vertices), new_adjacency_list
+    
+    def build_adjacency_graph(self, vor, valid_indices, image):
+        """Build an adjacency graph of valid Voronoi vertices ensuring connectivity."""
+        vertex_mapping = {old_idx: new_idx for new_idx, old_idx in enumerate(valid_indices)}
         adjacency_list = {new_idx: [] for new_idx in range(len(valid_indices))}
         
-        # Process ridge vertices to build connections
         for ridge in vor.ridge_vertices:
-            if -1 not in ridge:  # Skip ridges that extend to infinity
+            if -1 not in ridge:
                 v1, v2 = ridge
-                
-                # Check if both vertices are valid
                 if v1 in vertex_mapping and v2 in vertex_mapping:
                     new_v1 = vertex_mapping[v1]
                     new_v2 = vertex_mapping[v2]
-                    
-                    # Check if the edge is in free space
                     if self.is_line_in_free_space(image, vor.vertices[v1], vor.vertices[v2]):
-                    
-                        # Add connections (bidirectional)
-                        adjacency_list[new_v1].append((new_v2))
-                        adjacency_list[new_v2].append((new_v1))
+                        adjacency_list[new_v1].append(new_v2)
+                        adjacency_list[new_v2].append(new_v1)
         
-        return adjacency_list, vertex_mapping
+        return adjacency_list
     
     def export_nodes_to_file(self, valid_vertices, adjacency_list, output_file):
         """Export nodes and their neighbors to a text file using pixel coordinates."""
         with open(output_file, 'w') as f:
-            # Write number of nodes first
             f.write(f"{len(valid_vertices)}\n")
-            
-            # Write each node's position and its neighbors
             for i in range(len(valid_vertices)):
-                # Use pixel coordinates directly
                 x, y = int(valid_vertices[i][0]), int(valid_vertices[i][1])
                 neighbors = adjacency_list[i]
-                
-                # Format: node_id x y num_neighbors neighbor_id1 ... neighbor_idN
                 f.write(f"{i} {x} {y} {len(neighbors)}")
                 for neighbor in neighbors:
                     f.write(f" {neighbor}")
                 f.write("\n")
-        
         self.get_logger().info(f"Exported {len(valid_vertices)} nodes to {output_file}")
-
-    def plot_voronoi(self, image, vor, valid_vertices, adjacency_list, vertex_mapping):
-        """Draw the Voronoi diagram overlay on the map, highlighting valid nodes and connections."""
+    
+    def save_voronoi_image(self, image, valid_vertices, adjacency_list):
+        """Save an image with nodes and edges."""
         output = cv2.cvtColor(image, cv2.COLOR_GRAY2BGR)
-        
-        # Draw valid Voronoi edges based on adjacency list
         for i, neighbors in adjacency_list.items():
             p1 = valid_vertices[i].astype(int)
             for j in neighbors:
                 p2 = valid_vertices[j].astype(int)
                 cv2.line(output, tuple(p1[::-1]), tuple(p2[::-1]), (0, 0, 255), 1)
-        
-        # Draw Voronoi nodes
         for point in valid_vertices:
             cv2.circle(output, tuple(point[::-1].astype(int)), 2, (255, 0, 0), -1)
+        cv2.imwrite('/home/tomas/tt_ws/voronoi_graph.png', output)
+        self.get_logger().info("Saved Voronoi graph visualization")
         
-        return output
-    
     def process_map(self):
         image = self.load_pgm_map()
         obstacle_points = self.get_obstacle_edges(image)
         vor = self.compute_voronoi(obstacle_points)
         valid_vertices, valid_indices = self.filter_voronoi_nodes(image, vor)
+        adjacency_list = self.build_adjacency_graph(vor, valid_indices, image)
         
-        # Build adjacency graph
-        adjacency_list, vertex_mapping = self.build_adjacency_graph(vor, valid_indices, image)
+        # Prune and reconnect nodes
+        valid_vertices, adjacency_list = self.prune_and_reconnect_nodes(image, valid_vertices, adjacency_list)
         
-        # Export nodes and neighbors to file with pixel coordinates
         self.export_nodes_to_file(valid_vertices, adjacency_list, self.output_file)
-        
-        # Create visualization with node IDs and pixel coordinates
-        voronoi_image = self.plot_voronoi(image, vor, valid_vertices, adjacency_list, vertex_mapping)
-        
-        # Save visualization
-        if not self.saved:
-            cv2.imwrite('/home/tomas/tt_ws/voronoi_map_V20.png', voronoi_image)
-            self.saved = True
-
-        # Convert to ROS Image and publish
-        ros_image = self.bridge.cv2_to_imgmsg(voronoi_image, encoding='bgr8')
-        self.publisher.publish(ros_image)
+        self.save_voronoi_image(image, valid_vertices, adjacency_list)
         self.get_logger().info("Published Voronoi Graph")
-        
-        # Stop the timer after processing once
         self.timer.cancel()
-
 
 def main(args=None):
     rclpy.init(args=args)

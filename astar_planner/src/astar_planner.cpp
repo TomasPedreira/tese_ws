@@ -54,8 +54,6 @@ namespace astar_planner
             continue;
         }
 
-        //std::cout << "Node " << id << " at (" << x << ", " << y << ") with " << num_neighbors << " neighbors" << std::endl;
-
         std::vector<int> neighbors;
         for (int j = 0; j < num_neighbors; ++j) {
             int neighbor_id;
@@ -391,12 +389,16 @@ namespace astar_planner
     goal_node.h = 0;
     goal_node.yaw = tf2::getYaw(goal.pose.orientation);
     std::pair<unsigned int, unsigned int> prev_coord = {start_x, start_y};
-
+    cout << "Start node: " << start_node.x << " " << start_node.y << endl;
+    cout << "Goal node: " << goal_node.x << " " << goal_node.y << endl;
     
     // get current tiimestamp
     auto start_time = std::chrono::high_resolution_clock::now();
     // compute a path
+    int iter = 0;
     while (!path_found) {
+      cout << "Iteration: " << iter << endl;
+      iter++;
     
       int current_index = get_lowest_f_node(open_list);
       if (current_index == -1) {
@@ -406,6 +408,7 @@ namespace astar_planner
       }
       nodeHybrid current = open_list[current_index];  
       open_list.erase(open_list.begin() + current_index);
+      cout << "Current node: " << current.id << " x: " << current.x << " y: " << current.y << endl;
       closed_list[current.x][current.y] = true;
       
 
