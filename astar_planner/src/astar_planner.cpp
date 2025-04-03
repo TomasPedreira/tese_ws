@@ -145,7 +145,6 @@ namespace astar_planner
     std::vector<std::vector<bool>> & closed_list,
     std::vector<std::vector<nodeHybrid>> & node_map,
     std::vector<std::vector<double>> & f_cost_map,
-    std::vector<std::pair<int, int>> & dir, 
     bool * path_found,
     nodeHybrid goal_node,
     double tolerance,
@@ -155,12 +154,6 @@ namespace astar_planner
     unsigned int goal_x = goal_node.x;
     unsigned int goal_y = goal_node.y;
     for (size_t i = 0; i < current_node.neighbours.size(); i++) {
-      if (current_node.x == 0 && dir[i].first < 0) {
-        continue;
-      }
-      if (current_node.y == 0 && dir[i].second < 0) {
-        continue;
-      }
       nodeHybrid successor = voronoi_nodes[current_node.neighbours[i]];
       unsigned int x = successor.x;
       unsigned int y = successor.y;
@@ -212,27 +205,6 @@ namespace astar_planner
 
 
 
-  std::vector<std::pair<int, int>>calculatePossibleDirectionsx(int scale)
-  {
-    std::vector<std::pair<int, int>> dir;
-
-    for (int i = -scale; i <= scale; i++) {
-        for (int j = -scale; j <= scale; j++) {
-            if (i == 0 && j == 0) {
-                continue;  // Skip the (0, 0) direction
-            }
-            dir.push_back({i, j});
-        }
-    }
-    // print every dir
-    // for (size_t i = 0; i < dir.size(); i++) {
-    //   RCLCPP_INFO(
-    //     rclcpp::get_logger("rclcpp"), "Direction: %d, %d", dir[i].first, dir[i].second);
-    // }
-
-    return dir;  // Return the computed directions
-  }
-
   void Astar::configure(
     const rclcpp_lifecycle::LifecycleNode::WeakPtr & parent,
     std::string name, std::shared_ptr<tf2_ros::Buffer> tf,
@@ -273,6 +245,64 @@ namespace astar_planner
     RCLCPP_INFO(
       node_->get_logger(), "Deactivating plugin %s of type AstarPlanner",
       name_.c_str());
+  }
+
+  std::vector<nodeHybrid> compute_subgoals (
+    const std::vector<nodeHybrid> & voronoi_nodes,
+    const nodeHybrid & start_node,
+    const nodeHybrid & goal_node,
+    nav2_costmap_2d::Costmap2D* costmap_,
+    double tolerance
+  )
+  {
+
+  
+    std::vector<nodeHybrid> open_list;
+    std::vector<nodeHybrid> sub_goals;
+    std::vector<std::vector<bool>> closed_list(costmap_->getSizeInCellsX(), std::vector<bool>(costmap_->getSizeInCellsY(), false));
+    std::vector<std::vector<nodeHybrid>> node_map = std::vector<std::vector<nodeHybrid>>(costmap_->getSizeInCellsX(), std::vector<nodeHybrid>(costmap_->getSizeInCellsY()));
+    std::vector<std::vector<double>> f_cost_map(costmap_->getSizeInCellsX(), std::vector<double>(costmap_->getSizeInCellsY(), -1));
+    
+    unsigned int start_x = start_node.x;
+    unsigned int start_y = start_node.y;
+    unsigned int goal_x = goal_node.x;
+    unsigned int goal_y = goal_node.y;
+
+    open_list.push_back(start_node);
+    node_map[start_x][start_y] = start_node;
+        
+    // get current tiimestamp
+    auto start_time = std::chrono::high_resolution_clock::now();
+    // compute a path
+    int iter = 0;
+    bool path_found = false;
+    while (!path_found) {
+      cout << "Iteration: " << iter << endl;
+      iter++;
+    
+      int current_index = get_lowest_f_node(open_list);
+      if (current_index == -1) {
+        return sub_goals;
+      }
+      nodeHybrid current = open_list[current_index];  
+      open_list.erase(open_list.begin() + current_index);
+      cout << "Current node: " << current.id << " x: " << current.x << " y: " << current.y << endl;
+      closed_list[current.x][current.y] = true;
+            
+      update_neighbours(current, voronoi_nodes,open_list, closed_list, node_map, f_cost_map, &path_found, goal_node, tolerance,costmap_);
+      
+    }
+    auto end_time = std::chrono::high_resolution_clock::now();
+    auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end_time - start_time);
+    
+    nodeHybrid current_node = node_map[goal_x][goal_y];
+    while (current_node.parent != nullptr) {
+      sub_goals.push_back(current_node); 
+      current_node = *current_node.parent;
+    }
+    sub_goals.push_back(current_node);
+
+    return sub_goals;
   }
 
   nav_msgs::msg::Path Astar::createPlan(
@@ -356,33 +386,16 @@ namespace astar_planner
         node_->get_logger(), "Neighbour: %d", start_node.neighbours[i]);
     }
 
-    auto dir = calculatePossibleDirectionsx(tolerance_);
-    // std::vector<node2d> open_list;
     std::vector<nodeHybrid> open_list;
+    std::vector<nodeHybrid> sub_nodes;
     std::vector<std::vector<bool>> closed_list(costmap_->getSizeInCellsX(), std::vector<bool>(costmap_->getSizeInCellsY(), false));
     // std::vector<std::vector<node2d>> node_map = std::vector<std::vector<node2d>>(costmap_->getSizeInCellsX(), std::vector<node2d>(costmap_->getSizeInCellsY()));
     std::vector<std::vector<nodeHybrid>> node_map = std::vector<std::vector<nodeHybrid>>(costmap_->getSizeInCellsX(), std::vector<nodeHybrid>(costmap_->getSizeInCellsY()));
     std::vector<std::vector<double>> f_cost_map(costmap_->getSizeInCellsX(), std::vector<double>(costmap_->getSizeInCellsY(), -1));
    
-
-    
-    // node2d start_node = node2d();
-    // start_node.x = start_x;
-    // start_node.y = start_y;
-    // start_node.g = 0;
-    // start_node.h = calculateDist(start.pose.position.x, start.pose.position.y, goal.pose.position.x, goal.pose.position.y);
-    // start_node.f = start_node.g + start_node.h;
-    // start_node.parent = nullptr;
-
     open_list.push_back(start_node);
     node_map[start_x][start_y] = start_node;
-
-    // node2d goal_node = node2d();
-    // goal_node.x = goal_x;
-    // goal_node.y = goal_y;
-    // goal_node.h = 0;
-    // goal_node.yaw = tf2::getYaw(goal.pose.orientation);
-    // std::pair<unsigned int, unsigned int> prev_coord = {start_x, start_y};
+    
     nodeHybrid goal_node = nodeHybrid();
     goal_node.x = goal_x;
     goal_node.y = goal_y;
@@ -418,7 +431,7 @@ namespace astar_planner
       }
       prev_coord = {current.x, current.y};
       
-      update_neighbours(current, voronoi_nodes_,open_list, closed_list, node_map, f_cost_map,dir, &path_found, goal_node, tolerance_,costmap_);
+      update_neighbours(current, voronoi_nodes_,open_list, closed_list, node_map, f_cost_map, &path_found, goal_node, tolerance_,costmap_);
       
     }
     // print the time taken to compute the path
@@ -427,24 +440,36 @@ namespace astar_planner
     RCLCPP_INFO(
       node_->get_logger(), "Time taken to compute path: %ld ms", duration.count());
     nodeHybrid current = node_map[goal_x][goal_y];
-    while (current.parent != nullptr) {
+    // while (current.parent != nullptr) {
+    //   geometry_msgs::msg::PoseStamped pose;
+    //   pose.header.stamp = node_->now();
+    //   pose.header.frame_id = global_frame_;
+    //   pose.pose.position.x = costmap_->getOriginX() + current.x * costmap_->getResolution();
+    //   pose.pose.position.y = costmap_->getOriginY() + current.y * costmap_->getResolution();
+    //   pose.pose.orientation = tf2::toMsg(tf2::Quaternion(tf2::Vector3(0, 0, 1), current.yaw));
+    //   global_path.poses.insert(global_path.poses.begin(), pose);     
+    //   sub_nodes.push_back(current); 
+    //   current = *current.parent;
+    // }
+    // geometry_msgs::msg::PoseStamped pose;
+    // pose.header.stamp = node_->now();
+    // pose.header.frame_id = global_frame_;
+    // pose.pose.position.x = costmap_->getOriginX() + current.x * costmap_->getResolution();
+    // pose.pose.position.y = costmap_->getOriginY() + current.y * costmap_->getResolution();
+    // pose.pose.orientation = start.pose.orientation;
+    // global_path.poses.insert(global_path.poses.begin(), pose);
+    // sub_nodes.push_back(current);
+
+    std::vector<nodeHybrid> subgoals = compute_subgoals(voronoi_nodes_, start_node, goal_node, costmap_, tolerance_); 
+    for (size_t i = 0; i < subgoals.size(); i++) {
       geometry_msgs::msg::PoseStamped pose;
       pose.header.stamp = node_->now();
       pose.header.frame_id = global_frame_;
-      pose.pose.position.x = costmap_->getOriginX() + current.x * costmap_->getResolution();
-      pose.pose.position.y = costmap_->getOriginY() + current.y * costmap_->getResolution();
-      pose.pose.orientation = tf2::toMsg(tf2::Quaternion(tf2::Vector3(0, 0, 1), current.yaw));
-      global_path.poses.insert(global_path.poses.begin(), pose);      
-      current = *current.parent;
+      pose.pose.position.x = costmap_->getOriginX() + subgoals[i].x * costmap_->getResolution();
+      pose.pose.position.y = costmap_->getOriginY() + subgoals[i].y * costmap_->getResolution();
+      pose.pose.orientation = tf2::toMsg(tf2::Quaternion(tf2::Vector3(0, 0, 1), subgoals[i].yaw));
+      global_path.poses.insert(global_path.poses.begin(), pose);     
     }
-    geometry_msgs::msg::PoseStamped pose;
-    pose.header.stamp = node_->now();
-    pose.header.frame_id = global_frame_;
-    pose.pose.position.x = costmap_->getOriginX() + current.x * costmap_->getResolution();
-    pose.pose.position.y = costmap_->getOriginY() + current.y * costmap_->getResolution();
-    pose.pose.orientation = start.pose.orientation;
-    global_path.poses.insert(global_path.poses.begin(), pose);
-    
     return global_path;
   }
 }  // namespace astar_planner

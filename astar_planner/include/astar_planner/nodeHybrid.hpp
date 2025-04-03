@@ -35,7 +35,6 @@ class nodeHybrid {
         {
             return f < other.f;
         }
-
         bool operator==(const nodeHybrid & other) const
         {
             return x == other.x && y == other.y;
