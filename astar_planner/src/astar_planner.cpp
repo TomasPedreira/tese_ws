@@ -224,6 +224,8 @@ namespace astar_planner
     nav2_util::declare_parameter_if_not_declared(
       node_, name_ + ".tolerance", rclcpp::ParameterValue(1.0));
     node_->get_parameter(name_ + ".tolerance", tolerance_);
+
+    
   }
 
   void Astar::cleanup()
@@ -238,6 +240,10 @@ namespace astar_planner
     RCLCPP_INFO(
       node_->get_logger(), "Activating plugin %s of type AstarPlanner",
       name_.c_str());
+    voronoi_nodes_ = read_nodes(
+      "/home/tomas/tt_ws/src/tese_ws/astar_planner/map/voronoi_nodes.txt", 
+      costmap_
+    );
   }
 
   void Astar::deactivate()
@@ -364,12 +370,7 @@ namespace astar_planner
       return global_path;
     }
 
-    bool path_found = false;
-
-    voronoi_nodes_ = read_nodes(
-      "/home/tomas/tt_ws/src/tese_ws/astar_planner/map/voronoi_nodes.txt", 
-      costmap_
-    );
+    
 
     nodeHybrid start_node = nodeHybrid();
     start_node.x = start_x;
@@ -386,80 +387,18 @@ namespace astar_planner
         node_->get_logger(), "Neighbour: %d", start_node.neighbours[i]);
     }
 
-    std::vector<nodeHybrid> open_list;
     std::vector<nodeHybrid> sub_nodes;
-    std::vector<std::vector<bool>> closed_list(costmap_->getSizeInCellsX(), std::vector<bool>(costmap_->getSizeInCellsY(), false));
-    // std::vector<std::vector<node2d>> node_map = std::vector<std::vector<node2d>>(costmap_->getSizeInCellsX(), std::vector<node2d>(costmap_->getSizeInCellsY()));
-    std::vector<std::vector<nodeHybrid>> node_map = std::vector<std::vector<nodeHybrid>>(costmap_->getSizeInCellsX(), std::vector<nodeHybrid>(costmap_->getSizeInCellsY()));
-    std::vector<std::vector<double>> f_cost_map(costmap_->getSizeInCellsX(), std::vector<double>(costmap_->getSizeInCellsY(), -1));
    
-    open_list.push_back(start_node);
-    node_map[start_x][start_y] = start_node;
     
     nodeHybrid goal_node = nodeHybrid();
     goal_node.x = goal_x;
     goal_node.y = goal_y;
     goal_node.h = 0;
     goal_node.yaw = tf2::getYaw(goal.pose.orientation);
-    std::pair<unsigned int, unsigned int> prev_coord = {start_x, start_y};
     cout << "Start node: " << start_node.x << " " << start_node.y << endl;
     cout << "Goal node: " << goal_node.x << " " << goal_node.y << endl;
     
-    // get current tiimestamp
-    auto start_time = std::chrono::high_resolution_clock::now();
-    // compute a path
-    int iter = 0;
-    while (!path_found) {
-      cout << "Iteration: " << iter << endl;
-      iter++;
-    
-      int current_index = get_lowest_f_node(open_list);
-      if (current_index == -1) {
-        RCLCPP_ERROR(
-          node_->get_logger(), "No path found");
-        return global_path;
-      }
-      nodeHybrid current = open_list[current_index];  
-      open_list.erase(open_list.begin() + current_index);
-      cout << "Current node: " << current.id << " x: " << current.x << " y: " << current.y << endl;
-      closed_list[current.x][current.y] = true;
-      
-
-      if (prev_coord.first == current.x && prev_coord.second == current.y && prev_coord.first != start_x && prev_coord.second != start_y) {
-        RCLCPP_INFO(
-          node_->get_logger(), "REPEATED OH MY MGOD Current node: %d, %d", current.x, current.y);
-      }
-      prev_coord = {current.x, current.y};
-      
-      update_neighbours(current, voronoi_nodes_,open_list, closed_list, node_map, f_cost_map, &path_found, goal_node, tolerance_,costmap_);
-      
-    }
-    // print the time taken to compute the path
-    auto end_time = std::chrono::high_resolution_clock::now();
-    auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end_time - start_time);
-    RCLCPP_INFO(
-      node_->get_logger(), "Time taken to compute path: %ld ms", duration.count());
-    nodeHybrid current = node_map[goal_x][goal_y];
-    // while (current.parent != nullptr) {
-    //   geometry_msgs::msg::PoseStamped pose;
-    //   pose.header.stamp = node_->now();
-    //   pose.header.frame_id = global_frame_;
-    //   pose.pose.position.x = costmap_->getOriginX() + current.x * costmap_->getResolution();
-    //   pose.pose.position.y = costmap_->getOriginY() + current.y * costmap_->getResolution();
-    //   pose.pose.orientation = tf2::toMsg(tf2::Quaternion(tf2::Vector3(0, 0, 1), current.yaw));
-    //   global_path.poses.insert(global_path.poses.begin(), pose);     
-    //   sub_nodes.push_back(current); 
-    //   current = *current.parent;
-    // }
-    // geometry_msgs::msg::PoseStamped pose;
-    // pose.header.stamp = node_->now();
-    // pose.header.frame_id = global_frame_;
-    // pose.pose.position.x = costmap_->getOriginX() + current.x * costmap_->getResolution();
-    // pose.pose.position.y = costmap_->getOriginY() + current.y * costmap_->getResolution();
-    // pose.pose.orientation = start.pose.orientation;
-    // global_path.poses.insert(global_path.poses.begin(), pose);
-    // sub_nodes.push_back(current);
-
+   
     std::vector<nodeHybrid> subgoals = compute_subgoals(voronoi_nodes_, start_node, goal_node, costmap_, tolerance_); 
     for (size_t i = 0; i < subgoals.size(); i++) {
       geometry_msgs::msg::PoseStamped pose;
