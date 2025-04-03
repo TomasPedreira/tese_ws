@@ -46,13 +46,16 @@
 ## 21/03
 [x] 17:22 Read nodes' positions in the planner;
 
-## 27/03
-[ ] Use the read nodes instead of sampling cspace;
+## 01/04
+[x] 16:33 Use the read nodes instead of sampling cspace;
 
+## 02/04
+[x] 17:00 Understand the search algorithm;
+
+## 03/04
+[x] 16:28 Start introducing the dubins path;
 
 ## next time
-[ ] Add directions;
-[ ] Look for Voronoi creation packages;
 [ ] Make Hybrid A*;
 [ ] Make forward PP;
 [ ] Make Backwards PP;

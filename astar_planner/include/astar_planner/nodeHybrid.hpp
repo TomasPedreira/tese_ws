@@ -13,6 +13,7 @@ class nodeHybrid {
         std::shared_ptr<nodeHybrid> parent;
         std::vector<int> neighbours;
         bool is_outside;
+        int num_interpolations;
 
         nodeHybrid() {};
 
@@ -39,6 +40,12 @@ class nodeHybrid {
         {
             return x == other.x && y == other.y;
         }
+
+        bool operator!=(const nodeHybrid & other) const
+        {
+            return !(*this == other);
+        }
+
         
 };
 

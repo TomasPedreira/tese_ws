@@ -144,7 +144,7 @@ namespace astar_planner
     std::vector<nodeHybrid> & open_list, 
     std::vector<std::vector<bool>> & closed_list,
     std::vector<std::vector<nodeHybrid>> & node_map,
-    std::vector<std::vector<int>> & f_cost_map,
+    std::vector<std::vector<double>> & f_cost_map,
     std::vector<std::pair<int, int>> & dir, 
     bool * path_found,
     nodeHybrid goal_node,
@@ -362,7 +362,7 @@ namespace astar_planner
     std::vector<std::vector<bool>> closed_list(costmap_->getSizeInCellsX(), std::vector<bool>(costmap_->getSizeInCellsY(), false));
     // std::vector<std::vector<node2d>> node_map = std::vector<std::vector<node2d>>(costmap_->getSizeInCellsX(), std::vector<node2d>(costmap_->getSizeInCellsY()));
     std::vector<std::vector<nodeHybrid>> node_map = std::vector<std::vector<nodeHybrid>>(costmap_->getSizeInCellsX(), std::vector<nodeHybrid>(costmap_->getSizeInCellsY()));
-    std::vector<std::vector<int>> f_cost_map(costmap_->getSizeInCellsX(), std::vector<int>(costmap_->getSizeInCellsY(), -1));
+    std::vector<std::vector<double>> f_cost_map(costmap_->getSizeInCellsX(), std::vector<double>(costmap_->getSizeInCellsY(), -1));
    
 
     
@@ -434,9 +434,16 @@ namespace astar_planner
       pose.pose.position.x = costmap_->getOriginX() + current.x * costmap_->getResolution();
       pose.pose.position.y = costmap_->getOriginY() + current.y * costmap_->getResolution();
       pose.pose.orientation = tf2::toMsg(tf2::Quaternion(tf2::Vector3(0, 0, 1), current.yaw));
-      global_path.poses.insert(global_path.poses.begin(), pose);
+      global_path.poses.insert(global_path.poses.begin(), pose);      
       current = *current.parent;
     }
+    geometry_msgs::msg::PoseStamped pose;
+    pose.header.stamp = node_->now();
+    pose.header.frame_id = global_frame_;
+    pose.pose.position.x = costmap_->getOriginX() + current.x * costmap_->getResolution();
+    pose.pose.position.y = costmap_->getOriginY() + current.y * costmap_->getResolution();
+    pose.pose.orientation = start.pose.orientation;
+    global_path.poses.insert(global_path.poses.begin(), pose);
     
     return global_path;
   }
