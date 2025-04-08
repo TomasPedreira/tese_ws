@@ -10,6 +10,7 @@
 #include "astar_planner/astar_planner.hpp"
 #include "astar_planner/node2d.hpp"
 #include "astar_planner/nodeHybrid.hpp"
+#include "astar_planner/dubins.hpp"
 // #include "astar_planner/voronoi.hpp"
 
 
@@ -224,7 +225,9 @@ namespace astar_planner
     nav2_util::declare_parameter_if_not_declared(
       node_, name_ + ".tolerance", rclcpp::ParameterValue(1.0));
     node_->get_parameter(name_ + ".tolerance", tolerance_);
-
+    nav2_util::declare_parameter_if_not_declared(
+      node_, name_ + ".turning_radius", rclcpp::ParameterValue(1.0));
+    node_->get_parameter(name_ + ".turning_radius", turning_radius_);
     
   }
 
@@ -302,8 +305,13 @@ namespace astar_planner
     auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end_time - start_time);
     
     nodeHybrid current_node = node_map[goal_x][goal_y];
+    nodeHybrid prev_node = current_node;
+    sub_goals.push_back(current_node); 
+    current_node = *current_node.parent;
     while (current_node.parent != nullptr) {
+      current_node.yaw = calculateOrientation(current_node.x, current_node.y, prev_node.x, prev_node.y);
       sub_goals.push_back(current_node); 
+      prev_node = current_node;
       current_node = *current_node.parent;
     }
     sub_goals.push_back(current_node);
@@ -378,15 +386,11 @@ namespace astar_planner
     start_node.g = 0;
     start_node.h = calculateDist(start.pose.position.x, start.pose.position.y, goal.pose.position.x, goal.pose.position.y);
     start_node.f = start_node.g + start_node.h;
+    start_node.yaw = tf2::getYaw(start.pose.orientation);
     start_node.parent = nullptr;
     
 
     start_node.neighbours = get_neighbours(voronoi_nodes_, start_node, costmap_, 5);
-    for (size_t i = 0; i < start_node.neighbours.size(); i++) {
-      RCLCPP_INFO(
-        node_->get_logger(), "Neighbour: %d", start_node.neighbours[i]);
-    }
-
     std::vector<nodeHybrid> sub_nodes;
    
     
@@ -399,15 +403,24 @@ namespace astar_planner
     cout << "Goal node: " << goal_node.x << " " << goal_node.y << endl;
     
    
-    std::vector<nodeHybrid> subgoals = compute_subgoals(voronoi_nodes_, start_node, goal_node, costmap_, tolerance_); 
-    for (size_t i = 0; i < subgoals.size(); i++) {
+    std::vector<nodeHybrid> subgoals = compute_subgoals(voronoi_nodes_, start_node, goal_node, costmap_, tolerance_);
+    std::vector<nodeHybrid> dubins_path = create_dubins_path(costmap_ ,start_node, goal_node, turning_radius_);
+    std::vector<nodeHybrid> path_to_consider = dubins_path;
+    if (path_to_consider.empty()) {
+      RCLCPP_ERROR(node_->get_logger(), "Dubins path is empty, falling back to straight line");
+      path_to_consider.push_back(start_node);
+      path_to_consider.push_back(goal_node);
+    }
+    for (size_t i = 0; i < path_to_consider.size(); i++) {
       geometry_msgs::msg::PoseStamped pose;
       pose.header.stamp = node_->now();
       pose.header.frame_id = global_frame_;
-      pose.pose.position.x = costmap_->getOriginX() + subgoals[i].x * costmap_->getResolution();
-      pose.pose.position.y = costmap_->getOriginY() + subgoals[i].y * costmap_->getResolution();
-      pose.pose.orientation = tf2::toMsg(tf2::Quaternion(tf2::Vector3(0, 0, 1), subgoals[i].yaw));
-      global_path.poses.insert(global_path.poses.begin(), pose);     
+      pose.pose.position.x = costmap_->getOriginX() + path_to_consider[i].x * costmap_->getResolution();
+      pose.pose.position.y = costmap_->getOriginY() + path_to_consider[i].y * costmap_->getResolution();
+      pose.pose.orientation = tf2::toMsg(tf2::Quaternion(tf2::Vector3(0, 0, 1), path_to_consider[i].yaw));
+      // cout << "Pose: " << pose.pose.position.x << " " << pose.pose.position.y << endl;
+      // global_path.poses.insert(global_path.poses.begin(), pose);
+      global_path.poses.push_back(pose);     
     }
     return global_path;
   }

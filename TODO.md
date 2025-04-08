@@ -55,6 +55,10 @@
 ## 03/04
 [x] 16:28 Start introducing the dubins path;
 
+## 08/04
+[x] 15:52 Make Dubins path between 2 nodes;
+[ ] Make loop through sub_goals to search for a dubins path;
+
 ## next time
 [ ] Make Hybrid A*;
 [ ] Make forward PP;

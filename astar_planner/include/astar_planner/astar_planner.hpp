@@ -60,6 +60,8 @@ private:
 
   double max_steer_;
   double tolerance_;
+
+  double turning_radius_;
 };
 
 }  // namespace astar_planner

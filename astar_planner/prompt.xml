@@ -1,3 +1,4 @@
+<code>
 #include "astar_planner/dubins.hpp"
 #include <math.h>
 #include <string>
@@ -275,20 +276,17 @@ void dubins_segment( double t, double qi[3], double qt[3], int type)
         qt[2] = qi[2];
     }
 }
-
 /*
     @brief Create a Dubins path between two nodes
     @param costmap: The costmap to use for coordinate conversion
     @param start_node: The starting node of the path
     @param goal_node: The goal node of the path
-    @param rho: The turning radius (v/ω), can be < 1
     @return: A vector of nodes representing the Dubins path from start_node to goal_node
  */
 std::vector<nodeHybrid> create_dubins_path(
     nav2_costmap_2d::Costmap2D* costmap,
     const nodeHybrid &start_node, 
-    const nodeHybrid &goal_node,
-    double rho  // New parameter
+    const nodeHybrid &goal_node
 ) {
     std::vector<nodeHybrid> path_nodes;
 
@@ -301,43 +299,25 @@ std::vector<nodeHybrid> create_dubins_path(
     // Check bounds
     if (start_node.x >= costmap->getSizeInCellsX() || start_node.y >= costmap->getSizeInCellsY() ||
         goal_node.x >= costmap->getSizeInCellsX() || goal_node.y >= costmap->getSizeInCellsY()) {
-        RCLCPP_ERROR(rclcpp::get_logger("AstarPlanner"), "Start or goal outside costmap bounds: Start(%u, %u), Goal(%u, %u)", 
-                     start_node.x, start_node.y, goal_node.x, goal_node.y);
+        RCLCPP_ERROR(rclcpp::get_logger("AstarPlanner"), "Start or goal outside costmap bounds");
         return path_nodes;
     }
-    RCLCPP_DEBUG(rclcpp::get_logger("AstarPlanner"), "World coords: Start(%f, %f), Goal(%f, %f)", 
-                 start_x_world, start_y_world, goal_x_world, goal_y_world);
 
     // 2. Create initial and final configurations [x, y, theta]
     double q0[3] = {start_x_world, start_y_world, start_node.yaw};
     double q1[3] = {goal_x_world, goal_y_world, goal_node.yaw};
 
     // 3. Initialize Dubins path
-    if (rho <= 0.0) {
-        RCLCPP_ERROR(rclcpp::get_logger("AstarPlanner"), "Invalid rho: %f, must be positive", rho);
-        return path_nodes;
-    }
+    double rho = 1.0;  // Adjust if needed
     DubinsPath path;
-    double dx = q1[0] - q0[0];
-    double dy = q1[1] - q0[1];
-    double D = sqrt(dx * dx + dy * dy);
-    double d = D / rho;
-    RCLCPP_DEBUG(rclcpp::get_logger("AstarPlanner"), "Initializing Dubins: rho=%f, D=%f, d=%f, start_yaw=%f, goal_yaw=%f", 
-                 rho, D, d, start_node.yaw, goal_node.yaw);
-
     if (dubins_init(q0, q1, rho, &path) != 0) {
-        RCLCPP_ERROR(rclcpp::get_logger("AstarPlanner"), "Failed to initialize Dubins path with rho=%f, d=%f", rho, d);
+        RCLCPP_ERROR(rclcpp::get_logger("AstarPlanner"), "Failed to initialize Dubins path");
         return path_nodes;
     }
-    RCLCPP_INFO(rclcpp::get_logger("AstarPlanner"), "Dubins initialized: Type=%d, Params=[%f, %f, %f]", 
-                path.type, path.param[0], path.param[1], path.param[2]);
 
     // 4. Sample the Dubins path
     double path_length = dubins_path_length(&path);
-    // Scale step_size with rho to ensure sufficient points for small radii
-    double step_size = std::min(costmap->getResolution(), rho / 2.0);  // At least 2 steps per radius
-    RCLCPP_DEBUG(rclcpp::get_logger("AstarPlanner"), "Path length=%f, step_size=%f (resolution=%f)", 
-                 path_length, step_size, costmap->getResolution());
+    double step_size = costmap->getResolution();
 
     double qi[3] = {q0[0], q0[1], q0[2]};
     double qt[3];
@@ -351,7 +331,7 @@ std::vector<nodeHybrid> create_dubins_path(
         case RLR: segment_types[0] = R_SEG; segment_types[1] = L_SEG; segment_types[2] = R_SEG; break;
         case LRL: segment_types[0] = L_SEG; segment_types[1] = R_SEG; segment_types[2] = L_SEG; break;
         default:
-            RCLCPP_ERROR(rclcpp::get_logger("AstarPlanner"), "Invalid Dubins path type: %d", path.type);
+            RCLCPP_ERROR(rclcpp::get_logger("AstarPlanner"), "Invalid Dubins path type");
             return path_nodes;
     }
 
@@ -363,26 +343,21 @@ std::vector<nodeHybrid> create_dubins_path(
     path_nodes.push_back(start);
 
     for (int seg = 0; seg < 3; seg++) {
-        double seg_length = path.param[seg] * rho;  // Real-world length
-        int seg_steps = std::max(1, static_cast<int>(seg_length / step_size) + 1);
-        RCLCPP_DEBUG(rclcpp::get_logger("AstarPlanner"), "Segment %d: Type=%d, Length=%f, Steps=%d", 
-                     seg, segment_types[seg], seg_length, seg_steps);
+        double seg_length = path.param[seg];
+        int seg_steps = static_cast<int>(seg_length / step_size) + 1;
 
         for (int i = 0; i < seg_steps; i++) {
-            double t = std::min(step_size * i / rho, path.param[seg]);  // Normalize t by rho
+            double t = std::min(step_size * i, seg_length);
             dubins_segment(t, qi, qt, segment_types[seg]);
 
             unsigned int mx, my;
             if (!costmap->worldToMap(qt[0], qt[1], mx, my)) {
-                RCLCPP_WARN(rclcpp::get_logger("AstarPlanner"), "Segment %d, Step %d: Point (%f, %f) outside costmap", 
-                            seg, i, qt[0], qt[1]);
+                RCLCPP_WARN(rclcpp::get_logger("AstarPlanner"), "Dubins point (%f, %f) outside costmap", qt[0], qt[1]);
                 continue;
             }
 
-            unsigned char cost = costmap->getCost(mx, my);
-            if (cost > 0) {  // Use stricter threshold
-                RCLCPP_WARN(rclcpp::get_logger("AstarPlanner"), "Segment %d, Step %d: Point (%u, %u) in collision, cost=%u Bere", 
-                            seg, i, mx, my, cost);
+            if (costmap->getCost(mx, my) > 0) {
+                RCLCPP_WARN(rclcpp::get_logger("AstarPlanner"), "Dubins point (%u, %u) in collision", mx, my);
                 continue;
             }
 
@@ -391,13 +366,9 @@ std::vector<nodeHybrid> create_dubins_path(
             node.y = my;
             node.yaw = mod2pi(qt[2]);
             if (!path_nodes.empty() && node.x == path_nodes.back().x && node.y == path_nodes.back().y) {
-                RCLCPP_DEBUG(rclcpp::get_logger("AstarPlanner"), "Segment %d, Step %d: Skipping duplicate at (%u, %u)", 
-                             seg, i, mx, my);
-                continue;
+                continue;  // Skip duplicates
             }
             path_nodes.push_back(node);
-            RCLCPP_DEBUG(rclcpp::get_logger("AstarPlanner"), "Segment %d, Step %d: Added point (%u, %u), yaw=%f, world(%f, %f)", 
-                         seg, i, mx, my, node.yaw, qt[0], qt[1]);
 
             if (i == seg_steps - 1) {
                 qi[0] = qt[0];
@@ -409,13 +380,10 @@ std::vector<nodeHybrid> create_dubins_path(
 
     // Ensure goal node is included
     if (!path_nodes.empty()) {
-        double last_dist = sqrt(pow(qt[0] - goal_x_world, 2) + pow(qt[1] - goal_y_world, 2));
-        RCLCPP_DEBUG(rclcpp::get_logger("AstarPlanner"), "Distance from last point to goal: %f", last_dist);
         path_nodes.back().x = goal_node.x;
         path_nodes.back().y = goal_node.y;
         path_nodes.back().yaw = goal_node.yaw;
     } else {
-        RCLCPP_WARN(rclcpp::get_logger("AstarPlanner"), "Path empty before goal, forcing inclusion");
         nodeHybrid goal;
         goal.x = goal_node.x;
         goal.y = goal_node.y;
@@ -424,7 +392,7 @@ std::vector<nodeHybrid> create_dubins_path(
     }
 
     // Detailed logging
-    RCLCPP_INFO(rclcpp::get_logger("AstarPlanner"), "Generated Dubins path with %zu points (rho=%f)", path_nodes.size(), rho);
+    RCLCPP_INFO(rclcpp::get_logger("AstarPlanner"), "Generated Dubins path with %zu points", path_nodes.size());
     for (size_t i = 0; i < path_nodes.size(); i++) {
         double wx, wy;
         costmap->mapToWorld(path_nodes[i].x, path_nodes[i].y, wx, wy);
@@ -434,11 +402,12 @@ std::vector<nodeHybrid> create_dubins_path(
 
     // Sanity check
     if (path_nodes.size() < 2) {
-        RCLCPP_ERROR(rclcpp::get_logger("AstarPlanner"), "Path has fewer than 2 points with rho=%f, controller may reject it", rho);
-    } else if (path_nodes.size() < 5 && rho < 1.0) {
-        RCLCPP_WARN(rclcpp::get_logger("AstarPlanner"), "Path has only %zu points with rho=%f, may be undersampled", 
-                    path_nodes.size(), rho);
+        RCLCPP_ERROR(rclcpp::get_logger("AstarPlanner"), "Path has fewer than 2 points, controller may reject it");
     }
 
     return path_nodes;
 }
+<code/>
+<task>
+adapt it so it can accept rho lesser than 1. Make debug statements where there may be critical points
+<task/>
