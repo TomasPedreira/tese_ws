@@ -309,15 +309,16 @@ namespace astar_planner
     
     nodeHybrid current_node = node_map[goal_x][goal_y];
     nodeHybrid prev_node = current_node;
-    sub_goals.push_back(current_node); 
+    sub_goals.insert(sub_goals.begin(), current_node); 
     current_node = *current_node.parent;
     while (current_node.parent != nullptr) {
       current_node.yaw = calculateOrientation(current_node.x, current_node.y, prev_node.x, prev_node.y);
-      sub_goals.push_back(current_node); 
+      sub_goals.insert(sub_goals.begin(), current_node);
       prev_node = current_node;
       current_node = *current_node.parent;
     }
-    sub_goals.push_back(current_node);
+    sub_goals.insert(sub_goals.begin(), current_node);
+    
 
     return sub_goals;
   }
@@ -408,7 +409,10 @@ namespace astar_planner
    
     std::vector<nodeHybrid> subgoals = compute_subgoals(voronoi_nodes_, start_node, goal_node, costmap_, tolerance_);
     std::vector<nodeHybrid> dubins_path = create_dubins_path(costmap_ ,start_node, goal_node, turning_radius_, dubins_tolerance_);
-    std::vector<nodeHybrid> path_to_consider = dubins_path;
+    std::vector<nodeHybrid> path_to_consider = subgoals;
+    
+
+
     if (path_to_consider.empty()) {
       RCLCPP_ERROR(node_->get_logger(), "Dubins path is empty, falling back to straight line");
       path_to_consider.push_back(start_node);
