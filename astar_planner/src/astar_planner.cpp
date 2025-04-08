@@ -220,14 +220,17 @@ namespace astar_planner
     
 
     nav2_util::declare_parameter_if_not_declared(
-      node_, name_ + ".max_steer", rclcpp::ParameterValue(90.0));
-    node_->get_parameter(name_ + ".max_steer", max_steer_);
-    nav2_util::declare_parameter_if_not_declared(
       node_, name_ + ".tolerance", rclcpp::ParameterValue(1.0));
     node_->get_parameter(name_ + ".tolerance", tolerance_);
+
+    // Dubins parameters
     nav2_util::declare_parameter_if_not_declared(
       node_, name_ + ".turning_radius", rclcpp::ParameterValue(1.0));
     node_->get_parameter(name_ + ".turning_radius", turning_radius_);
+    nav2_util::declare_parameter_if_not_declared(
+      node_, name_ + ".dubins_tolerance", rclcpp::ParameterValue(0.2));
+    node_->get_parameter(name_ + ".dubins_tolerance", dubins_tolerance_);
+
     
   }
 
@@ -404,7 +407,7 @@ namespace astar_planner
     
    
     std::vector<nodeHybrid> subgoals = compute_subgoals(voronoi_nodes_, start_node, goal_node, costmap_, tolerance_);
-    std::vector<nodeHybrid> dubins_path = create_dubins_path(costmap_ ,start_node, goal_node, turning_radius_);
+    std::vector<nodeHybrid> dubins_path = create_dubins_path(costmap_ ,start_node, goal_node, turning_radius_, dubins_tolerance_);
     std::vector<nodeHybrid> path_to_consider = dubins_path;
     if (path_to_consider.empty()) {
       RCLCPP_ERROR(node_->get_logger(), "Dubins path is empty, falling back to straight line");

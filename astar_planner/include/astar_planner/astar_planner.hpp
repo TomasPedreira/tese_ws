@@ -58,10 +58,11 @@ private:
 
   std::vector<nodeHybrid> voronoi_nodes_;
 
-  double max_steer_;
   double tolerance_;
 
+  // Dubins variables
   double turning_radius_;
+  double dubins_tolerance_;
 };
 
 }  // namespace astar_planner

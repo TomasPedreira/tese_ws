@@ -22,7 +22,8 @@ std::vector<nodeHybrid> create_dubins_path(
     nav2_costmap_2d::Costmap2D* costmap,
     const nodeHybrid &start_node, 
     const nodeHybrid &goal_node,
-    double rho  // New parameter
+    double rho,
+    double tolerance
 );
 
 
