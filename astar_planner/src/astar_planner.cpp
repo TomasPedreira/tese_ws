@@ -408,10 +408,12 @@ namespace astar_planner
     std::vector<nodeHybrid> subgoals = compute_subgoals(voronoi_nodes_, start_node, goal_node, costmap_, tolerance_);
     // std::vector<nodeHybrid> dubins_path = create_dubins_path(costmap_ ,start_node, goal_node, turning_radius_, dubins_tolerance_);
     std::vector<nodeHybrid> path_to_consider;
-    for (int i = subgoals.size()-1; i > -1; i--) {
+    bool dubins_found = false;
+    for (int i = subgoals.size()-1; i > -1 && !dubins_found; i--) {
       nodeHybrid subgoal = subgoals[i];
       if (subgoal.x == start_node.x && subgoal.y == start_node.y) {
         cout << "Skipping start node" << endl;
+        cout << "path wasnt found" << endl;
         continue;
       }
       if (subgoal.x == goal_node.x && subgoal.y == goal_node.y) {
@@ -423,10 +425,15 @@ namespace astar_planner
           path_to_consider.push_back(dubins_path[j]);
         }
         cout << "Found path" << i << "max:" << subgoals.size() << endl;
-        break;
+        dubins_found = true;
       }else{
-        cout << "No path found" << endl;
+        cout << "No path found to node: " << i << endl;
       }
+    }
+
+    if (!dubins_found){
+      // start hybrid astar
+      cout << "Dubins not found, all is collapsing" << endl;
     }
 
 
