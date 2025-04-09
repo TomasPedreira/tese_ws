@@ -289,7 +289,6 @@ namespace astar_planner
     int iter = 0;
     bool path_found = false;
     while (!path_found) {
-      cout << "Iteration: " << iter << endl;
       iter++;
     
       int current_index = get_lowest_f_node(open_list);
@@ -298,7 +297,6 @@ namespace astar_planner
       }
       nodeHybrid current = open_list[current_index];  
       open_list.erase(open_list.begin() + current_index);
-      cout << "Current node: " << current.id << " x: " << current.x << " y: " << current.y << endl;
       closed_list[current.x][current.y] = true;
             
       update_neighbours(current, voronoi_nodes,open_list, closed_list, node_map, f_cost_map, &path_found, goal_node, tolerance,costmap_);
@@ -408,9 +406,28 @@ namespace astar_planner
     
    
     std::vector<nodeHybrid> subgoals = compute_subgoals(voronoi_nodes_, start_node, goal_node, costmap_, tolerance_);
-    std::vector<nodeHybrid> dubins_path = create_dubins_path(costmap_ ,start_node, goal_node, turning_radius_, dubins_tolerance_);
-    std::vector<nodeHybrid> path_to_consider = subgoals;
-    
+    // std::vector<nodeHybrid> dubins_path = create_dubins_path(costmap_ ,start_node, goal_node, turning_radius_, dubins_tolerance_);
+    std::vector<nodeHybrid> path_to_consider;
+    for (int i = subgoals.size()-1; i > -1; i--) {
+      nodeHybrid subgoal = subgoals[i];
+      if (subgoal.x == start_node.x && subgoal.y == start_node.y) {
+        cout << "Skipping start node" << endl;
+        continue;
+      }
+      if (subgoal.x == goal_node.x && subgoal.y == goal_node.y) {
+        cout << "Checking goal node" << endl;
+      }
+      std::vector<nodeHybrid> dubins_path = create_dubins_path(costmap_, start_node, subgoal, turning_radius_, dubins_tolerance_);
+      if (!dubins_check_colision(dubins_path, costmap_)){
+        for(size_t j = 0; j < dubins_path.size(); j++){
+          path_to_consider.push_back(dubins_path[j]);
+        }
+        cout << "Found path" << i << "max:" << subgoals.size() << endl;
+        break;
+      }else{
+        cout << "No path found" << endl;
+      }
+    }
 
 
     if (path_to_consider.empty()) {

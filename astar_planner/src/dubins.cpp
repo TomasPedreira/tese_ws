@@ -518,3 +518,18 @@ std::vector<nodeHybrid> create_dubins_path(
 
     return path_nodes;
 }
+
+bool dubins_check_colision(std::vector<nodeHybrid> &path_nodes, nav2_costmap_2d::Costmap2D* costmap) {
+    for (const auto& node : path_nodes) {
+        unsigned int mx, my;
+        if (!costmap->worldToMap(node.x, node.y, mx, my)) {
+            RCLCPP_WARN(rclcpp::get_logger("AstarPlanner"), "Point (%u, %u) outside costmap", node.x, node.y);
+            return false;
+        }
+        if (costmap->getCost(mx, my) > 0) {
+            RCLCPP_WARN(rclcpp::get_logger("AstarPlanner"), "Point (%u, %u) in collision", mx, my);
+            return false;
+        }
+    }
+    return true;
+}
