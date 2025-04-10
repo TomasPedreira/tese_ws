@@ -64,7 +64,8 @@
 ## 10/04
 [x] 11:20 Have the search update to other nodes when path to goal isnt found;
 [x] 11:42 Dubins search fully functional;
-[ ] Ask professor for advice on optimization;
+[x] 14:17 Ask professor for advice on optimization (Solution: lower refresh rate);
+[x] 14:31 Changed the nav_to_pose bt to lower the refresh rate;
 
 ## next time
 [ ] Make Hybrid A*;
