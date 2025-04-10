@@ -391,7 +391,6 @@ namespace astar_planner
     
 
     start_node.neighbours = get_neighbours(voronoi_nodes_, start_node, costmap_, 5);
-    std::vector<nodeHybrid> sub_nodes;
    
     
     nodeHybrid goal_node = nodeHybrid();
@@ -407,8 +406,13 @@ namespace astar_planner
     // std::vector<nodeHybrid> dubins_path = create_dubins_path(costmap_ ,start_node, goal_node, turning_radius_, dubins_tolerance_);
     std::vector<nodeHybrid> path_to_consider;
     nodeHybrid current_node = start_node;
+    std::vector<nodeHybrid> open_list;
+    open_list.push_back(current_node);
+
     bool dubins_found = false;
     while (!dubins_found){
+      current_node = open_list[get_lowest_f_node(open_list)];
+      open_list.erase(open_list.begin() + get_lowest_f_node(open_list));
       for (int i = subgoals.size()-1; i > 0; i--) {
         nodeHybrid subgoal = subgoals[i];
         if (subgoal.x == current_node.x && subgoal.y == current_node.y) {
@@ -425,7 +429,8 @@ namespace astar_planner
           if (subgoal.x == goal_node.x && subgoal.y == goal_node.y) {
             dubins_found = true;
           }else{
-            current_node = subgoal;
+            // current_node = subgoal;
+            open_list.push_back(subgoal);
             cout << "However it isnt the end goal therefore restarting search from reachable subgoal" << endl;            
           }
           break;
