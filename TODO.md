@@ -68,6 +68,11 @@
 [x] 14:31 Changed the nav_to_pose bt to lower the refresh rate;
 
 ## next time
+[ ] Make dubins nodes reference each other (linked list);
+[ ] Compute Dubins nodes f cost;
+[ ] Parameterize the vehicle dynamica in the hybrid astar;
+[ ] Add vehicle positions to the nodes variables;
+[ ] Check vehicle positions in collision checks;
 [ ] Make Hybrid A*;
 [ ] Make forward PP;
 [ ] Make Backwards PP;

@@ -15,13 +15,6 @@
 #include <rclcpp/rclcpp.hpp>
 
 
-#define LSL (0)
-#define LSR (1)
-#define RSL (2)
-#define RSR (3)
-#define RLR (4)
-#define LRL (5)
-
 // The three segment types a path can be made up of
 #define L_SEG (0)
 #define S_SEG (1)
@@ -255,27 +248,7 @@ int dubins_path_type( DubinsPath* path ) {
     return path->type;
 }
 
-// void dubins_segment( double t, double qi[3], double qt[3], int type)
-// {
-//     assert( type == L_SEG || type == S_SEG || type == R_SEG );
 
-//     if( type == L_SEG ) {
-//         qt[0] = qi[0] + sin(qi[2]+t) - sin(qi[2]);
-//         qt[1] = qi[1] - cos(qi[2]+t) + cos(qi[2]);
-//         qt[2] = qi[2] + t;
-//     }
-//     else if( type == R_SEG ) {
-//         qt[0] = qi[0] - sin(qi[2]-t) + sin(qi[2]);
-//         qt[1] = qi[1] + cos(qi[2]-t) - cos(qi[2]);
-//         qt[2] = qi[2] - t;
-//     }
-//     else if( type == S_SEG ) {
-//         qt[0] = qi[0] + cos(qi[2]) * t;
-//         qt[1] = qi[1] + sin(qi[2]) * t;
-//         qt[2] = qi[2];
-//     }
-// }
-// Adjusted dubins_segment (unchanged from last working version)
 void dubins_segment(double t, double qi[3], double qt[3], int type, double rho) {
     assert(type == L_SEG || type == S_SEG || type == R_SEG);
 
@@ -302,8 +275,6 @@ void dubins_segment(double t, double qi[3], double qt[3], int type, double rho) 
     @param tolerance: Max allowable distance to consider goal reached (in world units)
     @return: A vector of nodes representing the Dubins path from start_node to goal_node
  */
-
-
 std::vector<nodeHybrid> create_dubins_path(
     nav2_costmap_2d::Costmap2D* costmap,
     const nodeHybrid &start_node, 
@@ -354,8 +325,8 @@ std::vector<nodeHybrid> create_dubins_path(
     DubinsPath path;
     double D = dist_to_goal;
     double d = D / rho;
-    RCLCPP_DEBUG(rclcpp::get_logger("AstarPlanner"), "Dubins init: D=%f, d=%f, rho=%f, start_yaw=%f, goal_yaw=%f", 
-                 D, d, rho, start_node.yaw, goal_node.yaw);
+    // RCLCPP_DEBUG(rclcpp::get_logger("AstarPlanner"), "Dubins init: D=%f, d=%f, rho=%f, start_yaw=%f, goal_yaw=%f", 
+    //              D, d, rho, start_node.yaw, goal_node.yaw);
 
     double theta = mod2pi(atan2(dy, dx));
     double alpha = mod2pi(q0[2] - theta);
