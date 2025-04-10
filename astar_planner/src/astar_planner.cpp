@@ -196,8 +196,6 @@ namespace astar_planner
           goal_node.parent = std::make_shared<nodeHybrid>(successor);
           node_map[goal_x][goal_y] = goal_node;
         }
-        RCLCPP_INFO(
-          rclcpp::get_logger("Vitoria"), "Path found");
         return;
       }
     }
@@ -408,32 +406,39 @@ namespace astar_planner
     std::vector<nodeHybrid> subgoals = compute_subgoals(voronoi_nodes_, start_node, goal_node, costmap_, tolerance_);
     // std::vector<nodeHybrid> dubins_path = create_dubins_path(costmap_ ,start_node, goal_node, turning_radius_, dubins_tolerance_);
     std::vector<nodeHybrid> path_to_consider;
+    nodeHybrid current_node = start_node;
     bool dubins_found = false;
-    for (int i = subgoals.size()-1; i > -1 && !dubins_found; i--) {
-      nodeHybrid subgoal = subgoals[i];
-      if (subgoal.x == start_node.x && subgoal.y == start_node.y) {
-        cout << "Skipping start node" << endl;
-        cout << "path wasnt found" << endl;
-        continue;
-      }
-      if (subgoal.x == goal_node.x && subgoal.y == goal_node.y) {
-        cout << "Checking goal node" << endl;
-      }
-      std::vector<nodeHybrid> dubins_path = create_dubins_path(costmap_, start_node, subgoal, turning_radius_, dubins_tolerance_);
-      if (!dubins_check_colision(dubins_path, costmap_)){
-        for(size_t j = 0; j < dubins_path.size(); j++){
-          path_to_consider.push_back(dubins_path[j]);
+    while (!dubins_found){
+      for (int i = subgoals.size()-1; i > 0; i--) {
+        nodeHybrid subgoal = subgoals[i];
+        if (subgoal.x == current_node.x && subgoal.y == current_node.y) {
+          cout << "Mustache, checking current node" << endl;
+          cout << "path wasnt found" << endl;
+          break;
         }
-        cout << "Found path" << i << "max:" << subgoals.size() << endl;
-        dubins_found = true;
-      }else{
-        cout << "No path found to node: " << i << endl;
+        std::vector<nodeHybrid> dubins_path = create_dubins_path(costmap_, current_node, subgoal, turning_radius_, dubins_tolerance_);
+        if (!dubins_check_colision(dubins_path, costmap_)){
+          for(size_t j = 0; j < dubins_path.size(); j++){
+            path_to_consider.push_back(dubins_path[j]);
+          }
+          cout << "Found path " << i << " max: " << dubins_path.size() << endl;
+          if (subgoal.x == goal_node.x && subgoal.y == goal_node.y) {
+            dubins_found = true;
+          }else{
+            current_node = subgoal;
+            cout << "However it isnt the end goal therefore restarting search from reachable subgoal" << endl;            
+          }
+          break;
+        }
       }
     }
+    
 
     if (!dubins_found){
       // start hybrid astar
       cout << "Dubins not found, all is collapsing" << endl;
+    }else {
+      cout << "Dubins was in fact found, yiiiiiipeeeeeeeeeeeeee" << endl;
     }
 
 

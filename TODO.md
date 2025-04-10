@@ -57,7 +57,14 @@
 
 ## 08/04
 [x] 15:52 Make Dubins path between 2 nodes;
-[ ] Make loop through sub_goals to search for a dubins path;
+
+## 09/04
+[x] 16:19 Make loop through sub_goals to search for a dubins path;
+
+## 10/04
+[x] 11:20 Have the search update to other nodes when path to goal isnt found;
+[x] 11:42 Dubins search fully functional;
+[ ] Ask professor for advice on optimization;
 
 ## next time
 [ ] Make Hybrid A*;

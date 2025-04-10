@@ -319,7 +319,7 @@ planner_server:
     use_sim_time: True
     GridBased:
       plugin: "astar_planner/Astar"
-      turning_radius: 0.5
+      turning_radius: 0.7
       dubins_tolerance: 0.2
       tolerance: 20.0
 

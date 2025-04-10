@@ -367,9 +367,9 @@ std::vector<nodeHybrid> create_dubins_path(
         int err = dubins_words[i](alpha, beta, d, params);
         if (err == 0) {
             double cost = params[0] + params[1] + params[2];
-            RCLCPP_DEBUG(rclcpp::get_logger("AstarPlanner"), "Word %d (%s): Cost=%f, Params=[%f, %f, %f]", 
-                         i, i == LSL ? "LSL" : i == LSR ? "LSR" : i == RSL ? "RSL" : i == RSR ? "RSR" : i == RLR ? "RLR" : "LRL", 
-                         cost, params[0], params[1], params[2]);
+            // RCLCPP_DEBUG(rclcpp::get_logger("AstarPlanner"), "Word %d (%s): Cost=%f, Params=[%f, %f, %f]", 
+            //              i, i == LSL ? "LSL" : i == LSR ? "LSR" : i == RSL ? "RSL" : i == RSR ? "RSR" : i == RLR ? "RLR" : "LRL", 
+            //              cost, params[0], params[1], params[2]);
             if (cost < best_cost) {
                 best_word = i;
                 best_cost = cost;
@@ -399,15 +399,15 @@ std::vector<nodeHybrid> create_dubins_path(
     path.qi[2] = q0[2];
     path.rho = rho;
 
-    RCLCPP_INFO(rclcpp::get_logger("AstarPlanner"), "Dubins type=%d (%s), Params=[%f, %f, %f]", 
-                path.type, path.type == LSL ? "LSL" : path.type == LSR ? "LSR" : path.type == RSL ? "RSL" : 
-                path.type == RSR ? "RSR" : path.type == RLR ? "RLR" : "LRL", 
-                path.param[0], path.param[1], path.param[2]);
+    // RCLCPP_INFO(rclcpp::get_logger("AstarPlanner"), "Dubins type=%d (%s), Params=[%f, %f, %f]", 
+    //             path.type, path.type == LSL ? "LSL" : path.type == LSR ? "LSR" : path.type == RSL ? "RSL" : 
+    //             path.type == RSR ? "RSR" : path.type == RLR ? "RLR" : "LRL", 
+    //             path.param[0], path.param[1], path.param[2]);
 
     // 4. Sample the path
     double path_length = dubins_path_length(&path);
     double step_size = rho * 0.1;
-    RCLCPP_DEBUG(rclcpp::get_logger("AstarPlanner"), "Path length=%f, step_size=%f", path_length, step_size);
+    // RCLCPP_DEBUG(rclcpp::get_logger("AstarPlanner"), "Path length=%f, step_size=%f", path_length, step_size);
 
     double qi[3] = {q0[0], q0[1], q0[2]};
     double qt[3];
@@ -432,8 +432,8 @@ std::vector<nodeHybrid> create_dubins_path(
         double seg_length = path.param[seg];
         double real_seg_length = seg_length * rho;
         int seg_steps = std::max(5, static_cast<int>(real_seg_length / step_size) + 1);
-        RCLCPP_DEBUG(rclcpp::get_logger("AstarPlanner"), "Seg %d: Type=%d, NormLength=%f, RealLength=%f, Steps=%d", 
-                     seg, segment_types[seg], seg_length, real_seg_length, seg_steps);
+        // RCLCPP_DEBUG(rclcpp::get_logger("AstarPlanner"), "Seg %d: Type=%d, NormLength=%f, RealLength=%f, Steps=%d", 
+        //              seg, segment_types[seg], seg_length, real_seg_length, seg_steps);
 
         for (int i = 0; i < seg_steps; i++) {
             double t = seg_length * (i / static_cast<double>(seg_steps - 1));
@@ -443,21 +443,21 @@ std::vector<nodeHybrid> create_dubins_path(
             double dist_from_start = sqrt(pow(qt[0] - start_x_world, 2) + pow(qt[1] - start_y_world, 2));
             total_traveled = dist_from_start;
             if (total_traveled > dist_to_goal + rho) {
-                RCLCPP_WARN(rclcpp::get_logger("AstarPlanner"), "Seg %d, Step %d: Overshoot (%f > %f), adjusting", 
-                            seg, i, total_traveled, dist_to_goal);
+                // RCLCPP_WARN(rclcpp::get_logger("AstarPlanner"), "Seg %d, Step %d: Overshoot (%f > %f), adjusting", 
+                //             seg, i, total_traveled, dist_to_goal);
                 break;
             }
 
             unsigned int mx, my;
             if (!costmap->worldToMap(qt[0], qt[1], mx, my)) {
-                RCLCPP_WARN(rclcpp::get_logger("AstarPlanner"), "Seg %d, Step %d: Point (%f, %f) outside costmap", 
-                            seg, i, qt[0], qt[1]);
+                // RCLCPP_WARN(rclcpp::get_logger("AstarPlanner"), "Seg %d, Step %d: Point (%f, %f) outside costmap", 
+                //             seg, i, qt[0], qt[1]);
                 continue;
             }
 
             if (costmap->getCost(mx, my) >= 254) {
-                RCLCPP_WARN(rclcpp::get_logger("AstarPlanner"), "Seg %d, Step %d: Point (%u, %u) in collision", 
-                            seg, i, mx, my);
+                // RCLCPP_WARN(rclcpp::get_logger("AstarPlanner"), "Seg %d, Step %d: Point (%u, %u) in collision", 
+                //             seg, i, mx, my);
                 continue;
             }
 
@@ -521,12 +521,7 @@ std::vector<nodeHybrid> create_dubins_path(
 
 bool dubins_check_colision(std::vector<nodeHybrid> &path_nodes, nav2_costmap_2d::Costmap2D* costmap) {
     for (const auto& node : path_nodes) {
-        unsigned int mx, my;
-        if (!costmap->worldToMap(node.x, node.y, mx, my)) {
-            RCLCPP_WARN(rclcpp::get_logger("AstarPlanner"), "Point (%u, %u) outside costmap", node.x, node.y);
-        }
-        if (costmap->getCost(mx, my) > 0) {
-            RCLCPP_WARN(rclcpp::get_logger("AstarPlanner"), "Point (%u, %u) in collision", mx, my);
+        if (costmap->getCost(node.x, node.y) > 0) {
             return true;
         }
     }
