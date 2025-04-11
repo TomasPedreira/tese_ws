@@ -362,6 +362,7 @@ std::vector<nodeHybrid> create_dubins_path(
         goal.x = goal_node.x;
         goal.y = goal_node.y;
         goal.yaw = goal_node.yaw;
+        goal.parent = std::make_shared<nodeHybrid>(start_node);
         path_nodes.push_back(goal);
         return path_nodes;
     }
@@ -436,6 +437,7 @@ std::vector<nodeHybrid> create_dubins_path(
             node.x = mx;
             node.y = my;
             node.yaw = mod2pi(qt[2]);
+            node.parent = std::make_shared<nodeHybrid>(path_nodes.back());
             if (!path_nodes.empty() && node.x == path_nodes.back().x && node.y == path_nodes.back().y) {
                 continue;
             }
@@ -451,6 +453,7 @@ std::vector<nodeHybrid> create_dubins_path(
                 goal.x = goal_node.x;
                 goal.y = goal_node.y;
                 goal.yaw = goal_node.yaw;
+                goal.parent = std::make_shared<nodeHybrid>(path_nodes.back());
                 path_nodes.push_back(goal);
                 goal_reached = true;
                 break;  // Exit inner loop, outer loop will exit due to goal_reached
@@ -474,11 +477,17 @@ std::vector<nodeHybrid> create_dubins_path(
             goal.x = goal_node.x;
             goal.y = goal_node.y;
             goal.yaw = goal_node.yaw;
+            goal.parent = std::make_shared<nodeHybrid>(path_nodes.back());
             path_nodes.push_back(goal);
         }
     } else {
         RCLCPP_WARN(rclcpp::get_logger("AstarPlanner"), "Path empty, forcing goal");
-        path_nodes.push_back(goal_node);
+        nodeHybrid goal = goal_node;
+        goal.x = goal_node.x;
+        goal.y = goal_node.y;
+        goal.yaw = goal_node.yaw;
+        goal.parent = std::make_shared<nodeHybrid>(start_node);
+        path_nodes.push_back(goal);
     }
 
     RCLCPP_INFO(rclcpp::get_logger("AstarPlanner"), "Path size: %zu (rho=%f)", path_nodes.size(), rho);

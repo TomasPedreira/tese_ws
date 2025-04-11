@@ -69,7 +69,8 @@
 
 ## 11/04
 - Found edge case where if a u turn is necessary in the beginnig or the end, the path isnt computed;
-[ ] Make dubins nodes reference each other (linked list);
+[x] 16:59 Make dubins nodes reference each other (linked list) 
+    - ONLY FOR DUBINS AND VORONOI, WILL NEED REVISITING WHEN HYBRID ASTAR IS IMPLEMENTED;
 
 
 ## next time

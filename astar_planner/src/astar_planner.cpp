@@ -422,13 +422,16 @@ namespace astar_planner
         }
         std::vector<nodeHybrid> dubins_path = create_dubins_path(costmap_, current_node, subgoal, turning_radius_, dubins_tolerance_);
         if (!dubins_check_colision(dubins_path, costmap_)){
+          dubins_path[0].parent = std::make_shared<nodeHybrid>(current_node);
           for(size_t j = 0; j < dubins_path.size(); j++){
             path_to_consider.push_back(dubins_path[j]);
           }
           cout << "Found path " << i << " max: " << subgoals.size()-1 << endl;
           if (subgoal.x == goal_node.x && subgoal.y == goal_node.y) {
             dubins_found = true;
+            goal_node.parent = std::make_shared<nodeHybrid>(dubins_path[dubins_path.size()-1]);
           }else{
+            subgoal.parent = std::make_shared<nodeHybrid>(dubins_path[dubins_path.size()-1]);
             open_list.push_back(subgoal);
             cout << "It isnt the end goal therefore restarting search from reachable subgoal" << endl;            
           }
@@ -440,7 +443,12 @@ namespace astar_planner
         cout << "Dubins to goal not found, all is bad" << endl;
       }
     }
-    
+    for (size_t i = 0; i < path_to_consider.size(); i++) {
+      if(path_to_consider[i].parent == nullptr){
+        cout << "theres a hole in the path, help needed" << endl;
+      }
+    }
+    // cout << "Dubins path size: " << dubins_path.size() << endl;
 
     
 
@@ -450,17 +458,29 @@ namespace astar_planner
       path_to_consider.push_back(goal_node);
     }
     //path_to_consider = subgoals;
-    for (size_t i = 0; i < path_to_consider.size(); i++) {
+    nodeHybrid path_node = goal_node;
+    while (path_node.parent != nullptr) {
       geometry_msgs::msg::PoseStamped pose;
       pose.header.stamp = node_->now();
       pose.header.frame_id = global_frame_;
-      pose.pose.position.x = costmap_->getOriginX() + path_to_consider[i].x * costmap_->getResolution();
-      pose.pose.position.y = costmap_->getOriginY() + path_to_consider[i].y * costmap_->getResolution();
-      pose.pose.orientation = tf2::toMsg(tf2::Quaternion(tf2::Vector3(0, 0, 1), path_to_consider[i].yaw));
+      pose.pose.position.x = costmap_->getOriginX() + path_node.x * costmap_->getResolution();
+      pose.pose.position.y = costmap_->getOriginY() + path_node.y * costmap_->getResolution();
+      pose.pose.orientation = tf2::toMsg(tf2::Quaternion(tf2::Vector3(0, 0, 1), path_node.yaw));
       // cout << "Pose: " << pose.pose.position.x << " " << pose.pose.position.y << endl;
-      // global_path.poses.insert(global_path.poses.begin(), pose);
-      global_path.poses.push_back(pose);     
+      global_path.poses.insert(global_path.poses.begin(), pose);
+      path_node = *path_node.parent;
     }
+    // for (size_t i = 0; i < path_to_consider.size(); i++) {
+    //   geometry_msgs::msg::PoseStamped pose;
+    //   pose.header.stamp = node_->now();
+    //   pose.header.frame_id = global_frame_;
+    //   pose.pose.position.x = costmap_->getOriginX() + path_to_consider[i].x * costmap_->getResolution();
+    //   pose.pose.position.y = costmap_->getOriginY() + path_to_consider[i].y * costmap_->getResolution();
+    //   pose.pose.orientation = tf2::toMsg(tf2::Quaternion(tf2::Vector3(0, 0, 1), path_to_consider[i].yaw));
+    //   // cout << "Pose: " << pose.pose.position.x << " " << pose.pose.position.y << endl;
+    //   // global_path.poses.insert(global_path.poses.begin(), pose);
+    //   global_path.poses.push_back(pose);     
+    // }
     return global_path;
   }
 }  // namespace astar_planner
