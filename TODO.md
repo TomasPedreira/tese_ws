@@ -67,10 +67,14 @@
 [x] 14:17 Ask professor for advice on optimization (Solution: lower refresh rate);
 [x] 14:31 Changed the nav_to_pose bt to lower the refresh rate;
 
-## next time
+## 11/04
+- Found edge case where if a u turn is necessary in the beginnig or the end, the path isnt computed;
 [ ] Make dubins nodes reference each other (linked list);
+
+
+## next time
 [ ] Compute Dubins nodes f cost;
-[ ] Parameterize the vehicle dynamica in the hybrid astar;
+[ ] Parameterize the vehicle dynamics in the hybrid astar;
 [ ] Add vehicle positions to the nodes variables;
 [ ] Check vehicle positions in collision checks;
 [ ] Make Hybrid A*;

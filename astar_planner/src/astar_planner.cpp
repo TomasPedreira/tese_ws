@@ -410,7 +410,7 @@ namespace astar_planner
     open_list.push_back(current_node);
 
     bool dubins_found = false;
-    while (!dubins_found){
+    while (!open_list.empty()) {
       current_node = open_list[get_lowest_f_node(open_list)];
       open_list.erase(open_list.begin() + get_lowest_f_node(open_list));
       for (int i = subgoals.size()-1; i > 0; i--) {
@@ -425,33 +425,31 @@ namespace astar_planner
           for(size_t j = 0; j < dubins_path.size(); j++){
             path_to_consider.push_back(dubins_path[j]);
           }
-          cout << "Found path " << i << " max: " << dubins_path.size() << endl;
+          cout << "Found path " << i << " max: " << subgoals.size()-1 << endl;
           if (subgoal.x == goal_node.x && subgoal.y == goal_node.y) {
             dubins_found = true;
           }else{
-            // current_node = subgoal;
             open_list.push_back(subgoal);
-            cout << "However it isnt the end goal therefore restarting search from reachable subgoal" << endl;            
+            cout << "It isnt the end goal therefore restarting search from reachable subgoal" << endl;            
           }
           break;
         }
       }
+      if (!dubins_found){
+        // start hybrid astar
+        cout << "Dubins to goal not found, all is bad" << endl;
+      }
     }
     
 
-    if (!dubins_found){
-      // start hybrid astar
-      cout << "Dubins not found, all is collapsing" << endl;
-    }else {
-      cout << "Dubins was in fact found, yiiiiiipeeeeeeeeeeeeee" << endl;
-    }
-
+    
 
     if (path_to_consider.empty()) {
       RCLCPP_ERROR(node_->get_logger(), "Dubins path is empty, falling back to straight line");
       path_to_consider.push_back(start_node);
       path_to_consider.push_back(goal_node);
     }
+    //path_to_consider = subgoals;
     for (size_t i = 0; i < path_to_consider.size(); i++) {
       geometry_msgs::msg::PoseStamped pose;
       pose.header.stamp = node_->now();
