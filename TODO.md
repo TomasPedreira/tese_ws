@@ -73,12 +73,12 @@
     - ONLY FOR DUBINS AND VORONOI, WILL NEED REVISITING WHEN HYBRID ASTAR IS IMPLEMENTED;
 
 
-## next time
+## next time by priority order left bigger
+[ ] Make Hybrid A*;
 [ ] Compute Dubins nodes f cost;
 [ ] Parameterize the vehicle dynamics in the hybrid astar;
 [ ] Add vehicle positions to the nodes variables;
 [ ] Check vehicle positions in collision checks;
-[ ] Make Hybrid A*;
 [ ] Make forward PP;
 [ ] Make Backwards PP;
 [ ] Publish initial position in the launch options;
