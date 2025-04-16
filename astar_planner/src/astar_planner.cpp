@@ -240,6 +240,14 @@ namespace astar_planner
     nav2_util::declare_parameter_if_not_declared(
       node_, name_ + ".max_angle", rclcpp::ParameterValue(M_PI / 4));
     node_->get_parameter(name_ + ".max_angle", max_angle_);
+    double step = max_angle_ / num_directions_;
+    
+    for (int i = -num_directions_ + 1; i < num_directions_; i++) {
+      double angle = step * i;
+      directions_.push_back(angle);
+      
+    }
+      
   }
 
   void Astar::cleanup()

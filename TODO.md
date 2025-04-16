@@ -75,6 +75,12 @@
 ## 15/04
 [x] 14:48 Parameterize the vehicle dynamics in the hybrid astar;
 
+## 16/04 NODE EXPANSION
+[x] 15:47 Calculate the new directions based on the parameters introduced;
+[ ] Calculate the new nodes;
+[ ] Create new f function heuristic to account for the new nodes' directions and turns;
+[ ] Add new nodes to the open list;
+
 
 ## next time by priority order left bigger
 [ ] Make Hybrid A*;

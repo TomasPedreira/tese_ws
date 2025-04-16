@@ -65,6 +65,7 @@ private:
   double dubins_tolerance_;
 
   // Hybrid astar variables
+  std::vector<double> directions_;
   int num_directions_;
   bool allow_reverse_;
   double max_angle_;;
