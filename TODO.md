@@ -72,11 +72,12 @@
 [x] 16:59 Make dubins nodes reference each other (linked list) 
     - ONLY FOR DUBINS AND VORONOI, WILL NEED REVISITING WHEN HYBRID ASTAR IS IMPLEMENTED;
 
+## 15/04
+[x] 14:48 Parameterize the vehicle dynamics in the hybrid astar;
+
 
 ## next time by priority order left bigger
 [ ] Make Hybrid A*;
-[ ] Compute Dubins nodes f cost;
-[ ] Parameterize the vehicle dynamics in the hybrid astar;
 [ ] Add vehicle positions to the nodes variables;
 [ ] Check vehicle positions in collision checks;
 [ ] Make forward PP;

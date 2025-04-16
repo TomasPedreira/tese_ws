@@ -229,7 +229,17 @@ namespace astar_planner
       node_, name_ + ".dubins_tolerance", rclcpp::ParameterValue(0.2));
     node_->get_parameter(name_ + ".dubins_tolerance", dubins_tolerance_);
 
-    
+
+    // Hybrid astar parameters
+    nav2_util::declare_parameter_if_not_declared(
+      node_, name_ + ".num_directions", rclcpp::ParameterValue(5));
+    node_->get_parameter(name_ + ".num_directions", num_directions_);
+    nav2_util::declare_parameter_if_not_declared(
+      node_, name_ + ".allow_reverse", rclcpp::ParameterValue(false));
+    node_->get_parameter(name_ + ".allow_reverse", allow_reverse_);
+    nav2_util::declare_parameter_if_not_declared(
+      node_, name_ + ".max_angle", rclcpp::ParameterValue(M_PI / 4));
+    node_->get_parameter(name_ + ".max_angle", max_angle_);
   }
 
   void Astar::cleanup()
@@ -443,14 +453,14 @@ namespace astar_planner
         cout << "Dubins to goal not found, all is bad" << endl;
       }
     }
+
+
+
     for (size_t i = 0; i < path_to_consider.size(); i++) {
       if(path_to_consider[i].parent == nullptr){
         cout << "theres a hole in the path, help needed" << endl;
       }
-    }
-    // cout << "Dubins path size: " << dubins_path.size() << endl;
-
-    
+    }   
 
     if (path_to_consider.empty()) {
       RCLCPP_ERROR(node_->get_logger(), "Dubins path is empty, falling back to straight line");

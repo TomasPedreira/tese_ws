@@ -63,6 +63,12 @@ private:
   // Dubins variables
   double turning_radius_;
   double dubins_tolerance_;
+
+  // Hybrid astar variables
+  int num_directions_;
+  bool allow_reverse_;
+  double max_angle_;;
+
 };
 
 }  // namespace astar_planner
