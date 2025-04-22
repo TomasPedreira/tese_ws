@@ -77,6 +77,9 @@
 
 ## 16/04 NODE EXPANSION
 [x] 15:47 Calculate the new directions based on the parameters introduced;
+
+## 22/04 NODE EXPANSION
+[x] 14:15 Refractored the code into new files for the voronoi and auxiliary funtions;
 [ ] Calculate the new nodes;
 [ ] Create new f function heuristic to account for the new nodes' directions and turns;
 [ ] Add new nodes to the open list;

@@ -68,7 +68,7 @@ private:
   std::vector<double> directions_;
   int num_directions_;
   bool allow_reverse_;
-  double max_angle_;;
+  double max_angle_;
 
 };
 
