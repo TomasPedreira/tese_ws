@@ -367,9 +367,9 @@ planner_server:
       turning_radius: 0.75
       dubins_tolerance: 0.2
       tolerance: 20.0
-      num_directions: 5
+      num_directions: 4
       allow_reverse: true
-      max_angle: 0.785398
+      max_angle: 1.0
 
 planner_server_rclcpp_node:
   ros__parameters:

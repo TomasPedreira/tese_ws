@@ -19,14 +19,6 @@
 
 namespace astar_planner
 {
-
-
-
-  
-
-
-
-
   void Astar::configure(
     const rclcpp_lifecycle::LifecycleNode::WeakPtr & parent,
     std::string name, std::shared_ptr<tf2_ros::Buffer> tf,
@@ -220,45 +212,44 @@ namespace astar_planner
         cout << "Dubins to goal not found, all is bad" << endl;
         // calculate new nodes (Node expansion)
 
-        for (size_t i = 0; i < directions_.size(); i++){
-          nodeHybrid successor = nodeHybrid();
-          unsigned int mx,my;
-          double wx,wy;
-          costmap_->mapToWorld(current_node.x, current_node.y, wx, wy);
-          wx = wx + std::cos(current_node.yaw + directions_[i]);
-          wy = wy + std::sin(current_node.yaw + directions_[i]);
-          costmap_->worldToMap(wx, wy, mx, my);
-          
-          if (mx >= costmap_->getSizeInCellsX() || my >= costmap_->getSizeInCellsY()) {
-            continue;
+        for (int forwards = -1; forwards <= 1; forwards += 2) {
+          for (size_t i = 0; i < directions_.size(); i++){
+            nodeHybrid successor = nodeHybrid();
+            unsigned int mx,my;
+            double wx,wy;
+            cout << "-----------------------------------" << endl;
+            cout << "Current node: " << current_node.x << " " << current_node.y << endl;
+            costmap_->mapToWorld(current_node.x, current_node.y, wx, wy);
+            cout << "World: " << wx << " " << wy << endl;
+            double step_size = 1; // e.g., 10 cm instead of 1 meter
+            wx = wx + forwards * step_size * std::cos(current_node.yaw + directions_[i]);
+            wy = wy + forwards * step_size * std::sin(current_node.yaw + directions_[i]);
+            cout << "World [i]: " << wx << " " << wy << " " << i << endl;
+            costmap_->worldToMap(wx, wy, mx, my);
+            
+            if (mx >= costmap_->getSizeInCellsX() || my >= costmap_->getSizeInCellsY()) {
+              continue;
+            }
+            if (costmap_->getCost(mx, my) != 0) {
+              continue;
+            }
+            cout << "Map [i]: " << mx << " " << my << " " << i << endl;
+            // check if the node is already in the closed list
+            successor.x = mx;
+            successor.y = my;
+            successor.yaw = current_node.yaw + directions_[i];
+            successor.g = current_node.g + calculateDist(current_node.x, current_node.y, successor.x, successor.y);
+            successor.h = calculateDist(successor.x, successor.y, goal_node.x, goal_node.y) + 10*std::abs(current_node.yaw - successor.yaw);
+            successor.f = successor.g + successor.h;
+            
+            successor.parent = std::make_shared<nodeHybrid>(current_node);
+            open_list.push_back(successor);
+            
+            
           }
-          if (costmap_->getCost(mx, my) != 0) {
-            continue;
-          }
-          cout << "Map [i]: " << mx << " " << my << " " << i << endl;
-          // check if the node is already in the closed list
-          successor.x = current_node.x + mx;
-          successor.y = current_node.y + my;
-          successor.g = current_node.g + calculateDist(current_node.x, current_node.y, successor.x, successor.y);
-          successor.h = calculateDist(successor.x, successor.y, goal_node.x, goal_node.y) + 
-            10*std::abs(current_node.yaw - calculateOrientation(successor.x, successor.y, goal_node.x, goal_node.y)) * 1.0;
-          successor.f = successor.g + successor.h;
-          successor.yaw = current_node.yaw - directions_[i];
-          successor.parent = std::make_shared<nodeHybrid>(current_node);
-          open_list.push_back(successor);
-          
-          
-        }
-        path_to_consider = open_list;
-        cout << "Path to consider size: " << path_to_consider.size() << endl;
-        break;
-        
-        
+        }        
       }
     }
-    cout << "Im out of the loop and it dowesnt do anything send help!!!" << endl;
-
-
 
     // for (size_t i = 0; i < path_to_consider.size(); i++) {
     //   if(path_to_consider[i].parent == nullptr){
@@ -293,7 +284,6 @@ namespace astar_planner
         pose.pose.position.x = costmap_->getOriginX() + path_to_consider[i].x * costmap_->getResolution();
         pose.pose.position.y = costmap_->getOriginY() + path_to_consider[i].y * costmap_->getResolution();
         pose.pose.orientation = tf2::toMsg(tf2::Quaternion(tf2::Vector3(0, 0, 1), path_to_consider[i].yaw));
-        cout << "WHy does this not get in the loop??? " << endl;
         cout << "Pose: " << pose.pose.position.x << " " << pose.pose.position.y << endl;
 
         global_path.poses.insert(global_path.poses.begin(), pose);
