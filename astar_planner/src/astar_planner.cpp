@@ -173,18 +173,20 @@ namespace astar_planner
     // std::vector<nodeHybrid> dubins_path = create_dubins_path(costmap_ ,start_node, goal_node, turning_radius_, dubins_tolerance_);
     std::vector<nodeHybrid> path_to_consider;
     nodeHybrid current_node = start_node;
+    nodeHybrid last_subgoal = start_node;
     std::vector<nodeHybrid> open_list;
     open_list.push_back(current_node);
 
     bool dubins_found = false;
-    while (!open_list.empty()) {
+    bool goal_found = false;
+    while (!open_list.empty() && !goal_found) {
       cout << "Open list size: " << open_list.size() << endl;
       current_node = open_list[get_lowest_f_node(open_list)];
       open_list.erase(open_list.begin() + get_lowest_f_node(open_list));
       dubins_found = false;
       for (int i = subgoals.size()-1; i > 0; i--) {
         nodeHybrid subgoal = subgoals[i];
-        if (subgoal.x == current_node.x && subgoal.y == current_node.y) {
+        if (subgoal.x == last_subgoal.x && subgoal.y == last_subgoal.y) {
           cout << "Mustache, checking current node" << endl;
           cout << "path wasnt found" << endl;
           break;
@@ -192,15 +194,13 @@ namespace astar_planner
         std::vector<nodeHybrid> dubins_path = create_dubins_path(costmap_, current_node, subgoal, turning_radius_, dubins_tolerance_);
         if (!dubins_check_colision(dubins_path, costmap_)){
           dubins_path[0].parent = std::make_shared<nodeHybrid>(current_node);
-          for(size_t j = 0; j < dubins_path.size(); j++){
-            path_to_consider.push_back(dubins_path[j]);
-          }
           cout << "Found path " << i << " max: " << subgoals.size()-1 << endl;
+          goal_node.parent = std::make_shared<nodeHybrid>(dubins_path[dubins_path.size()-1]);
           if (subgoal.x == goal_node.x && subgoal.y == goal_node.y) {
-            goal_node.parent = std::make_shared<nodeHybrid>(dubins_path[dubins_path.size()-1]);
+            goal_found = true;
           }else{
-            subgoal.parent = std::make_shared<nodeHybrid>(dubins_path[dubins_path.size()-1]);
             open_list.push_back(subgoal);
+            last_subgoal = subgoal;
             cout << "It isnt the end goal therefore restarting search from reachable subgoal" << endl;            
           }
           dubins_found = true;
@@ -210,21 +210,19 @@ namespace astar_planner
       if (!dubins_found){
         // start hybrid astar
         cout << "Dubins to goal not found, all is bad" << endl;
-        // calculate new nodes (Node expansion)
-
         for (int forwards = -1; forwards <= 1; forwards += 2) {
           for (size_t i = 0; i < directions_.size(); i++){
             nodeHybrid successor = nodeHybrid();
             unsigned int mx,my;
             double wx,wy;
-            cout << "-----------------------------------" << endl;
-            cout << "Current node: " << current_node.x << " " << current_node.y << endl;
+            // cout << "-----------------------------------" << endl;
+            // cout << "Current node: " << current_node.x << " " << current_node.y << endl;
             costmap_->mapToWorld(current_node.x, current_node.y, wx, wy);
-            cout << "World: " << wx << " " << wy << endl;
+            // cout << "World: " << wx << " " << wy << endl;
             double step_size = 1; // e.g., 10 cm instead of 1 meter
             wx = wx + forwards * step_size * std::cos(current_node.yaw + directions_[i]);
             wy = wy + forwards * step_size * std::sin(current_node.yaw + directions_[i]);
-            cout << "World [i]: " << wx << " " << wy << " " << i << endl;
+            // cout << "World [i]: " << wx << " " << wy << " " << i << endl;
             costmap_->worldToMap(wx, wy, mx, my);
             
             if (mx >= costmap_->getSizeInCellsX() || my >= costmap_->getSizeInCellsY()) {
@@ -249,6 +247,7 @@ namespace astar_planner
           }
         }        
       }
+      
     }
 
     // for (size_t i = 0; i < path_to_consider.size(); i++) {

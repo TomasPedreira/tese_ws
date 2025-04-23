@@ -81,8 +81,11 @@
 ## 22/04 NODE EXPANSION
 [x] 14:15 Refractored the code into new files for the voronoi and auxiliary funtions;
 [x] 14:50 Calculate the new nodes;
+[x] 14:50 Add new nodes to the open list;
+
+## 23/04 NODE EXPANSION
+[ ] Make it so it creates a path with one of the new nodes and publish it;
 [ ] Create new f function heuristic to account for the new nodes' directions and turns;
-[ ] Add new nodes to the open list;
 
 
 ## next time by priority order left bigger
