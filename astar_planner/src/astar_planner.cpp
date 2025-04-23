@@ -170,12 +170,13 @@ namespace astar_planner
     
    
     std::vector<nodeHybrid> subgoals = compute_subgoals(voronoi_nodes_, start_node, goal_node, costmap_, tolerance_);
-    // std::vector<nodeHybrid> dubins_path = create_dubins_path(costmap_ ,start_node, goal_node, turning_radius_, dubins_tolerance_);
     std::vector<nodeHybrid> path_to_consider;
     nodeHybrid current_node = start_node;
     nodeHybrid last_subgoal = start_node;
     std::vector<nodeHybrid> open_list;
     open_list.push_back(current_node);
+
+    int dubins_counter = 0;
 
     bool dubins_found = false;
     bool goal_found = false;
@@ -184,7 +185,7 @@ namespace astar_planner
       current_node = open_list[get_lowest_f_node(open_list)];
       open_list.erase(open_list.begin() + get_lowest_f_node(open_list));
       dubins_found = false;
-      for (int i = subgoals.size()-1; i > 0; i--) {
+      for (int i = subgoals.size()-1; i > -1; i--) {
         nodeHybrid subgoal = subgoals[i];
         if (subgoal.x == last_subgoal.x && subgoal.y == last_subgoal.y) {
           cout << "Mustache, checking current node" << endl;
@@ -193,21 +194,23 @@ namespace astar_planner
         }
         std::vector<nodeHybrid> dubins_path = create_dubins_path(costmap_, current_node, subgoal, turning_radius_, dubins_tolerance_);
         if (!dubins_check_colision(dubins_path, costmap_)){
+          dubins_counter++;
           dubins_path[0].parent = std::make_shared<nodeHybrid>(current_node);
           cout << "Found path " << i << " max: " << subgoals.size()-1 << endl;
           goal_node.parent = std::make_shared<nodeHybrid>(dubins_path[dubins_path.size()-1]);
           if (subgoal.x == goal_node.x && subgoal.y == goal_node.y) {
             goal_found = true;
+            cout << "Found path to goal in " << dubins_counter << " tries." << endl;
           }else{
+            subgoal.parent = std::make_shared<nodeHybrid>(dubins_path[dubins_path.size()-1]);
             open_list.push_back(subgoal);
             last_subgoal = subgoal;
-            cout << "It isnt the end goal therefore restarting search from reachable subgoal" << endl;            
           }
           dubins_found = true;
           break;
         }
       }
-      if (!dubins_found){
+      if (!dubins_found && false){
         // start hybrid astar
         cout << "Dubins to goal not found, all is bad" << endl;
         for (int forwards = -1; forwards <= 1; forwards += 2) {
@@ -255,12 +258,6 @@ namespace astar_planner
     //     cout << "theres a hole in the path, help needed" << endl;
     //   }
     // }   
-
-    if (path_to_consider.empty()) {
-      RCLCPP_ERROR(node_->get_logger(), "Dubins path is empty, falling back to straight line");
-      path_to_consider.push_back(start_node);
-      path_to_consider.push_back(goal_node);
-    }
     //path_to_consider = subgoals;
     nodeHybrid path_node = goal_node;
     #if DEBUG == 0
