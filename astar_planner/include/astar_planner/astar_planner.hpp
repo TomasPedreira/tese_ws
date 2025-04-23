@@ -70,6 +70,9 @@ private:
   bool allow_reverse_;
   double max_angle_;
 
+
+  rclcpp_lifecycle::LifecyclePublisher<nav_msgs::msg::Path>::SharedPtr path_publisher_;
+
 };
 
 }  // namespace astar_planner

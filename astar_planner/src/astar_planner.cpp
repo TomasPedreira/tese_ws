@@ -62,6 +62,8 @@ namespace astar_planner
       directions_.push_back(angle);
       
     }
+    path_publisher_ = node_->create_publisher<nav_msgs::msg::Path>(
+      "/node_expansion", 10);
       
   }
 
@@ -70,6 +72,7 @@ namespace astar_planner
     RCLCPP_INFO(
       node_->get_logger(), "CleaningUp plugin %s of type AstarPlanner",
       name_.c_str());
+    path_publisher_.reset();
   }
 
   void Astar::activate()
@@ -77,6 +80,7 @@ namespace astar_planner
     RCLCPP_INFO(
       node_->get_logger(), "Activating plugin %s of type AstarPlanner",
       name_.c_str());
+    path_publisher_->on_activate();
     voronoi_nodes_ = read_nodes(
       "/home/tomas/tt_ws/src/tese_ws/astar_planner/map/voronoi_nodes.txt", 
       costmap_
@@ -88,6 +92,7 @@ namespace astar_planner
     RCLCPP_INFO(
       node_->get_logger(), "Deactivating plugin %s of type AstarPlanner",
       name_.c_str());
+    path_publisher_->on_deactivate();
   }
 
 
@@ -174,6 +179,7 @@ namespace astar_planner
     nodeHybrid current_node = start_node;
     nodeHybrid last_subgoal = start_node;
     std::vector<nodeHybrid> open_list;
+    std::vector<nodeHybrid> expanded_nodes;
     open_list.push_back(current_node);
 
     int dubins_counter = 0;
@@ -188,20 +194,17 @@ namespace astar_planner
       for (int i = subgoals.size()-1; i > -1; i--) {
         nodeHybrid subgoal = subgoals[i];
         if (subgoal.x == last_subgoal.x && subgoal.y == last_subgoal.y) {
-          cout << "Mustache, checking current node" << endl;
-          cout << "path wasnt found" << endl;
           break;
         }
         std::vector<nodeHybrid> dubins_path = create_dubins_path(costmap_, current_node, subgoal, turning_radius_, dubins_tolerance_);
         if (!dubins_check_colision(dubins_path, costmap_)){
           dubins_counter++;
           dubins_path[0].parent = std::make_shared<nodeHybrid>(current_node);
-          cout << "Found path " << i << " max: " << subgoals.size()-1 << endl;
           goal_node.parent = std::make_shared<nodeHybrid>(dubins_path[dubins_path.size()-1]);
           if (subgoal.x == goal_node.x && subgoal.y == goal_node.y) {
             goal_found = true;
-            cout << "Found path to goal in " << dubins_counter << " tries." << endl;
           }else{
+            // cout << "Found path to subgoal " <<  << " tries." << endl;
             subgoal.parent = std::make_shared<nodeHybrid>(dubins_path[dubins_path.size()-1]);
             open_list.push_back(subgoal);
             last_subgoal = subgoal;
@@ -210,9 +213,8 @@ namespace astar_planner
           break;
         }
       }
-      if (!dubins_found && false){
+      if (!dubins_found){
         // start hybrid astar
-        cout << "Dubins to goal not found, all is bad" << endl;
         for (int forwards = -1; forwards <= 1; forwards += 2) {
           for (size_t i = 0; i < directions_.size(); i++){
             nodeHybrid successor = nodeHybrid();
@@ -222,7 +224,7 @@ namespace astar_planner
             // cout << "Current node: " << current_node.x << " " << current_node.y << endl;
             costmap_->mapToWorld(current_node.x, current_node.y, wx, wy);
             // cout << "World: " << wx << " " << wy << endl;
-            double step_size = 1; // e.g., 10 cm instead of 1 meter
+            double step_size = 0.25; // e.g., 10 cm instead of 1 meter
             wx = wx + forwards * step_size * std::cos(current_node.yaw + directions_[i]);
             wy = wy + forwards * step_size * std::sin(current_node.yaw + directions_[i]);
             // cout << "World [i]: " << wx << " " << wy << " " << i << endl;
@@ -234,7 +236,6 @@ namespace astar_planner
             if (costmap_->getCost(mx, my) != 0) {
               continue;
             }
-            cout << "Map [i]: " << mx << " " << my << " " << i << endl;
             // check if the node is already in the closed list
             successor.x = mx;
             successor.y = my;
@@ -245,12 +246,19 @@ namespace astar_planner
             
             successor.parent = std::make_shared<nodeHybrid>(current_node);
             open_list.push_back(successor);
+            expanded_nodes.push_back(successor);
             
             
           }
-        }        
-      }
-      
+        }   
+        // Publish the path only if the publisher is activated
+        if (path_publisher_ && path_publisher_->is_activated()) {
+          path_publisher_->publish(path_from_vector(expanded_nodes, global_frame_, costmap_));
+          cout << "Path publisher is activated" << endl;
+        } else {
+          cout << "Path publisher is not activated" << endl;
+        }
+      }     
     }
 
     // for (size_t i = 0; i < path_to_consider.size(); i++) {

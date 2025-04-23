@@ -2,6 +2,11 @@
 #include "astar_planner/nodeHybrid.hpp"
 #include <cmath>
 #include <vector>
+#include <nav_msgs/msg/path.hpp>
+#include <geometry_msgs/msg/pose_stamped.hpp>
+#include <tf2_geometry_msgs/tf2_geometry_msgs.hpp>
+#include <rclcpp/rclcpp.hpp>
+#include <nav2_costmap_2d/costmap_2d.hpp>
 
 
 double calculateDist(double x1, double y1, double x2, double y2)
@@ -29,5 +34,23 @@ int get_lowest_f_node(std::vector<nodeHybrid> & open_list)
     }
     return index;
 } 
+
+nav_msgs::msg::Path path_from_vector(std::vector<nodeHybrid> & path_nodes, const std::string & global_frame, nav2_costmap_2d::Costmap2D* costmap)
+{
+    nav_msgs::msg::Path path;
+    path.header.stamp = rclcpp::Clock().now();
+    path.header.frame_id = global_frame;
+    for (const auto & node : path_nodes) {
+        geometry_msgs::msg::PoseStamped pose;
+        pose.header.stamp = path.header.stamp;
+        pose.header.frame_id = global_frame;
+        pose.pose.position.x = costmap->getOriginX() + node.x * costmap->getResolution();
+        pose.pose.position.y = costmap->getOriginY() + node.y * costmap->getResolution();
+        
+        pose.pose.orientation = tf2::toMsg(tf2::Quaternion(tf2::Vector3(0, 0, 1), node.yaw));
+        path.poses.push_back(pose);
+    }
+    return path;
+}
 
     

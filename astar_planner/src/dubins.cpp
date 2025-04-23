@@ -442,13 +442,13 @@ std::vector<nodeHybrid> create_dubins_path(
                 continue;
             }
             path_nodes.push_back(node);
-            RCLCPP_DEBUG(rclcpp::get_logger("AstarPlanner"), "Seg %d, Step %d: (%u, %u), yaw=%f, world(%f, %f), dist=%f", 
-                         seg, i, mx, my, node.yaw, qt[0], qt[1], dist_from_start);
+            // RCLCPP_DEBUG(rclcpp::get_logger("AstarPlanner"), "Seg %d, Step %d: (%u, %u), yaw=%f, world(%f, %f), dist=%f", 
+            //              seg, i, mx, my, node.yaw, qt[0], qt[1], dist_from_start);
 
             double dist_to_goal_now = sqrt(pow(qt[0] - goal_x_world, 2) + pow(qt[1] - goal_y_world, 2));
             if (dist_to_goal_now <= tolerance && seg < 2) {
-                RCLCPP_INFO(rclcpp::get_logger("AstarPlanner"), "Seg %d, Step %d: Near goal (%f <= %f), finalizing", 
-                            seg, i, dist_to_goal_now, tolerance);
+                // RCLCPP_INFO(rclcpp::get_logger("AstarPlanner"), "Seg %d, Step %d: Near goal (%f <= %f), finalizing", 
+                //             seg, i, dist_to_goal_now, tolerance);
                 nodeHybrid goal = goal_node;
                 goal.x = goal_node.x;
                 goal.y = goal_node.y;
@@ -470,9 +470,9 @@ std::vector<nodeHybrid> create_dubins_path(
     // Post-processing
     if (!path_nodes.empty()) {
         double last_dist = sqrt(pow(qt[0] - goal_x_world, 2) + pow(qt[1] - goal_y_world, 2));
-        RCLCPP_DEBUG(rclcpp::get_logger("AstarPlanner"), "Last point to goal dist: %f", last_dist);
+        // RCLCPP_DEBUG(rclcpp::get_logger("AstarPlanner"), "Last point to goal dist: %f", last_dist);
         if (last_dist > tolerance) {
-            RCLCPP_WARN(rclcpp::get_logger("AstarPlanner"), "Final point %f from goal, forcing goal", last_dist);
+            // RCLCPP_WARN(rclcpp::get_logger("AstarPlanner"), "Final point %f from goal, forcing goal", last_dist);
             nodeHybrid goal = goal_node;
             goal.x = goal_node.x;
             goal.y = goal_node.y;
@@ -490,7 +490,7 @@ std::vector<nodeHybrid> create_dubins_path(
         path_nodes.push_back(goal);
     }
 
-    RCLCPP_INFO(rclcpp::get_logger("AstarPlanner"), "Path size: %zu (rho=%f)", path_nodes.size(), rho);
+    // RCLCPP_INFO(rclcpp::get_logger("AstarPlanner"), "Path size: %zu (rho=%f)", path_nodes.size(), rho);
     if (path_nodes.size() < 5) {
         RCLCPP_WARN(rclcpp::get_logger("AstarPlanner"), "Path too short (%zu points), curves may be incomplete", 
                     path_nodes.size());
