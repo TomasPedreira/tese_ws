@@ -179,6 +179,7 @@ namespace astar_planner
     nodeHybrid current_node = start_node;
     nodeHybrid last_subgoal = start_node;
     std::vector<nodeHybrid> open_list;
+    std::vector<nodeHybrid> closed_list;
     std::vector<nodeHybrid> expanded_nodes;
     open_list.push_back(current_node);
 
@@ -186,13 +187,18 @@ namespace astar_planner
 
     bool dubins_found = false;
     bool goal_found = false;
+    bool should_send = true;
     while (!open_list.empty() && !goal_found) {
       cout << "Open list size: " << open_list.size() << endl;
       current_node = open_list[get_lowest_f_node(open_list)];
       open_list.erase(open_list.begin() + get_lowest_f_node(open_list));
+      closed_list.push_back(current_node);
       dubins_found = false;
       for (int i = subgoals.size()-1; i > -1; i--) {
         nodeHybrid subgoal = subgoals[i];
+        if (is_node_in_list(subgoal, closed_list)){
+          continue;
+        }
         if (subgoal.x == last_subgoal.x && subgoal.y == last_subgoal.y) {
           break;
         }
@@ -204,8 +210,7 @@ namespace astar_planner
           if (subgoal.x == goal_node.x && subgoal.y == goal_node.y) {
             goal_found = true;
           }else{
-            // cout << "Found path to subgoal " <<  << " tries." << endl;
-            subgoal.parent = std::make_shared<nodeHybrid>(dubins_path[dubins_path.size()-1]);
+            subgoal.parent = std::make_shared<nodeHybrid>(dubins_path[dubins_path.size()-1]);            
             open_list.push_back(subgoal);
             last_subgoal = subgoal;
           }
@@ -224,7 +229,7 @@ namespace astar_planner
             // cout << "Current node: " << current_node.x << " " << current_node.y << endl;
             costmap_->mapToWorld(current_node.x, current_node.y, wx, wy);
             // cout << "World: " << wx << " " << wy << endl;
-            double step_size = 0.25; // e.g., 10 cm instead of 1 meter
+            double step_size = 0.2; // e.g., 10 cm instead of 1 meter
             wx = wx + forwards * step_size * std::cos(current_node.yaw + directions_[i]);
             wy = wy + forwards * step_size * std::sin(current_node.yaw + directions_[i]);
             // cout << "World [i]: " << wx << " " << wy << " " << i << endl;
@@ -245,8 +250,22 @@ namespace astar_planner
             successor.f = successor.g + successor.h;
             
             successor.parent = std::make_shared<nodeHybrid>(current_node);
-            open_list.push_back(successor);
-            expanded_nodes.push_back(successor);
+            if (!is_node_in_list(successor, open_list) && 
+                !is_node_in_list(successor, closed_list)) {
+              open_list.push_back(successor);
+              expanded_nodes.push_back(successor);
+            }
+            if (is_node_in_list(successor, closed_list)){
+              int index = get_node_from_list(successor, closed_list);
+              if(successor.f < closed_list[index].f){
+                closed_list[index].parent = std::make_shared<nodeHybrid>(current_node);
+                closed_list[index].f = successor.f;
+                closed_list[index].g = successor.g;
+                closed_list[index].h = successor.h;
+                closed_list[index].yaw = successor.yaw;
+              }
+            }
+            
             
             
           }
@@ -255,18 +274,12 @@ namespace astar_planner
         if (path_publisher_ && path_publisher_->is_activated()) {
           path_publisher_->publish(path_from_vector(expanded_nodes, global_frame_, costmap_));
           cout << "Path publisher is activated" << endl;
+          // should_send = false;
         } else {
           cout << "Path publisher is not activated" << endl;
         }
       }     
     }
-
-    // for (size_t i = 0; i < path_to_consider.size(); i++) {
-    //   if(path_to_consider[i].parent == nullptr){
-    //     cout << "theres a hole in the path, help needed" << endl;
-    //   }
-    // }   
-    //path_to_consider = subgoals;
     nodeHybrid path_node = goal_node;
     #if DEBUG == 0
       while (path_node.parent != nullptr) {

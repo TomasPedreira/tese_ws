@@ -53,4 +53,23 @@ nav_msgs::msg::Path path_from_vector(std::vector<nodeHybrid> & path_nodes, const
     return path;
 }
 
+bool is_node_in_list(const nodeHybrid &node, const std::vector<nodeHybrid> &list)
+{
+    for (const auto &n : list) {
+        if (n.x == node.x && n.y == node.y) {
+            return true;
+        }
+    }
+    return false;
+}
+int get_node_from_list(const nodeHybrid &node, const std::vector<nodeHybrid> &list)
+{
+    for (size_t i = 0; i < list.size(); i++) {
+        if (list[i].x == node.x && list[i].y == node.y) {
+            return i;
+        }
+    }
+    return -1;
+}
+
     

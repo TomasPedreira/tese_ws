@@ -8,11 +8,13 @@
 class nodeHybrid {
     public:
         unsigned int x, y;
+        unsigned int tx, ty;
         int id;
         double f, g, h, yaw;
         std::shared_ptr<nodeHybrid> parent;
         std::vector<int> neighbours;
         bool is_outside;
+        double trailer_yaw, tractor_yaw;
 
         nodeHybrid() {};
 

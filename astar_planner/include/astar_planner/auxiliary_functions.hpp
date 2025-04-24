@@ -12,6 +12,6 @@ double calculateDist(double x1, double y1, double x2, double y2);
 double calculateOrientation(double x1, double y1, double x2, double y2);
 int get_lowest_f_node(std::vector<nodeHybrid> & open_list);
 nav_msgs::msg::Path path_from_vector(std::vector<nodeHybrid> & path_nodes, const std::string & global_frame, nav2_costmap_2d::Costmap2D* costmap);
-
-
+bool is_node_in_list(const nodeHybrid &node, const std::vector<nodeHybrid> &list);
+int get_node_from_list(const nodeHybrid &node, const std::vector<nodeHybrid> &list);
 #endif // ASTAR_PLANNER_AUXILIARY_FUNCTIONS_HPP

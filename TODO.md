@@ -85,14 +85,20 @@
 
 ## 23/04 NODE EXPANSION
 [x] 16:02 Can create paths using the backup nodes;
-[ ] Paramtererize the node expansion;
+
+# Path creation is now fully operational
+
+## 24/04 VEHICLE DYNAMICS
+[x] 14:48 Added costs to the bubins path;
+[x] 16:07 Add vehicle positions to the nodes variables;
+[ ] Check vehicle positions in collision checks;
+
 
 
 
 ## next time by priority order left bigger
+[ ] Make the search have a depth (can only go for some amount of time/nodes);
 [ ] Make Hybrid A*;
-[ ] Add vehicle positions to the nodes variables;
-[ ] Check vehicle positions in collision checks;
 [ ] Make forward PP;
 [ ] Make Backwards PP;
 [ ] Publish initial position in the launch options;
