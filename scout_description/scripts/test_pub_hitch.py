@@ -51,6 +51,8 @@ class TrailerJointStatePublisher(Node):
         self.tractor_pos = (0.0,0.0)
         self.cur_vel = 0.0
 
+        self.sent_exception = False
+
 
     def publish_joint_state_and_tf(self):
         now = self.get_clock().now().to_msg()
@@ -153,7 +155,9 @@ class TrailerJointStatePublisher(Node):
     
             
         except Exception as e:
-            self.get_logger().error(f"Failed to get transform: {str(e)}")
+            if not self.sent_exception:
+                self.get_logger().error(f"Failed to get transform: {str(e)}")
+                self.sent_exception = True
 
 
 def main(args=None):
