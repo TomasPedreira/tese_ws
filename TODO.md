@@ -85,20 +85,22 @@
 
 ## 23/04 NODE EXPANSION
 [x] 16:02 Can create paths using the backup nodes;
+[x] 17:00 Make Hybrid A*;
 
-# Path creation is now fully operational
+# Path creation is now fully operational through the tractor only
 
 ## 24/04 VEHICLE DYNAMICS
 [x] 14:48 Added costs to the bubins path;
 [x] 16:07 Add vehicle positions to the nodes variables;
+
+## 29/04 VEHICLE DYNAMICS
+[ ] Get initial transformation;
+[ ] Implement vehicle position calculation inside the collision check;
 [ ] Check vehicle positions in collision checks;
 
 
-
-
-## next time by priority order left bigger
-[ ] Make the search have a depth (can only go for some amount of time/nodes);
-[ ] Make Hybrid A*;
+## next time
+[ ] Make the search have a depth (can only go for some amount of time/nodes); // No need?
 [ ] Make forward PP;
 [ ] Make Backwards PP;
 [ ] Publish initial position in the launch options;

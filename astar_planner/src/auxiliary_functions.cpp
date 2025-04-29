@@ -72,4 +72,15 @@ int get_node_from_list(const nodeHybrid &node, const std::vector<nodeHybrid> &li
     return -1;
 }
 
+double calculate_trailer_yaw_rate (double speed,double rtr, double tractor_yaw, double trailer_yaw)
+{
+    double trailer_yaw_rate = speed * sin(trailer_yaw - tractor_yaw) / rtr;
+    return trailer_yaw_rate;
+}
+double calculate_tractor_yaw_rate (double speed, double wb, double steering)
+{
+    double tractor_yaw_rate = speed * tan(steering) / wb;
+    return tractor_yaw_rate;
+}
+
     
