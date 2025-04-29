@@ -103,6 +103,21 @@ namespace astar_planner
   {
     nav_msgs::msg::Path global_path;
 
+    geometry_msgs::msg::TransformStamped base_link_transform;
+    geometry_msgs::msg::TransformStamped trailer_link_transform;
+    bool correc_transform = getRobotTransforms(
+      *tf_, base_link_transform, trailer_link_transform,  global_frame_);
+    if (!correc_transform) {
+      RCLCPP_ERROR(
+        node_->get_logger(), "Could not get the robot transforms");
+      return global_path;
+    }
+    else{
+      cout << "Base link transform: " << base_link_transform.transform.translation.x << " " << base_link_transform.transform.translation.y << endl;
+      cout << "Trailer link transform: " << trailer_link_transform.transform.translation.x << " " << trailer_link_transform.transform.translation.y << endl;
+      cout << "Base link yaw: " << tf2::getYaw(base_link_transform.transform.rotation) << endl;
+      cout << "Trailer link yaw: " << tf2::getYaw(trailer_link_transform.transform.rotation) << endl;
+    }
     // Checking if the goal and start state is in the global frame
     if (start.header.frame_id != global_frame_) {
       RCLCPP_ERROR(
@@ -189,7 +204,6 @@ namespace astar_planner
     bool goal_found = false;
     bool should_send = true;
     while (!open_list.empty() && !goal_found) {
-      cout << "Open list size: " << open_list.size() << endl;
       current_node = open_list[get_lowest_f_node(open_list)];
       open_list.erase(open_list.begin() + get_lowest_f_node(open_list));
       closed_list.push_back(current_node);
@@ -273,10 +287,8 @@ namespace astar_planner
         // Publish the path only if the publisher is activated
         if (path_publisher_ && path_publisher_->is_activated()) {
           path_publisher_->publish(path_from_vector(expanded_nodes, global_frame_, costmap_));
-          cout << "Path publisher is activated" << endl;
           // should_send = false;
         } else {
-          cout << "Path publisher is not activated" << endl;
         }
       }     
     }

@@ -5,8 +5,11 @@
 #include <nav_msgs/msg/path.hpp>
 #include <geometry_msgs/msg/pose_stamped.hpp>
 #include <tf2_geometry_msgs/tf2_geometry_msgs.hpp>
+#include <tf2_ros/buffer.h>
+#include <tf2_ros/transform_listener.h>
 #include <rclcpp/rclcpp.hpp>
 #include <nav2_costmap_2d/costmap_2d.hpp>
+#include <iostream>
 
 
 double calculateDist(double x1, double y1, double x2, double y2)
@@ -82,5 +85,27 @@ double calculate_tractor_yaw_rate (double speed, double wb, double steering)
     double tractor_yaw_rate = speed * tan(steering) / wb;
     return tractor_yaw_rate;
 }
+bool getRobotTransforms(
+    tf2_ros::Buffer & tf_buffer,
+    geometry_msgs::msg::TransformStamped & base_link_transform,
+    geometry_msgs::msg::TransformStamped & trailer_link_transform,
+    const std::string & global_frame = "map"
+){
+    try {
+        // Get transform from global frame to base_link
+        base_link_transform = tf_buffer.lookupTransform(
+        global_frame, "base_link", tf2::TimePointZero,
+        tf2::durationFromSec(0.5));
 
-    
+        // Get transform from global frame to trailer_link
+        trailer_link_transform = tf_buffer.lookupTransform(
+        global_frame, "trailer_link", tf2::TimePointZero,
+        tf2::durationFromSec(0.5));
+
+        return true;
+    }
+    catch (tf2::TransformException & ex) {
+        std::cout << "Transform error: " << ex.what() << std::endl;
+        return false;
+    }
+}

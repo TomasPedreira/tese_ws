@@ -94,7 +94,7 @@
 [x] 16:07 Add vehicle positions to the nodes variables;
 
 ## 29/04 VEHICLE DYNAMICS
-[ ] Get initial transformation;
+[x] 14:11 Get initial transformation;
 [ ] Implement vehicle position calculation inside the collision check;
 [ ] Check vehicle positions in collision checks;
 

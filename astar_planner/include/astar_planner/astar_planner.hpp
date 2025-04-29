@@ -19,6 +19,7 @@
 #include "astar_planner/nodeHybrid.hpp"
 
 
+
 namespace astar_planner
 {
 
@@ -72,6 +73,7 @@ private:
 
 
   rclcpp_lifecycle::LifecyclePublisher<nav_msgs::msg::Path>::SharedPtr path_publisher_;
+
 
 };
 
