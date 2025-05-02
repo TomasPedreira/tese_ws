@@ -507,3 +507,59 @@ bool dubins_check_colision(std::vector<nodeHybrid> &path_nodes, nav2_costmap_2d:
     }
     return false;
 }
+bool dubins_check_colision(std::vector<nodeHybrid> &path_nodes, std::vector<nodeHybrid> &publish_trailer, nav2_costmap_2d::Costmap2D* costmap,  nodeHybrid &start_node) {
+    const double speed = 0.4 / costmap->getResolution();
+    const double rtr = 0.5625 / costmap->getResolution();
+    path_nodes[0].yaw = start_node.yaw;
+    path_nodes[0].tx = start_node.tx;
+    path_nodes[0].ty = start_node.ty;
+    path_nodes[0].trailer_yaw = start_node.trailer_yaw;
+    std::vector<nodeHybrid> aux_path;
+    
+    for (size_t i = 1; i < path_nodes.size(); i++) {
+        if (costmap->getCost(path_nodes[i].x, path_nodes[i].y) > 0) {
+            std::cout << "Collision at node " << i << ": (" << path_nodes[i].x << ", " << path_nodes[i].y << ")" << std::endl;
+            return true;
+        }
+        int dx, dy;
+        dx = path_nodes[i].x - path_nodes[i - 1].x;
+        dy = path_nodes[i].y - path_nodes[i - 1].y;
+        unsigned int distance = sqrt((dx * dx) + (dy * dy));
+        double time = distance / speed;
+
+
+        double new_trailer_yaw = path_nodes[i - 1].trailer_yaw + 
+            (speed/rtr)*sin(-path_nodes[i - 1].trailer_yaw + path_nodes[i-1].yaw) * time; 
+
+        // wrap to -pi, pi
+        //new_trailer_yaw = fmod(new_trailer_yaw + M_PI, 2 * M_PI) - M_PI;
+        
+        if (abs(new_trailer_yaw - path_nodes[i].yaw) > M_PI/4) {
+            // std::cout << "Collision at node " << i << ": trailer yaw too high: " << abs(new_trailer_yaw - path_nodes[i].yaw) << std::endl;
+            // std::cout << "new_trailer_yaw: " << new_trailer_yaw << std::endl;
+            // std::cout << "path_nodes[i].yaw: " << path_nodes[i].yaw << std::endl;
+            //return true;
+        }else{
+            path_nodes[i].trailer_yaw = new_trailer_yaw;
+        }
+        double trailer_offset = 0.4625 / costmap->getResolution();
+        path_nodes[i].tx = path_nodes[i].x - trailer_offset * cos(path_nodes[i].yaw);
+        path_nodes[i].ty = path_nodes[i].y - trailer_offset * sin(path_nodes[i].yaw);
+        if (costmap->getCost(path_nodes[i].tx, path_nodes[i].ty) > 0) {
+            std::cout << "Collision at node " << i << ": (" << path_nodes[i].tx << ", " << path_nodes[i].ty << ")" << std::endl;
+            return true;
+        }
+        nodeHybrid trailer_node;
+        trailer_node.x = path_nodes[i].tx;
+        trailer_node.y = path_nodes[i].ty;
+        trailer_node.yaw = new_trailer_yaw;
+        aux_path.push_back(trailer_node);  
+
+
+    }
+    for (size_t i = 0; i < aux_path.size(); i++) {
+        publish_trailer.push_back(aux_path[i]);
+    }
+    
+    return false;
+}

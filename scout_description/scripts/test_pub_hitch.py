@@ -39,7 +39,7 @@ class TrailerJointStatePublisher(Node):
         # Create a TF broadcaster to publish static transform
         self.tf_broadcaster = TransformBroadcaster(self)
 
-        timer_period = 0.05  # seconds
+        timer_period = 0.1  # seconds
         self.timer = self.create_timer(timer_period, self.publish_joint_state_and_tf)
 
         self.get_logger().info('Trailer Joint State Publisher started.')
@@ -74,6 +74,8 @@ class TrailerJointStatePublisher(Node):
             dist = sqrt((new_pos[0] - self.tractor_pos[0])**2 + (new_pos[1] - self.tractor_pos[1])**2)
             self.tractor_pos = new_pos
             self.cur_vel = dist / dt
+
+            # self.get_logger().info(f"Current velocity: {self.cur_vel}")
 
             yaw = tf_transformations.euler_from_quaternion([m_to_bl_tf.transform.rotation.x, m_to_bl_tf.transform.rotation.y, m_to_bl_tf.transform.rotation.z, m_to_bl_tf.transform.rotation.w])[2]
             rot = tf_transformations.quaternion_from_euler(0, 0, self.trailer_yaw)

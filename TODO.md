@@ -95,9 +95,10 @@
 
 ## 29/04 VEHICLE DYNAMICS
 [x] 14:11 Get initial transformation;
-[ ] Implement vehicle position calculation inside the collision check;
-[ ] Check vehicle positions in collision checks;
+[x] 15:00 Check vehicle positions in collision checks;
 
+## 02/05 VEHICLE DYNAMICS
+[ ] Implement vehicle position calculation inside the collision check;
 
 ## next time
 [ ] Make the search have a depth (can only go for some amount of time/nodes); // No need?

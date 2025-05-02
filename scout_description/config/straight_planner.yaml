@@ -120,7 +120,7 @@ controller_server:
       stateful: True
     FollowPath:
       plugin: "nav2_regulated_pure_pursuit_controller::RegulatedPurePursuitController"
-      desired_linear_vel: 0.5
+      desired_linear_vel: 0.0
       lookahead_dist: 0.6
       min_lookahead_dist: 0.3
       max_lookahead_dist: 0.9
@@ -367,7 +367,7 @@ planner_server:
       tolerance: 20.0
       num_directions: 4
       allow_reverse: true
-      max_angle: 0.52
+      max_angle: 0.1
 
 planner_server_rclcpp_node:
   ros__parameters:

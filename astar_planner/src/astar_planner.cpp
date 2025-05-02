@@ -62,8 +62,10 @@ namespace astar_planner
       directions_.push_back(angle);
       
     }
-    path_publisher_ = node_->create_publisher<nav_msgs::msg::Path>(
+    node_expansion_publisher_ = node_->create_publisher<nav_msgs::msg::Path>(
       "/node_expansion", 10);
+      trailer_pos_publisher_ = node_->create_publisher<nav_msgs::msg::Path>(
+        "/trailer_pos", 10);
       
   }
 
@@ -72,7 +74,8 @@ namespace astar_planner
     RCLCPP_INFO(
       node_->get_logger(), "CleaningUp plugin %s of type AstarPlanner",
       name_.c_str());
-    path_publisher_.reset();
+    node_expansion_publisher_.reset();
+    trailer_pos_publisher_.reset();
   }
 
   void Astar::activate()
@@ -80,7 +83,8 @@ namespace astar_planner
     RCLCPP_INFO(
       node_->get_logger(), "Activating plugin %s of type AstarPlanner",
       name_.c_str());
-    path_publisher_->on_activate();
+    node_expansion_publisher_->on_activate();
+    trailer_pos_publisher_->on_activate();
     voronoi_nodes_ = read_nodes(
       "/home/tomas/tt_ws/src/tese_ws/astar_planner/map/voronoi_nodes.txt", 
       costmap_
@@ -92,7 +96,8 @@ namespace astar_planner
     RCLCPP_INFO(
       node_->get_logger(), "Deactivating plugin %s of type AstarPlanner",
       name_.c_str());
-    path_publisher_->on_deactivate();
+    node_expansion_publisher_->on_deactivate();
+    trailer_pos_publisher_->on_deactivate();
   }
 
 
@@ -169,9 +174,17 @@ namespace astar_planner
         node_->get_logger(), "The goal position is in collision");
       return global_path;
     }
+    unsigned int trailer_x, trailer_y;
+    costmap_->worldToMap(
+        trailer_link_transform.transform.translation.x, 
+        trailer_link_transform.transform.translation.y, 
+        trailer_x, trailer_y);
     nodeHybrid start_node = nodeHybrid();
     start_node.x = start_x;
     start_node.y = start_y;
+    start_node.tx = trailer_x;
+    start_node.ty = trailer_y;
+    start_node.trailer_yaw = tf2::getYaw(trailer_link_transform.transform.rotation);
     start_node.g = 0;
     start_node.h = calculateDist(start.pose.position.x, start.pose.position.y, goal.pose.position.x, goal.pose.position.y);
     start_node.f = start_node.g + start_node.h;
@@ -203,6 +216,7 @@ namespace astar_planner
     bool dubins_found = false;
     bool goal_found = false;
     bool should_send = true;
+    std::vector<nodeHybrid> trailer_path;
     while (!open_list.empty() && !goal_found) {
       current_node = open_list[get_lowest_f_node(open_list)];
       open_list.erase(open_list.begin() + get_lowest_f_node(open_list));
@@ -216,8 +230,9 @@ namespace astar_planner
         if (subgoal.x == last_subgoal.x && subgoal.y == last_subgoal.y) {
           break;
         }
+        
         std::vector<nodeHybrid> dubins_path = create_dubins_path(costmap_, current_node, subgoal, turning_radius_, dubins_tolerance_);
-        if (!dubins_check_colision(dubins_path, costmap_)){
+        if (!dubins_check_colision(dubins_path, trailer_path, costmap_, current_node)) {
           dubins_counter++;
           dubins_path[0].parent = std::make_shared<nodeHybrid>(current_node);
           goal_node.parent = std::make_shared<nodeHybrid>(dubins_path[dubins_path.size()-1]);
@@ -225,6 +240,10 @@ namespace astar_planner
             goal_found = true;
           }else{
             subgoal.parent = std::make_shared<nodeHybrid>(dubins_path[dubins_path.size()-1]);            
+            double trailer_offset = 0.4625 / costmap_->getResolution();
+            subgoal.tx = subgoal.x - trailer_offset * cos(subgoal.parent->trailer_yaw);
+            subgoal.ty = subgoal.y - trailer_offset * sin(subgoal.parent->trailer_yaw);
+            subgoal.trailer_yaw = subgoal.parent->trailer_yaw;
             open_list.push_back(subgoal);
             last_subgoal = subgoal;
           }
@@ -285,13 +304,15 @@ namespace astar_planner
           }
         }   
         // Publish the path only if the publisher is activated
-        if (path_publisher_ && path_publisher_->is_activated()) {
-          path_publisher_->publish(path_from_vector(expanded_nodes, global_frame_, costmap_));
+        if (node_expansion_publisher_ && node_expansion_publisher_->is_activated()) {
+          node_expansion_publisher_->publish(path_from_vector(expanded_nodes, global_frame_, costmap_));
           // should_send = false;
         } else {
         }
       }     
     }
+    trailer_pos_publisher_->publish(path_from_vector(trailer_path, global_frame_, costmap_));
+
     nodeHybrid path_node = goal_node;
     #if DEBUG == 0
       while (path_node.parent != nullptr) {
