@@ -25,8 +25,8 @@ std::vector<nodeHybrid> create_dubins_path(
     double rho,
     double tolerance
 );
+// bool dubins_check_colision(std::vector<nodeHybrid> &path_nodes, nav2_costmap_2d::Costmap2D* costmap);
 bool dubins_check_colision(std::vector<nodeHybrid> &path_nodes, nav2_costmap_2d::Costmap2D* costmap);
-bool dubins_check_colision(std::vector<nodeHybrid> &path_nodes, std::vector<nodeHybrid> &publish_trailer, nav2_costmap_2d::Costmap2D* costmap,  nodeHybrid &start_node);
 
 
 

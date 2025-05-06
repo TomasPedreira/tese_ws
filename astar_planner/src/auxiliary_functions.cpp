@@ -109,3 +109,35 @@ bool getRobotTransforms(
         return false;
     }
 }
+
+void calc_trailer_config(nodeHybrid &node, nodeHybrid parent, double speed, double rtr, double resolution){
+    double distance = calculateDist(node.x, node.y, parent.x, parent.y);
+    double time = distance / speed;
+    double trailer_offset = 0.4625 / resolution;
+    double trailer_x_disp = 0.15 / resolution;
+    node.tx = node.x - (trailer_offset + trailer_x_disp) * cos(node.yaw);
+    node.ty = node.y - trailer_offset * sin(node.yaw);
+    double new_trailer_yaw = 0.0;
+    if (is_node_behind(node, parent)) {
+        new_trailer_yaw = parent.trailer_yaw + (-speed/rtr)*sin(-parent.trailer_yaw + parent.yaw) * time;
+    }else{
+        new_trailer_yaw = parent.trailer_yaw + (speed/rtr)*sin(-parent.trailer_yaw + parent.yaw) * time;
+    }
+    node.trailer_yaw = new_trailer_yaw;
+}
+
+bool is_node_behind(const nodeHybrid &node, const nodeHybrid &previous)
+{
+    double dx = node.x - previous.x;
+    double dy = node.y - previous.y;
+    if (std::abs(dx) < 1e-6 && std::abs(dy) < 1e-6) {
+        return false;
+    }
+    
+    double headingx = cos(previous.yaw);
+    double headingy = sin(previous.yaw);
+    double dot_product = dx * headingx + dy * headingy;
+    
+
+    return dot_product > 0;
+}

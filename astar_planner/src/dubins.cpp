@@ -13,6 +13,7 @@
 #include "nav2_util/node_utils.hpp"
 #include "nav2_costmap_2d/costmap_2d.hpp"
 #include <rclcpp/rclcpp.hpp>
+#include "astar_planner/auxiliary_functions.hpp"
 
 
 // The three segment types a path can be made up of
@@ -283,6 +284,8 @@ std::vector<nodeHybrid> create_dubins_path(
     double tolerance = 0.2
 ) {
     std::vector<nodeHybrid> path_nodes;
+    const double speed = 0.4 / costmap->getResolution();
+    const double rtr = 0.5625 / costmap->getResolution();
 
     // 1. Convert map coordinates to world coordinates
     double start_x_world, start_y_world;
@@ -311,6 +314,10 @@ std::vector<nodeHybrid> create_dubins_path(
         goal.x = goal_node.x;
         goal.y = goal_node.y;
         goal.yaw = goal_node.yaw;
+        goal.tx = start_node.x;
+        goal.ty = start_node.y;
+        goal.trailer_yaw = start_node.trailer_yaw;
+        goal.parent = std::make_shared<nodeHybrid>(start_node);
         path_nodes.push_back(goal);
         return path_nodes;
     }
@@ -362,6 +369,9 @@ std::vector<nodeHybrid> create_dubins_path(
         goal.x = goal_node.x;
         goal.y = goal_node.y;
         goal.yaw = goal_node.yaw;
+        goal.tx = start_node.x;
+        goal.ty = start_node.y;
+        goal.trailer_yaw = start_node.trailer_yaw;
         goal.parent = std::make_shared<nodeHybrid>(start_node);
         path_nodes.push_back(goal);
         return path_nodes;
@@ -438,6 +448,8 @@ std::vector<nodeHybrid> create_dubins_path(
             node.y = my;
             node.yaw = mod2pi(qt[2]);
             node.parent = std::make_shared<nodeHybrid>(path_nodes.back());
+            calc_trailer_config(node, *(node.parent), speed, rtr, costmap->getResolution());
+
             if (!path_nodes.empty() && node.x == path_nodes.back().x && node.y == path_nodes.back().y) {
                 continue;
             }
@@ -449,10 +461,11 @@ std::vector<nodeHybrid> create_dubins_path(
             if (dist_to_goal_now <= tolerance && seg < 2) {
                 // RCLCPP_INFO(rclcpp::get_logger("AstarPlanner"), "Seg %d, Step %d: Near goal (%f <= %f), finalizing", 
                 //             seg, i, dist_to_goal_now, tolerance);
-                nodeHybrid goal = goal_node;
-                goal.x = goal_node.x;
-                goal.y = goal_node.y;
-                goal.yaw = goal_node.yaw;
+                
+                dx = goal_node.x - node.x;
+                dy = goal_node.y - node.y;
+                nodeHybrid goal;
+                calc_trailer_config(goal, node, speed, rtr, costmap->getResolution());
                 goal.parent = std::make_shared<nodeHybrid>(path_nodes.back());
                 path_nodes.push_back(goal);
                 goal_reached = true;
@@ -478,6 +491,7 @@ std::vector<nodeHybrid> create_dubins_path(
             goal.y = goal_node.y;
             goal.yaw = goal_node.yaw;
             goal.parent = std::make_shared<nodeHybrid>(path_nodes.back());
+            calc_trailer_config(goal, *(goal.parent), speed, rtr, costmap->getResolution());
             path_nodes.push_back(goal);
         }
     } else {
@@ -499,66 +513,36 @@ std::vector<nodeHybrid> create_dubins_path(
     return path_nodes;
 }
 
+// bool dubins_check_colision(std::vector<nodeHybrid> &path_nodes, nav2_costmap_2d::Costmap2D* costmap) {
+//     for (const auto& node : path_nodes) {
+//         if (costmap->getCost(node.x, node.y) > 0) {
+//             return true;
+//         }
+//     }
+//     return false;
+// }
 bool dubins_check_colision(std::vector<nodeHybrid> &path_nodes, nav2_costmap_2d::Costmap2D* costmap) {
-    for (const auto& node : path_nodes) {
-        if (costmap->getCost(node.x, node.y) > 0) {
-            return true;
-        }
-    }
-    return false;
-}
-bool dubins_check_colision(std::vector<nodeHybrid> &path_nodes, std::vector<nodeHybrid> &publish_trailer, nav2_costmap_2d::Costmap2D* costmap,  nodeHybrid &start_node) {
-    const double speed = 0.4 / costmap->getResolution();
-    const double rtr = 0.5625 / costmap->getResolution();
-    path_nodes[0].yaw = start_node.yaw;
-    path_nodes[0].tx = start_node.tx;
-    path_nodes[0].ty = start_node.ty;
-    path_nodes[0].trailer_yaw = start_node.trailer_yaw;
-    std::vector<nodeHybrid> aux_path;
     
     for (size_t i = 1; i < path_nodes.size(); i++) {
         if (costmap->getCost(path_nodes[i].x, path_nodes[i].y) > 0) {
-            std::cout << "Collision at node " << i << ": (" << path_nodes[i].x << ", " << path_nodes[i].y << ")" << std::endl;
+            // std::cout << "Tractor Collision at node " << i << ": (" << path_nodes[i].x << ", " << path_nodes[i].y << ")" << std::endl;
             return true;
         }
-        int dx, dy;
-        dx = path_nodes[i].x - path_nodes[i - 1].x;
-        dy = path_nodes[i].y - path_nodes[i - 1].y;
-        unsigned int distance = sqrt((dx * dx) + (dy * dy));
-        double time = distance / speed;
-
-
-        double new_trailer_yaw = path_nodes[i - 1].trailer_yaw + 
-            (speed/rtr)*sin(-path_nodes[i - 1].trailer_yaw + path_nodes[i-1].yaw) * time; 
-
-        // wrap to -pi, pi
-        //new_trailer_yaw = fmod(new_trailer_yaw + M_PI, 2 * M_PI) - M_PI;
         
-        if (abs(new_trailer_yaw - path_nodes[i].yaw) > M_PI/4) {
-            // std::cout << "Collision at node " << i << ": trailer yaw too high: " << abs(new_trailer_yaw - path_nodes[i].yaw) << std::endl;
-            // std::cout << "new_trailer_yaw: " << new_trailer_yaw << std::endl;
-            // std::cout << "path_nodes[i].yaw: " << path_nodes[i].yaw << std::endl;
+        // wrap to 0,2pi
+        double yaw_diff = mod2pi(path_nodes[i].yaw - path_nodes[i-1].yaw);
+        if (yaw_diff > M_PI) {
+            std::cout << "Yaw diff > pi at node " << i << ": " << yaw_diff << std::endl;
             //return true;
-        }else{
-            path_nodes[i].trailer_yaw = new_trailer_yaw;
         }
-        double trailer_offset = 0.4625 / costmap->getResolution();
-        path_nodes[i].tx = path_nodes[i].x - trailer_offset * cos(path_nodes[i].yaw);
-        path_nodes[i].ty = path_nodes[i].y - trailer_offset * sin(path_nodes[i].yaw);
+        
         if (costmap->getCost(path_nodes[i].tx, path_nodes[i].ty) > 0) {
-            std::cout << "Collision at node " << i << ": (" << path_nodes[i].tx << ", " << path_nodes[i].ty << ")" << std::endl;
-            return true;
+            // std::cout << "Collision at node " << i << ": (" << path_nodes[i].tx << ", " << path_nodes[i].ty << ")" << std::endl;
+            // return true;
         }
-        nodeHybrid trailer_node;
-        trailer_node.x = path_nodes[i].tx;
-        trailer_node.y = path_nodes[i].ty;
-        trailer_node.yaw = new_trailer_yaw;
-        aux_path.push_back(trailer_node);  
+        // std::cout << "trailer x: " << path_nodes[i].tx << ", trailer y: " << path_nodes[i].ty << std::endl;
+        
 
-
-    }
-    for (size_t i = 0; i < aux_path.size(); i++) {
-        publish_trailer.push_back(aux_path[i]);
     }
     
     return false;

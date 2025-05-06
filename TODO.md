@@ -98,7 +98,14 @@
 [x] 15:00 Check vehicle positions in collision checks;
 
 ## 02/05 VEHICLE DYNAMICS
-[ ] Implement vehicle position calculation inside the collision check;
+[x] 15:50 Implement vehicle position calculation inside the collision check;
+
+## 06/05 VEHICLE DYNAMICS
+[x] 15:20 Change dynamics calculation to the dubins calculation;
+[x] 15:27 Fix continuation of trailer positions in the node expansion;
+[ ] Detect backwards movement to alter speed direction;
+[ ] Fix/tune the trailer position calculations;
+
 
 ## next time
 [ ] Make the search have a depth (can only go for some amount of time/nodes); // No need?

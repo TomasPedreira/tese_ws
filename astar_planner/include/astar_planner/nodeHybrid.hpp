@@ -14,9 +14,23 @@ class nodeHybrid {
         std::shared_ptr<nodeHybrid> parent;
         std::vector<int> neighbours;
         bool is_outside;
-        double trailer_yaw, tractor_yaw;
+        double trailer_yaw;
 
-        nodeHybrid() {};
+        nodeHybrid() {
+            x = 0;
+            y = 0;
+            tx = 0;
+            ty = 0;
+            id = 0;
+            f = 0.0;
+            g = 0.0;
+            h = 0.0;
+            yaw = 0.0;
+            parent = nullptr;
+            neighbours.clear();
+            is_outside = false;
+            trailer_yaw = 0.0;
+        };
 
         nodeHybrid(int id, bool outside, unsigned int x, unsigned int y, std::shared_ptr<nodeHybrid> parent, std::vector<int> neighbours) {
             this->id = id;

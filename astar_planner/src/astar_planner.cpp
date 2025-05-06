@@ -200,7 +200,8 @@ namespace astar_planner
     goal_node.yaw = tf2::getYaw(goal.pose.orientation);
     cout << "Start node: " << start_node.x << " " << start_node.y << endl;
     cout << "Goal node: " << goal_node.x << " " << goal_node.y << endl;
-    
+    const double rtr = 0.5625 / costmap_->getResolution();
+    const double speed = 0.4 / costmap_->getResolution();
    
     std::vector<nodeHybrid> subgoals = compute_subgoals(voronoi_nodes_, start_node, goal_node, costmap_, tolerance_);
     std::vector<nodeHybrid> path_to_consider;
@@ -211,12 +212,10 @@ namespace astar_planner
     std::vector<nodeHybrid> expanded_nodes;
     open_list.push_back(current_node);
 
-    int dubins_counter = 0;
-
     bool dubins_found = false;
     bool goal_found = false;
-    bool should_send = true;
     std::vector<nodeHybrid> trailer_path;
+    std::vector<nodeHybrid> dubins_path;
     while (!open_list.empty() && !goal_found) {
       current_node = open_list[get_lowest_f_node(open_list)];
       open_list.erase(open_list.begin() + get_lowest_f_node(open_list));
@@ -231,18 +230,19 @@ namespace astar_planner
           break;
         }
         
-        std::vector<nodeHybrid> dubins_path = create_dubins_path(costmap_, current_node, subgoal, turning_radius_, dubins_tolerance_);
-        if (!dubins_check_colision(dubins_path, trailer_path, costmap_, current_node)) {
-          dubins_counter++;
+        dubins_path = create_dubins_path(costmap_, current_node, subgoal, turning_radius_, dubins_tolerance_);
+        if (!dubins_check_colision(dubins_path, costmap_)) {
           dubins_path[0].parent = std::make_shared<nodeHybrid>(current_node);
-          goal_node.parent = std::make_shared<nodeHybrid>(dubins_path[dubins_path.size()-1]);
           if (subgoal.x == goal_node.x && subgoal.y == goal_node.y) {
+            goal_node.parent = std::make_shared<nodeHybrid>(dubins_path[dubins_path.size()-1]);
             goal_found = true;
+            calc_trailer_config(goal_node, *goal_node.parent, speed, rtr, costmap_->getResolution());
+            nodeHybrid path_node = goal_node;
           }else{
             subgoal.parent = std::make_shared<nodeHybrid>(dubins_path[dubins_path.size()-1]);            
             double trailer_offset = 0.4625 / costmap_->getResolution();
-            subgoal.tx = subgoal.x - trailer_offset * cos(subgoal.parent->trailer_yaw);
-            subgoal.ty = subgoal.y - trailer_offset * sin(subgoal.parent->trailer_yaw);
+            subgoal.tx = subgoal.x - trailer_offset * cos(subgoal.parent->yaw);
+            subgoal.ty = subgoal.y - trailer_offset * sin(subgoal.parent->yaw);
             subgoal.trailer_yaw = subgoal.parent->trailer_yaw;
             open_list.push_back(subgoal);
             last_subgoal = subgoal;
@@ -274,15 +274,20 @@ namespace astar_planner
             if (costmap_->getCost(mx, my) != 0) {
               continue;
             }
-            // check if the node is already in the closed list
             successor.x = mx;
             successor.y = my;
             successor.yaw = current_node.yaw + directions_[i];
             successor.g = current_node.g + calculateDist(current_node.x, current_node.y, successor.x, successor.y);
             successor.h = calculateDist(successor.x, successor.y, goal_node.x, goal_node.y) + 10*std::abs(current_node.yaw - successor.yaw);
             successor.f = successor.g + successor.h;
-            
             successor.parent = std::make_shared<nodeHybrid>(current_node);
+            calc_trailer_config(successor, *successor.parent, speed, rtr, costmap_->getResolution());
+              
+            // if (abs(new_trailer_yaw - successor.yaw) > M_PI/4) {
+            //   continue;
+            // }else{
+            // }
+            
             if (!is_node_in_list(successor, open_list) && 
                 !is_node_in_list(successor, closed_list)) {
               open_list.push_back(successor);
@@ -296,6 +301,9 @@ namespace astar_planner
                 closed_list[index].g = successor.g;
                 closed_list[index].h = successor.h;
                 closed_list[index].yaw = successor.yaw;
+                closed_list[index].tx = successor.tx;
+                closed_list[index].ty = successor.ty;
+                closed_list[index].trailer_yaw = successor.trailer_yaw;
               }
             }
             
@@ -306,40 +314,29 @@ namespace astar_planner
         // Publish the path only if the publisher is activated
         if (node_expansion_publisher_ && node_expansion_publisher_->is_activated()) {
           node_expansion_publisher_->publish(path_from_vector(expanded_nodes, global_frame_, costmap_));
-          // should_send = false;
-        } else {
-        }
+        } 
       }     
     }
-    trailer_pos_publisher_->publish(path_from_vector(trailer_path, global_frame_, costmap_));
 
     nodeHybrid path_node = goal_node;
-    #if DEBUG == 0
-      while (path_node.parent != nullptr) {
-        geometry_msgs::msg::PoseStamped pose;
-        pose.header.stamp = node_->now();
-        pose.header.frame_id = global_frame_;
-        pose.pose.position.x = costmap_->getOriginX() + path_node.x * costmap_->getResolution();
-        pose.pose.position.y = costmap_->getOriginY() + path_node.y * costmap_->getResolution();
-        pose.pose.orientation = tf2::toMsg(tf2::Quaternion(tf2::Vector3(0, 0, 1), path_node.yaw));
-        // cout << "Pose: " << pose.pose.position.x << " " << pose.pose.position.y << endl;
-        global_path.poses.insert(global_path.poses.begin(), pose);
-        path_node = *path_node.parent;
-      }
-    #else
-      for (size_t i = 0; i < path_to_consider.size(); i++) {
-        geometry_msgs::msg::PoseStamped pose;
-        pose.header.stamp = node_->now();
-        pose.header.frame_id = global_frame_;
-        pose.pose.position.x = costmap_->getOriginX() + path_to_consider[i].x * costmap_->getResolution();
-        pose.pose.position.y = costmap_->getOriginY() + path_to_consider[i].y * costmap_->getResolution();
-        pose.pose.orientation = tf2::toMsg(tf2::Quaternion(tf2::Vector3(0, 0, 1), path_to_consider[i].yaw));
-        cout << "Pose: " << pose.pose.position.x << " " << pose.pose.position.y << endl;
-
-        global_path.poses.insert(global_path.poses.begin(), pose);
-
-      }
-    #endif
+    while (path_node.parent != nullptr) {
+      geometry_msgs::msg::PoseStamped pose;
+      pose.header.stamp = node_->now();
+      pose.header.frame_id = global_frame_;
+      pose.pose.position.x = costmap_->getOriginX() + path_node.x * costmap_->getResolution();
+      pose.pose.position.y = costmap_->getOriginY() + path_node.y * costmap_->getResolution();
+      pose.pose.orientation = tf2::toMsg(tf2::Quaternion(tf2::Vector3(0, 0, 1), path_node.yaw));
+      // cout << "Pose: " << pose.pose.position.x << " " << pose.pose.position.y << endl;
+      global_path.poses.insert(global_path.poses.begin(), pose);
+      nodeHybrid trailer_node = nodeHybrid();
+      trailer_node.x = path_node.tx;
+      trailer_node.y = path_node.ty;
+      trailer_node.yaw = path_node.trailer_yaw;
+      trailer_path.push_back(trailer_node);
+      path_node = *path_node.parent;
+    }
+    
+    trailer_pos_publisher_->publish(path_from_vector(trailer_path, global_frame_, costmap_));
  
     return global_path;
   }
