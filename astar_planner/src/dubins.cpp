@@ -287,7 +287,6 @@ std::vector<nodeHybrid> create_dubins_path(
     const double speed = 0.4 / costmap->getResolution();
     const double rtr = 0.5625 / costmap->getResolution();
 
-    // 1. Convert map coordinates to world coordinates
     double start_x_world, start_y_world;
     double goal_x_world, goal_y_world;
     costmap->mapToWorld(start_node.x, start_node.y, start_x_world, start_y_world);
@@ -300,17 +299,17 @@ std::vector<nodeHybrid> create_dubins_path(
         return path_nodes;
     }
 
-    // 2. Check tolerance
     double dx = goal_x_world - start_x_world;
     double dy = goal_y_world - start_y_world;
     double dist_to_goal = sqrt(dx * dx + dy * dy);
+    double yaw_diff = mod2pi(goal_node.yaw - start_node.yaw);
     RCLCPP_DEBUG(rclcpp::get_logger("AstarPlanner"), "Dist to goal: %f, Tolerance: %f, Rho: %f", 
                  dist_to_goal, tolerance, rho);
 
     if (dist_to_goal <= tolerance) {
         RCLCPP_INFO(rclcpp::get_logger("AstarPlanner"), "Within tolerance (%f <= %f), direct path", dist_to_goal, tolerance);
         path_nodes.push_back(start_node);
-        nodeHybrid goal = goal_node;
+        nodeHybrid goal;
         goal.x = goal_node.x;
         goal.y = goal_node.y;
         goal.yaw = goal_node.yaw;
@@ -365,7 +364,7 @@ std::vector<nodeHybrid> create_dubins_path(
         RCLCPP_ERROR(rclcpp::get_logger("AstarPlanner"), "All Dubins words failed with rho=%f, d=%f, alpha=%f, beta=%f", 
                      rho, d, alpha, beta);
         path_nodes.push_back(start_node);
-        nodeHybrid goal = goal_node;
+        nodeHybrid goal;
         goal.x = goal_node.x;
         goal.y = goal_node.y;
         goal.yaw = goal_node.yaw;
@@ -534,14 +533,15 @@ bool dubins_check_colision(std::vector<nodeHybrid> &path_nodes, nav2_costmap_2d:
         }
         
         // wrap to 0,2pi
-        double yaw_diff = abs(-path_nodes[i].yaw + path_nodes[i].trailer_yaw);
+        double yaw_diff = -path_nodes[i].yaw + path_nodes[i].trailer_yaw;
+        yaw_diff = abs(atan2(sin(yaw_diff), cos(yaw_diff)));
         if (yaw_diff > M_PI/4) {
             std::cout << "Yaw diff > pi at node " << i << ": " << yaw_diff << std::endl;
-            //return true;
+            return true;
         }
         if (costmap->getCost(path_nodes[i].tx, path_nodes[i].ty) > 0) {
             // std::cout << "Collision at node " << i << ": (" << path_nodes[i].tx << ", " << path_nodes[i].ty << ")" << std::endl;
-            // return true;
+            return true;
         }
         // std::cout << "trailer x: " << path_nodes[i].tx << ", trailer y: " << path_nodes[i].ty << std::endl;
         

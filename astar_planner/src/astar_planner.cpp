@@ -278,13 +278,13 @@ namespace astar_planner
             successor.y = my;
             successor.yaw = current_node.yaw + directions_[i];
             successor.g = current_node.g + calculateDist(current_node.x, current_node.y, successor.x, successor.y);
-            successor.h = calculateDist(successor.x, successor.y, goal_node.x, goal_node.y) + 10*std::abs(current_node.yaw - successor.yaw);
+            successor.h = calculateDist(successor.x, successor.y, goal_node.x, goal_node.y) + std::pow(std::abs(goal_node.yaw - successor.yaw), 2);
             successor.f = successor.g + successor.h;
             successor.parent = std::make_shared<nodeHybrid>(current_node);
             calc_trailer_config(successor, *successor.parent, speed, rtr, costmap_->getResolution(), forwards);
               
             if (abs(successor.trailer_yaw - successor.yaw) > M_PI/4) {
-              cout << "Trailer yaw too high in hybrid: " << successor.trailer_yaw << endl;
+              // cout << "Trailer yaw too high in hybrid: " << successor.trailer_yaw << endl;
               continue;
             }
             
