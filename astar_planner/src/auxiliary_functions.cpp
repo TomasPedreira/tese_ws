@@ -110,7 +110,7 @@ bool getRobotTransforms(
     }
 }
 
-void calc_trailer_config(nodeHybrid &node, nodeHybrid parent, double speed, double rtr, double resolution){
+void calc_trailer_config(nodeHybrid &node, nodeHybrid parent, double speed, double rtr, double resolution, int dir){
     double distance = calculateDist(node.x, node.y, parent.x, parent.y);
     double time = distance / speed;
     double trailer_offset = 0.4625 / resolution;
@@ -118,11 +118,10 @@ void calc_trailer_config(nodeHybrid &node, nodeHybrid parent, double speed, doub
     node.tx = node.x - (trailer_offset + trailer_x_disp) * cos(node.yaw);
     node.ty = node.y - trailer_offset * sin(node.yaw);
     double new_trailer_yaw = 0.0;
-    if (is_node_behind(node, parent)) {
-        new_trailer_yaw = parent.trailer_yaw + (-speed/rtr)*sin(-parent.trailer_yaw + parent.yaw) * time;
-    }else{
-        new_trailer_yaw = parent.trailer_yaw + (speed/rtr)*sin(-parent.trailer_yaw + parent.yaw) * time;
-    }
+
+    // false for reversing
+    new_trailer_yaw = parent.trailer_yaw + (dir*speed/rtr)*sin(-parent.trailer_yaw + parent.yaw) * time;
+    
     node.trailer_yaw = new_trailer_yaw;
 }
 

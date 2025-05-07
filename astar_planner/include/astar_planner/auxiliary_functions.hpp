@@ -22,7 +22,7 @@ bool getRobotTransforms(
     geometry_msgs::msg::TransformStamped & trailer_link_transform,
     const std::string & global_frame
 );
-void calc_trailer_config(nodeHybrid &node, nodeHybrid parent, double speed, double rtr, double resolution);
+void calc_trailer_config(nodeHybrid &node, nodeHybrid parent, double speed, double rtr, double resolution, int dir);
 bool is_node_behind(const nodeHybrid &node, const nodeHybrid &previous);
 
 

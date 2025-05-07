@@ -229,14 +229,14 @@ namespace astar_planner
         if (subgoal.x == last_subgoal.x && subgoal.y == last_subgoal.y) {
           break;
         }
-        
         dubins_path = create_dubins_path(costmap_, current_node, subgoal, turning_radius_, dubins_tolerance_);
         if (!dubins_check_colision(dubins_path, costmap_)) {
           dubins_path[0].parent = std::make_shared<nodeHybrid>(current_node);
           if (subgoal.x == goal_node.x && subgoal.y == goal_node.y) {
             goal_node.parent = std::make_shared<nodeHybrid>(dubins_path[dubins_path.size()-1]);
             goal_found = true;
-            calc_trailer_config(goal_node, *goal_node.parent, speed, rtr, costmap_->getResolution());
+            cout << "Goal found!" << endl;
+            calc_trailer_config(goal_node, *goal_node.parent, speed, rtr, costmap_->getResolution(), 1);
             nodeHybrid path_node = goal_node;
           }else{
             subgoal.parent = std::make_shared<nodeHybrid>(dubins_path[dubins_path.size()-1]);            
@@ -281,12 +281,12 @@ namespace astar_planner
             successor.h = calculateDist(successor.x, successor.y, goal_node.x, goal_node.y) + 10*std::abs(current_node.yaw - successor.yaw);
             successor.f = successor.g + successor.h;
             successor.parent = std::make_shared<nodeHybrid>(current_node);
-            calc_trailer_config(successor, *successor.parent, speed, rtr, costmap_->getResolution());
+            calc_trailer_config(successor, *successor.parent, speed, rtr, costmap_->getResolution(), forwards);
               
-            // if (abs(new_trailer_yaw - successor.yaw) > M_PI/4) {
-            //   continue;
-            // }else{
-            // }
+            if (abs(successor.trailer_yaw - successor.yaw) > M_PI/4) {
+              cout << "Trailer yaw too high in hybrid: " << successor.trailer_yaw << endl;
+              continue;
+            }
             
             if (!is_node_in_list(successor, open_list) && 
                 !is_node_in_list(successor, closed_list)) {

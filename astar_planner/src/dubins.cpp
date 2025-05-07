@@ -448,7 +448,7 @@ std::vector<nodeHybrid> create_dubins_path(
             node.y = my;
             node.yaw = mod2pi(qt[2]);
             node.parent = std::make_shared<nodeHybrid>(path_nodes.back());
-            calc_trailer_config(node, *(node.parent), speed, rtr, costmap->getResolution());
+            calc_trailer_config(node, *(node.parent), speed, rtr, costmap->getResolution(), 1);
 
             if (!path_nodes.empty() && node.x == path_nodes.back().x && node.y == path_nodes.back().y) {
                 continue;
@@ -465,7 +465,10 @@ std::vector<nodeHybrid> create_dubins_path(
                 dx = goal_node.x - node.x;
                 dy = goal_node.y - node.y;
                 nodeHybrid goal;
-                calc_trailer_config(goal, node, speed, rtr, costmap->getResolution());
+                goal.x = goal_node.x;
+                goal.y = goal_node.y;
+                goal.yaw = goal_node.yaw;
+                calc_trailer_config(goal, node, speed, rtr, costmap->getResolution(), 1);
                 goal.parent = std::make_shared<nodeHybrid>(path_nodes.back());
                 path_nodes.push_back(goal);
                 goal_reached = true;
@@ -486,21 +489,22 @@ std::vector<nodeHybrid> create_dubins_path(
         // RCLCPP_DEBUG(rclcpp::get_logger("AstarPlanner"), "Last point to goal dist: %f", last_dist);
         if (last_dist > tolerance) {
             // RCLCPP_WARN(rclcpp::get_logger("AstarPlanner"), "Final point %f from goal, forcing goal", last_dist);
-            nodeHybrid goal = goal_node;
+            nodeHybrid goal;
             goal.x = goal_node.x;
             goal.y = goal_node.y;
             goal.yaw = goal_node.yaw;
             goal.parent = std::make_shared<nodeHybrid>(path_nodes.back());
-            calc_trailer_config(goal, *(goal.parent), speed, rtr, costmap->getResolution());
+            calc_trailer_config(goal, *(goal.parent), speed, rtr, costmap->getResolution(), 1);
             path_nodes.push_back(goal);
         }
     } else {
         RCLCPP_WARN(rclcpp::get_logger("AstarPlanner"), "Path empty, forcing goal");
-        nodeHybrid goal = goal_node;
+        nodeHybrid goal;
         goal.x = goal_node.x;
         goal.y = goal_node.y;
         goal.yaw = goal_node.yaw;
         goal.parent = std::make_shared<nodeHybrid>(start_node);
+        calc_trailer_config(goal, *(goal.parent), speed, rtr, costmap->getResolution(), 1);
         path_nodes.push_back(goal);
     }
 
@@ -530,12 +534,11 @@ bool dubins_check_colision(std::vector<nodeHybrid> &path_nodes, nav2_costmap_2d:
         }
         
         // wrap to 0,2pi
-        double yaw_diff = mod2pi(path_nodes[i].yaw - path_nodes[i-1].yaw);
-        if (yaw_diff > M_PI) {
+        double yaw_diff = abs(-path_nodes[i].yaw + path_nodes[i].trailer_yaw);
+        if (yaw_diff > M_PI/4) {
             std::cout << "Yaw diff > pi at node " << i << ": " << yaw_diff << std::endl;
             //return true;
         }
-        
         if (costmap->getCost(path_nodes[i].tx, path_nodes[i].ty) > 0) {
             // std::cout << "Collision at node " << i << ": (" << path_nodes[i].tx << ", " << path_nodes[i].ty << ")" << std::endl;
             // return true;
@@ -544,6 +547,5 @@ bool dubins_check_colision(std::vector<nodeHybrid> &path_nodes, nav2_costmap_2d:
         
 
     }
-    
     return false;
 }

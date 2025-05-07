@@ -103,9 +103,12 @@
 ## 06/05 VEHICLE DYNAMICS
 [x] 15:20 Change dynamics calculation to the dubins calculation;
 [x] 15:27 Fix continuation of trailer positions in the node expansion;
-[ ] Detect backwards movement to alter speed direction;
-[ ] Fix/tune the trailer position calculations;
+[x] 16:00 Detect backwards movement to alter speed direction;
 
+## 07/05 VEHICLE DYNAMICS
+[x] 11:15 Fix memory issue with the trailers positions in the nodes;
+[ ] Fix/tune the trailer position calculations;
+[ ] Fix Dubins to not simply walk backwards;
 
 ## next time
 [ ] Make the search have a depth (can only go for some amount of time/nodes); // No need?
