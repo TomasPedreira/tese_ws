@@ -303,11 +303,9 @@ std::vector<nodeHybrid> create_dubins_path(
     double dy = goal_y_world - start_y_world;
     double dist_to_goal = sqrt(dx * dx + dy * dy);
     double yaw_diff = mod2pi(goal_node.yaw - start_node.yaw);
-    RCLCPP_DEBUG(rclcpp::get_logger("AstarPlanner"), "Dist to goal: %f, Tolerance: %f, Rho: %f", 
-                 dist_to_goal, tolerance, rho);
 
+    // Check if we're within tolerance
     if (dist_to_goal <= tolerance) {
-        RCLCPP_INFO(rclcpp::get_logger("AstarPlanner"), "Within tolerance (%f <= %f), direct path", dist_to_goal, tolerance);
         path_nodes.push_back(start_node);
         nodeHybrid goal;
         goal.x = goal_node.x;
@@ -321,78 +319,122 @@ std::vector<nodeHybrid> create_dubins_path(
         return path_nodes;
     }
 
-    // 3. Initialize Dubins path
+    // Initialize Dubins path
     double q0[3] = {start_x_world, start_y_world, start_node.yaw};
     double q1[3] = {goal_x_world, goal_y_world, goal_node.yaw};
+    
     if (rho <= 0.0) {
         RCLCPP_ERROR(rclcpp::get_logger("AstarPlanner"), "Invalid rho: %f", rho);
         return path_nodes;
     }
+
     DubinsPath path;
     double D = dist_to_goal;
     double d = D / rho;
-    // RCLCPP_DEBUG(rclcpp::get_logger("AstarPlanner"), "Dubins init: D=%f, d=%f, rho=%f, start_yaw=%f, goal_yaw=%f", 
-    //              D, d, rho, start_node.yaw, goal_node.yaw);
-
     double theta = mod2pi(atan2(dy, dx));
     double alpha = mod2pi(q0[2] - theta);
     double beta = mod2pi(q1[2] - theta);
+
+    // Validate direction
+    double heading_to_goal = atan2(dy, dx);
+    double start_heading_diff = mod2pi(heading_to_goal - start_node.yaw);
+    bool should_reverse = std::abs(start_heading_diff) > M_PI/2;
+
+    // Check for obstacles in the direct path
+    bool has_obstacle = false;
+    unsigned int check_x, check_y;
+    double check_step = 0.1; // 10cm steps
+    double check_dist = 0.0;
+    while (check_dist < dist_to_goal) {
+        double ratio = check_dist / dist_to_goal;
+        double check_x_world = start_x_world + ratio * dx;
+        double check_y_world = start_y_world + ratio * dy;
+        if (costmap->worldToMap(check_x_world, check_y_world, check_x, check_y)) {
+            if (costmap->getCost(check_x, check_y) >= 254) {
+                has_obstacle = true;
+                break;
+            }
+        }
+        check_dist += check_step;
+    }
+
+    // Try different Dubins words and find the best valid path
     double best_cost = INFINITY;
     int best_word = -1;
+    double best_params[3];
+
     for (int i = 0; i < 6; i++) {
         double params[3];
         int err = dubins_words[i](alpha, beta, d, params);
         if (err == 0) {
-            double cost = params[0] + params[1] + params[2];
-            // RCLCPP_DEBUG(rclcpp::get_logger("AstarPlanner"), "Word %d (%s): Cost=%f, Params=[%f, %f, %f]", 
-            //              i, i == LSL ? "LSL" : i == LSR ? "LSR" : i == RSL ? "RSL" : i == RSR ? "RSR" : i == RLR ? "RLR" : "LRL", 
-            //              cost, params[0], params[1], params[2]);
-            if (cost < best_cost) {
-                best_word = i;
-                best_cost = cost;
-                path.param[0] = params[0];
-                path.param[1] = params[1];
-                path.param[2] = params[2];
-                path.type = i;
+            // Basic validation of path parameters
+            if (params[0] < 0 || params[1] < 0 || params[2] < 0) {
+                continue;
             }
-        } else {
-            RCLCPP_DEBUG(rclcpp::get_logger("AstarPlanner"), "Word %d failed", i);
+
+            // Check if the path respects the direction constraint
+            bool valid_direction = true;
+            if (!should_reverse) {
+                if (i == RSL || i == RSR) {
+                    valid_direction = false;
+                }
+            }
+
+            // Check for invalid arc patterns
+            bool invalid_pattern = false;
+            
+            // Only check for invalid patterns when there's an obstacle
+            if (has_obstacle) {
+                // Check for degenerate cases where arcs would overlap
+                if (params[0] < 0.1 && params[2] < 0.1) {
+                    invalid_pattern = true;
+                }
+            }
+
+            if (valid_direction && !invalid_pattern) {
+                double cost = params[0] + params[1] + params[2];
+                
+                // Simple cost adjustments
+                if (has_obstacle) {
+                    // Slightly prefer paths that start with a turn when obstacles are present
+                    if (i == LSL || i == RSR) {
+                        cost *= 1.2;
+                    }
+                }
+
+                if (cost < best_cost) {
+                    best_word = i;
+                    best_cost = cost;
+                    best_params[0] = params[0];
+                    best_params[1] = params[1];
+                    best_params[2] = params[2];
+                }
+            }
         }
     }
 
     if (best_word == -1) {
-        RCLCPP_ERROR(rclcpp::get_logger("AstarPlanner"), "All Dubins words failed with rho=%f, d=%f, alpha=%f, beta=%f", 
-                     rho, d, alpha, beta);
-        path_nodes.push_back(start_node);
-        nodeHybrid goal;
-        goal.x = goal_node.x;
-        goal.y = goal_node.y;
-        goal.yaw = goal_node.yaw;
-        goal.tx = start_node.x;
-        goal.ty = start_node.y;
-        goal.trailer_yaw = start_node.trailer_yaw;
-        goal.parent = std::make_shared<nodeHybrid>(start_node);
-        path_nodes.push_back(goal);
+        RCLCPP_ERROR(rclcpp::get_logger("AstarPlanner"), "No valid Dubins path found");
         return path_nodes;
     }
+
+    // Set up the path
+    path.param[0] = best_params[0];
+    path.param[1] = best_params[1];
+    path.param[2] = best_params[2];
+    path.type = best_word;
     path.qi[0] = q0[0];
     path.qi[1] = q0[1];
     path.qi[2] = q0[2];
     path.rho = rho;
 
-    // RCLCPP_INFO(rclcpp::get_logger("AstarPlanner"), "Dubins type=%d (%s), Params=[%f, %f, %f]", 
-    //             path.type, path.type == LSL ? "LSL" : path.type == LSR ? "LSR" : path.type == RSL ? "RSL" : 
-    //             path.type == RSR ? "RSR" : path.type == RLR ? "RLR" : "LRL", 
-    //             path.param[0], path.param[1], path.param[2]);
-
-    // 4. Sample the path
-    double path_length = dubins_path_length(&path);
+    // Sample the path
     double step_size = rho * 0.1;
-    // RCLCPP_DEBUG(rclcpp::get_logger("AstarPlanner"), "Path length=%f, step_size=%f", path_length, step_size);
-
     double qi[3] = {q0[0], q0[1], q0[2]};
     double qt[3];
     int segment_types[3];
+    
+    // Set segment types based on path type
     switch (path.type) {
         case LSL: segment_types[0] = L_SEG; segment_types[1] = S_SEG; segment_types[2] = L_SEG; break;
         case LSR: segment_types[0] = L_SEG; segment_types[1] = S_SEG; segment_types[2] = R_SEG; break;
@@ -409,39 +451,36 @@ std::vector<nodeHybrid> create_dubins_path(
     double total_traveled = 0.0;
     bool goal_reached = false;
 
+    // Generate path points for each segment
     for (int seg = 0; seg < 3 && !goal_reached; seg++) {
         double seg_length = path.param[seg];
         double real_seg_length = seg_length * rho;
         int seg_steps = std::max(5, static_cast<int>(real_seg_length / step_size) + 1);
-        // RCLCPP_DEBUG(rclcpp::get_logger("AstarPlanner"), "Seg %d: Type=%d, NormLength=%f, RealLength=%f, Steps=%d", 
-        //              seg, segment_types[seg], seg_length, real_seg_length, seg_steps);
 
         for (int i = 0; i < seg_steps; i++) {
             double t = seg_length * (i / static_cast<double>(seg_steps - 1));
             if (i == seg_steps - 1) t = seg_length;
+            
             dubins_segment(t, qi, qt, segment_types[seg], rho);
 
+            // Check if we've overshot
             double dist_from_start = sqrt(pow(qt[0] - start_x_world, 2) + pow(qt[1] - start_y_world, 2));
             total_traveled = dist_from_start;
             if (total_traveled > dist_to_goal + rho) {
-                // RCLCPP_WARN(rclcpp::get_logger("AstarPlanner"), "Seg %d, Step %d: Overshoot (%f > %f), adjusting", 
-                //             seg, i, total_traveled, dist_to_goal);
                 break;
             }
 
+            // Convert to map coordinates
             unsigned int mx, my;
             if (!costmap->worldToMap(qt[0], qt[1], mx, my)) {
-                // RCLCPP_WARN(rclcpp::get_logger("AstarPlanner"), "Seg %d, Step %d: Point (%f, %f) outside costmap", 
-                //             seg, i, qt[0], qt[1]);
                 continue;
             }
 
             if (costmap->getCost(mx, my) >= 254) {
-                // RCLCPP_WARN(rclcpp::get_logger("AstarPlanner"), "Seg %d, Step %d: Point (%u, %u) in collision", 
-                //             seg, i, mx, my);
                 continue;
             }
 
+            // Create new node
             nodeHybrid node;
             node.x = mx;
             node.y = my;
@@ -449,20 +488,16 @@ std::vector<nodeHybrid> create_dubins_path(
             node.parent = std::make_shared<nodeHybrid>(path_nodes.back());
             calc_trailer_config(node, *(node.parent), speed, rtr, costmap->getResolution(), 1);
 
+            // Skip if we're at the same position
             if (!path_nodes.empty() && node.x == path_nodes.back().x && node.y == path_nodes.back().y) {
                 continue;
             }
-            path_nodes.push_back(node);
-            // RCLCPP_DEBUG(rclcpp::get_logger("AstarPlanner"), "Seg %d, Step %d: (%u, %u), yaw=%f, world(%f, %f), dist=%f", 
-            //              seg, i, mx, my, node.yaw, qt[0], qt[1], dist_from_start);
 
+            path_nodes.push_back(node);
+
+            // Check if we're close enough to goal
             double dist_to_goal_now = sqrt(pow(qt[0] - goal_x_world, 2) + pow(qt[1] - goal_y_world, 2));
             if (dist_to_goal_now <= tolerance && seg < 2) {
-                // RCLCPP_INFO(rclcpp::get_logger("AstarPlanner"), "Seg %d, Step %d: Near goal (%f <= %f), finalizing", 
-                //             seg, i, dist_to_goal_now, tolerance);
-                
-                dx = goal_node.x - node.x;
-                dy = goal_node.y - node.y;
                 nodeHybrid goal;
                 goal.x = goal_node.x;
                 goal.y = goal_node.y;
@@ -471,7 +506,7 @@ std::vector<nodeHybrid> create_dubins_path(
                 goal.parent = std::make_shared<nodeHybrid>(path_nodes.back());
                 path_nodes.push_back(goal);
                 goal_reached = true;
-                break;  // Exit inner loop, outer loop will exit due to goal_reached
+                break;
             }
 
             if (i == seg_steps - 1) {
@@ -482,35 +517,15 @@ std::vector<nodeHybrid> create_dubins_path(
         }
     }
 
-    // Post-processing
-    if (!path_nodes.empty()) {
-        double last_dist = sqrt(pow(qt[0] - goal_x_world, 2) + pow(qt[1] - goal_y_world, 2));
-        // RCLCPP_DEBUG(rclcpp::get_logger("AstarPlanner"), "Last point to goal dist: %f", last_dist);
-        if (last_dist > tolerance) {
-            // RCLCPP_WARN(rclcpp::get_logger("AstarPlanner"), "Final point %f from goal, forcing goal", last_dist);
-            nodeHybrid goal;
-            goal.x = goal_node.x;
-            goal.y = goal_node.y;
-            goal.yaw = goal_node.yaw;
-            goal.parent = std::make_shared<nodeHybrid>(path_nodes.back());
-            calc_trailer_config(goal, *(goal.parent), speed, rtr, costmap->getResolution(), 1);
-            path_nodes.push_back(goal);
-        }
-    } else {
-        RCLCPP_WARN(rclcpp::get_logger("AstarPlanner"), "Path empty, forcing goal");
+    // Add goal if not reached
+    if (!goal_reached && !path_nodes.empty()) {
         nodeHybrid goal;
         goal.x = goal_node.x;
         goal.y = goal_node.y;
         goal.yaw = goal_node.yaw;
-        goal.parent = std::make_shared<nodeHybrid>(start_node);
+        goal.parent = std::make_shared<nodeHybrid>(path_nodes.back());
         calc_trailer_config(goal, *(goal.parent), speed, rtr, costmap->getResolution(), 1);
         path_nodes.push_back(goal);
-    }
-
-    // RCLCPP_INFO(rclcpp::get_logger("AstarPlanner"), "Path size: %zu (rho=%f)", path_nodes.size(), rho);
-    if (path_nodes.size() < 5) {
-        RCLCPP_WARN(rclcpp::get_logger("AstarPlanner"), "Path too short (%zu points), curves may be incomplete", 
-                    path_nodes.size());
     }
 
     return path_nodes;
@@ -536,7 +551,7 @@ bool dubins_check_colision(std::vector<nodeHybrid> &path_nodes, nav2_costmap_2d:
         double yaw_diff = -path_nodes[i].yaw + path_nodes[i].trailer_yaw;
         yaw_diff = abs(atan2(sin(yaw_diff), cos(yaw_diff)));
         if (yaw_diff > M_PI/4) {
-            std::cout << "Yaw diff > pi at node " << i << ": " << yaw_diff << std::endl;
+            // std::cout << "Yaw diff > pi at node " << i << ": " << yaw_diff << std::endl;
             return true;
         }
         if (costmap->getCost(path_nodes[i].tx, path_nodes[i].ty) > 0) {

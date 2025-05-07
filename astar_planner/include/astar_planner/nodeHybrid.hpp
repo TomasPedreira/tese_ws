@@ -15,6 +15,7 @@ class nodeHybrid {
         std::vector<int> neighbours;
         bool is_outside;
         double trailer_yaw;
+        bool is_dubins, is_hybrid, is_voronoi;
 
         nodeHybrid() {
             x = 0;
@@ -30,6 +31,9 @@ class nodeHybrid {
             neighbours.clear();
             is_outside = false;
             trailer_yaw = 0.0;
+            is_dubins = false;
+            is_hybrid = false;
+            is_voronoi = false;
         };
 
         nodeHybrid(int id, bool outside, unsigned int x, unsigned int y, std::shared_ptr<nodeHybrid> parent, std::vector<int> neighbours) {

@@ -64,8 +64,10 @@ namespace astar_planner
     }
     node_expansion_publisher_ = node_->create_publisher<nav_msgs::msg::Path>(
       "/node_expansion", 10);
-      trailer_pos_publisher_ = node_->create_publisher<nav_msgs::msg::Path>(
-        "/trailer_pos", 10);
+    trailer_pos_publisher_ = node_->create_publisher<nav_msgs::msg::Path>(
+      "/trailer_pos", 10);
+    voronoi_subgoals_publisher_ = node_->create_publisher<nav_msgs::msg::Path>(
+      "/voronoi_subgoals", 10);
       
   }
 
@@ -76,6 +78,7 @@ namespace astar_planner
       name_.c_str());
     node_expansion_publisher_.reset();
     trailer_pos_publisher_.reset();
+    voronoi_subgoals_publisher_.reset();
   }
 
   void Astar::activate()
@@ -85,6 +88,7 @@ namespace astar_planner
       name_.c_str());
     node_expansion_publisher_->on_activate();
     trailer_pos_publisher_->on_activate();
+    voronoi_subgoals_publisher_->on_activate();
     voronoi_nodes_ = read_nodes(
       "/home/tomas/tt_ws/src/tese_ws/astar_planner/map/voronoi_nodes.txt", 
       costmap_
@@ -98,6 +102,7 @@ namespace astar_planner
       name_.c_str());
     node_expansion_publisher_->on_deactivate();
     trailer_pos_publisher_->on_deactivate();
+    voronoi_subgoals_publisher_->on_deactivate();
   }
 
 
@@ -204,6 +209,12 @@ namespace astar_planner
     const double speed = 0.4 / costmap_->getResolution();
    
     std::vector<nodeHybrid> subgoals = compute_subgoals(voronoi_nodes_, start_node, goal_node, costmap_, tolerance_);
+    
+    // Publish Voronoi subgoals
+    if (voronoi_subgoals_publisher_ && voronoi_subgoals_publisher_->is_activated()) {
+      voronoi_subgoals_publisher_->publish(path_from_vector(subgoals, global_frame_, costmap_));
+    }
+    
     std::vector<nodeHybrid> path_to_consider;
     nodeHybrid current_node = start_node;
     nodeHybrid last_subgoal = start_node;
@@ -217,8 +228,9 @@ namespace astar_planner
     std::vector<nodeHybrid> trailer_path;
     std::vector<nodeHybrid> dubins_path;
     while (!open_list.empty() && !goal_found) {
-      current_node = open_list[get_lowest_f_node(open_list)];
-      open_list.erase(open_list.begin() + get_lowest_f_node(open_list));
+      int index = get_lowest_f_node(open_list);
+      current_node = open_list[index];
+      open_list.erase(open_list.begin() + index);
       closed_list.push_back(current_node);
       dubins_found = false;
       for (int i = subgoals.size()-1; i > -1; i--) {
@@ -235,7 +247,7 @@ namespace astar_planner
           if (subgoal.x == goal_node.x && subgoal.y == goal_node.y) {
             goal_node.parent = std::make_shared<nodeHybrid>(dubins_path[dubins_path.size()-1]);
             goal_found = true;
-            cout << "Goal found!" << endl;
+            cout << "Goal found through dubins!" << endl;
             calc_trailer_config(goal_node, *goal_node.parent, speed, rtr, costmap_->getResolution(), 1);
             nodeHybrid path_node = goal_node;
           }else{
@@ -282,14 +294,23 @@ namespace astar_planner
             successor.f = successor.g + successor.h;
             successor.parent = std::make_shared<nodeHybrid>(current_node);
             calc_trailer_config(successor, *successor.parent, speed, rtr, costmap_->getResolution(), forwards);
-              
-            if (abs(successor.trailer_yaw - successor.yaw) > M_PI/4) {
+            double yaw_diff = -successor.trailer_yaw + successor.yaw;
+            yaw_diff = abs(atan2(sin(yaw_diff), cos(yaw_diff))); 
+            if (yaw_diff > M_PI/4) {
               // cout << "Trailer yaw too high in hybrid: " << successor.trailer_yaw << endl;
               continue;
             }
+            //check goal on successor with tolerance
+            if (successor.x == goal_node.x && successor.y == goal_node.y){
+              goal_node.parent = std::make_shared<nodeHybrid>(successor);
+              goal_found = true;
+              cout << "Goal found through hybrid astar!" << endl;
+              calc_trailer_config(goal_node, *goal_node.parent, speed, rtr, costmap_->getResolution(), 1);
+              nodeHybrid path_node = goal_node;
+              continue;
+            }
             
-            if (!is_node_in_list(successor, open_list) && 
-                !is_node_in_list(successor, closed_list)) {
+            if (!is_node_in_list(successor, closed_list) && !is_node_in_list(successor, open_list)) {
               open_list.push_back(successor);
               expanded_nodes.push_back(successor);
             }
