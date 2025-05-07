@@ -1,4 +1,3 @@
-
 #include <memory>
 #include <vector>
 #include <fstream>
@@ -187,6 +186,7 @@ std::vector<nodeHybrid> read_nodes(const std::string& filename, nav2_costmap_2d:
 
     open_list.push_back(start_node);
     node_map[start_x][start_y] = start_node;
+    node_map[start_x][start_y].is_voronoi = true;  // Set node type at creation
         
     // get current tiimestamp
     auto start_time = std::chrono::high_resolution_clock::now();
@@ -215,11 +215,13 @@ std::vector<nodeHybrid> read_nodes(const std::string& filename, nav2_costmap_2d:
     sub_goals.insert(sub_goals.begin(), current_node); 
     current_node = *current_node.parent;
     while (current_node.parent != nullptr) {
+      current_node.is_voronoi = true;
       current_node.yaw = calculateOrientation(current_node.x, current_node.y, prev_node.x, prev_node.y);
       sub_goals.insert(sub_goals.begin(), current_node);
       prev_node = current_node;
       current_node = *current_node.parent;
     }
+    current_node.is_voronoi = true;
     sub_goals.insert(sub_goals.begin(), current_node);
     
 

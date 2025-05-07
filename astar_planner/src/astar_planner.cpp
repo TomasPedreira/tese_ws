@@ -68,6 +68,10 @@ namespace astar_planner
       "/trailer_pos", 10);
     voronoi_subgoals_publisher_ = node_->create_publisher<nav_msgs::msg::Path>(
       "/voronoi_subgoals", 10);
+    hybrid_nodes_publisher_ = node_->create_publisher<nav_msgs::msg::Path>(
+      "/hybrid_nodes", 10);
+    dubins_nodes_publisher_ = node_->create_publisher<nav_msgs::msg::Path>(
+      "/dubins_nodes", 10);
       
   }
 
@@ -79,6 +83,8 @@ namespace astar_planner
     node_expansion_publisher_.reset();
     trailer_pos_publisher_.reset();
     voronoi_subgoals_publisher_.reset();
+    hybrid_nodes_publisher_.reset();
+    dubins_nodes_publisher_.reset();
   }
 
   void Astar::activate()
@@ -89,6 +95,8 @@ namespace astar_planner
     node_expansion_publisher_->on_activate();
     trailer_pos_publisher_->on_activate();
     voronoi_subgoals_publisher_->on_activate();
+    hybrid_nodes_publisher_->on_activate();
+    dubins_nodes_publisher_->on_activate();
     voronoi_nodes_ = read_nodes(
       "/home/tomas/tt_ws/src/tese_ws/astar_planner/map/voronoi_nodes.txt", 
       costmap_
@@ -103,6 +111,8 @@ namespace astar_planner
     node_expansion_publisher_->on_deactivate();
     trailer_pos_publisher_->on_deactivate();
     voronoi_subgoals_publisher_->on_deactivate();
+    hybrid_nodes_publisher_->on_deactivate();
+    dubins_nodes_publisher_->on_deactivate();
   }
 
 
@@ -221,6 +231,8 @@ namespace astar_planner
     std::vector<nodeHybrid> open_list;
     std::vector<nodeHybrid> closed_list;
     std::vector<nodeHybrid> expanded_nodes;
+    std::vector<nodeHybrid> hybrid_nodes;
+    std::vector<nodeHybrid> dubins_nodes;
     open_list.push_back(current_node);
 
     bool dubins_found = false;
@@ -243,6 +255,12 @@ namespace astar_planner
         }
         dubins_path = create_dubins_path(costmap_, current_node, subgoal, turning_radius_, dubins_tolerance_);
         if (!dubins_check_colision(dubins_path, costmap_)) {
+          // Set Dubins node types
+          for (auto& node : dubins_path) {
+            node.is_dubins = true;
+          }
+          dubins_nodes.insert(dubins_nodes.end(), dubins_path.begin(), dubins_path.end());
+          
           dubins_path[0].parent = std::make_shared<nodeHybrid>(current_node);
           if (subgoal.x == goal_node.x && subgoal.y == goal_node.y) {
             goal_node.parent = std::make_shared<nodeHybrid>(dubins_path[dubins_path.size()-1]);
@@ -270,14 +288,10 @@ namespace astar_planner
             nodeHybrid successor = nodeHybrid();
             unsigned int mx,my;
             double wx,wy;
-            // cout << "-----------------------------------" << endl;
-            // cout << "Current node: " << current_node.x << " " << current_node.y << endl;
             costmap_->mapToWorld(current_node.x, current_node.y, wx, wy);
-            // cout << "World: " << wx << " " << wy << endl;
-            double step_size = 0.2; // e.g., 10 cm instead of 1 meter
+            double step_size = 0.2;
             wx = wx + forwards * step_size * std::cos(current_node.yaw + directions_[i]);
             wy = wy + forwards * step_size * std::sin(current_node.yaw + directions_[i]);
-            // cout << "World [i]: " << wx << " " << wy << " " << i << endl;
             costmap_->worldToMap(wx, wy, mx, my);
             
             if (mx >= costmap_->getSizeInCellsX() || my >= costmap_->getSizeInCellsY()) {
@@ -289,6 +303,7 @@ namespace astar_planner
             successor.x = mx;
             successor.y = my;
             successor.yaw = current_node.yaw + directions_[i];
+            successor.is_hybrid = true;
             successor.g = current_node.g + calculateDist(current_node.x, current_node.y, successor.x, successor.y);
             successor.h = calculateDist(successor.x, successor.y, goal_node.x, goal_node.y) + std::pow(std::abs(goal_node.yaw - successor.yaw), 2);
             successor.f = successor.g + successor.h;
@@ -297,10 +312,12 @@ namespace astar_planner
             double yaw_diff = -successor.trailer_yaw + successor.yaw;
             yaw_diff = abs(atan2(sin(yaw_diff), cos(yaw_diff))); 
             if (yaw_diff > M_PI/4) {
-              // cout << "Trailer yaw too high in hybrid: " << successor.trailer_yaw << endl;
               continue;
             }
-            //check goal on successor with tolerance
+            
+            successor.is_hybrid = true;
+            hybrid_nodes.push_back(successor);
+            
             if (successor.x == goal_node.x && successor.y == goal_node.y){
               goal_node.parent = std::make_shared<nodeHybrid>(successor);
               goal_found = true;
@@ -312,7 +329,6 @@ namespace astar_planner
             
             if (!is_node_in_list(successor, closed_list) && !is_node_in_list(successor, open_list)) {
               open_list.push_back(successor);
-              expanded_nodes.push_back(successor);
             }
             if (is_node_in_list(successor, closed_list)){
               int index = get_node_from_list(successor, closed_list);
@@ -325,20 +341,17 @@ namespace astar_planner
                 closed_list[index].tx = successor.tx;
                 closed_list[index].ty = successor.ty;
                 closed_list[index].trailer_yaw = successor.trailer_yaw;
+                closed_list[index].is_hybrid = true;
               }
             }
-            
-            
-            
           }
         }   
-        // Publish the path only if the publisher is activated
-        if (node_expansion_publisher_ && node_expansion_publisher_->is_activated()) {
-          node_expansion_publisher_->publish(path_from_vector(expanded_nodes, global_frame_, costmap_));
-        } 
       }     
     }
 
+    // Collect nodes from the final path
+    std::vector<nodeHybrid> final_hybrid_nodes;
+    std::vector<nodeHybrid> final_dubins_nodes;
     nodeHybrid path_node = goal_node;
     while (path_node.parent != nullptr) {
       geometry_msgs::msg::PoseStamped pose;
@@ -347,8 +360,15 @@ namespace astar_planner
       pose.pose.position.x = costmap_->getOriginX() + path_node.x * costmap_->getResolution();
       pose.pose.position.y = costmap_->getOriginY() + path_node.y * costmap_->getResolution();
       pose.pose.orientation = tf2::toMsg(tf2::Quaternion(tf2::Vector3(0, 0, 1), path_node.yaw));
-      // cout << "Pose: " << pose.pose.position.x << " " << pose.pose.position.y << endl;
       global_path.poses.insert(global_path.poses.begin(), pose);
+      
+      // Add node to appropriate final path vector based on its type
+      if (path_node.is_hybrid) {
+        final_hybrid_nodes.push_back(path_node);
+      } else if (path_node.is_dubins) {
+        final_dubins_nodes.push_back(path_node);
+      }
+      
       nodeHybrid trailer_node = nodeHybrid();
       trailer_node.x = path_node.tx;
       trailer_node.y = path_node.ty;
@@ -357,6 +377,13 @@ namespace astar_planner
       path_node = *path_node.parent;
     }
     
+    // Publish only the final paths
+    if (hybrid_nodes_publisher_ && hybrid_nodes_publisher_->is_activated()) {
+      hybrid_nodes_publisher_->publish(path_from_vector(final_hybrid_nodes, global_frame_, costmap_));
+    }
+    if (dubins_nodes_publisher_ && dubins_nodes_publisher_->is_activated()) {
+      dubins_nodes_publisher_->publish(path_from_vector(final_dubins_nodes, global_frame_, costmap_));
+    }
     trailer_pos_publisher_->publish(path_from_vector(trailer_path, global_frame_, costmap_));
  
     return global_path;

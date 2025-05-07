@@ -485,6 +485,7 @@ std::vector<nodeHybrid> create_dubins_path(
             node.x = mx;
             node.y = my;
             node.yaw = mod2pi(qt[2]);
+            node.is_dubins = true;  // Set node type at creation
             node.parent = std::make_shared<nodeHybrid>(path_nodes.back());
             calc_trailer_config(node, *(node.parent), speed, rtr, costmap->getResolution(), 1);
 
