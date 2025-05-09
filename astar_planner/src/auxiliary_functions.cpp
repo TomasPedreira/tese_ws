@@ -115,14 +115,14 @@ void calc_trailer_config(nodeHybrid &node, nodeHybrid parent, double speed, doub
     double time = distance / speed;
     double trailer_offset = 0.4625 / resolution;
     double trailer_x_disp = 0.15 / resolution;
-    node.tx = node.x - (trailer_offset + trailer_x_disp) * cos(node.yaw);
-    node.ty = node.y - trailer_offset * sin(node.yaw);
     double new_trailer_yaw = 0.0;
 
-    // false for reversing
     new_trailer_yaw = parent.trailer_yaw + (dir*speed/rtr)*sin(-parent.trailer_yaw + parent.yaw) * time;
     
     node.trailer_yaw = new_trailer_yaw;
+
+    node.tx = node.x - trailer_offset * cos(node.yaw) - (trailer_x_disp * cos(node.trailer_yaw));
+    node.ty = node.y - trailer_offset * sin(node.yaw) - (trailer_x_disp * sin(node.trailer_yaw));
 }
 
 bool is_node_behind(const nodeHybrid &node, const nodeHybrid &previous)

@@ -107,6 +107,9 @@
 
 ## 07/05 VEHICLE DYNAMICS
 [x] 11:15 Fix memory issue with the trailers positions in the nodes;
+
+## 08/05 VEHICLE DYNAMICS
+[ ] FInd reason for crashing sometimes;
 [ ] Fix/tune the trailer position calculations;
 [ ] Fix Dubins to not simply walk backwards;
 

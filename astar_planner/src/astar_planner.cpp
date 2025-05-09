@@ -68,9 +68,9 @@ namespace astar_planner
       "/trailer_pos", 10);
     voronoi_subgoals_publisher_ = node_->create_publisher<nav_msgs::msg::Path>(
       "/voronoi_subgoals", 10);
-    hybrid_nodes_publisher_ = node_->create_publisher<nav_msgs::msg::Path>(
+    hybrid_path_publisher_ = node_->create_publisher<nav_msgs::msg::Path>(
       "/hybrid_nodes", 10);
-    dubins_nodes_publisher_ = node_->create_publisher<nav_msgs::msg::Path>(
+    dubins_path_publisher_ = node_->create_publisher<nav_msgs::msg::Path>(
       "/dubins_nodes", 10);
       
   }
@@ -83,8 +83,8 @@ namespace astar_planner
     node_expansion_publisher_.reset();
     trailer_pos_publisher_.reset();
     voronoi_subgoals_publisher_.reset();
-    hybrid_nodes_publisher_.reset();
-    dubins_nodes_publisher_.reset();
+    hybrid_path_publisher_.reset();
+    dubins_path_publisher_.reset();
   }
 
   void Astar::activate()
@@ -95,8 +95,8 @@ namespace astar_planner
     node_expansion_publisher_->on_activate();
     trailer_pos_publisher_->on_activate();
     voronoi_subgoals_publisher_->on_activate();
-    hybrid_nodes_publisher_->on_activate();
-    dubins_nodes_publisher_->on_activate();
+    hybrid_path_publisher_->on_activate();
+    dubins_path_publisher_->on_activate();
     voronoi_nodes_ = read_nodes(
       "/home/tomas/tt_ws/src/tese_ws/astar_planner/map/voronoi_nodes.txt", 
       costmap_
@@ -111,8 +111,8 @@ namespace astar_planner
     node_expansion_publisher_->on_deactivate();
     trailer_pos_publisher_->on_deactivate();
     voronoi_subgoals_publisher_->on_deactivate();
-    hybrid_nodes_publisher_->on_deactivate();
-    dubins_nodes_publisher_->on_deactivate();
+    hybrid_path_publisher_->on_deactivate();
+    dubins_path_publisher_->on_deactivate();
   }
 
 
@@ -255,6 +255,7 @@ namespace astar_planner
         }
         dubins_path = create_dubins_path(costmap_, current_node, subgoal, turning_radius_, dubins_tolerance_);
         if (!dubins_check_colision(dubins_path, costmap_)) {
+          cout << "Dubins path found!" << endl;
           // Set Dubins node types
           for (auto& node : dubins_path) {
             node.is_dubins = true;
@@ -282,17 +283,23 @@ namespace astar_planner
         }
       }
       if (!dubins_found){
+        cout << "No dubins path found, starting hybrid astar" << endl;
         // start hybrid astar
         for (int forwards = -1; forwards <= 1; forwards += 2) {
           for (size_t i = 0; i < directions_.size(); i++){
             nodeHybrid successor = nodeHybrid();
             unsigned int mx,my;
             double wx,wy;
+            if (current_node.x >= costmap_->getSizeInCellsX() || current_node.y >= costmap_->getSizeInCellsY()){
+              continue;
+            }
             costmap_->mapToWorld(current_node.x, current_node.y, wx, wy);
-            double step_size = 0.2;
+            double step_size = 0.3;
             wx = wx + forwards * step_size * std::cos(current_node.yaw + directions_[i]);
             wy = wy + forwards * step_size * std::sin(current_node.yaw + directions_[i]);
-            costmap_->worldToMap(wx, wy, mx, my);
+            if (!costmap_->worldToMap(wx, wy, mx, my)) {
+              continue;
+            }
             
             if (mx >= costmap_->getSizeInCellsX() || my >= costmap_->getSizeInCellsY()) {
               continue;
@@ -305,7 +312,22 @@ namespace astar_planner
             successor.yaw = current_node.yaw + directions_[i];
             successor.is_hybrid = true;
             successor.g = current_node.g + calculateDist(current_node.x, current_node.y, successor.x, successor.y);
-            successor.h = calculateDist(successor.x, successor.y, goal_node.x, goal_node.y) + std::pow(std::abs(goal_node.yaw - successor.yaw), 2);
+            
+            // Add direction change penalty to heuristic
+            double direction_penalty = 0.0;
+            if (current_node.parent != nullptr) {
+                // Check if direction changed (forward/backward)
+                bool current_direction = forwards > 0;
+                bool parent_direction = current_node.parent->is_forward;
+                if (current_direction != parent_direction) {
+                    direction_penalty = 5000.0;  // Heavy penalty for direction change
+                }
+            }
+            successor.is_forward = forwards > 0;  // Store direction for future checks
+            
+            successor.h = std::pow(calculateDist(successor.x, successor.y, goal_node.x, goal_node.y), 2) + 
+                         std::pow(std::abs(goal_node.yaw - successor.yaw), 2) +
+                         direction_penalty;
             successor.f = successor.g + successor.h;
             successor.parent = std::make_shared<nodeHybrid>(current_node);
             calc_trailer_config(successor, *successor.parent, speed, rtr, costmap_->getResolution(), forwards);
@@ -329,6 +351,11 @@ namespace astar_planner
             
             if (!is_node_in_list(successor, closed_list) && !is_node_in_list(successor, open_list)) {
               open_list.push_back(successor);
+              expanded_nodes.push_back(successor);
+              // Publish expanded nodes
+              if (node_expansion_publisher_ && node_expansion_publisher_->is_activated()) {
+                node_expansion_publisher_->publish(path_from_vector(expanded_nodes, global_frame_, costmap_));
+              }
             }
             if (is_node_in_list(successor, closed_list)){
               int index = get_node_from_list(successor, closed_list);
@@ -378,11 +405,11 @@ namespace astar_planner
     }
     
     // Publish only the final paths
-    if (hybrid_nodes_publisher_ && hybrid_nodes_publisher_->is_activated()) {
-      hybrid_nodes_publisher_->publish(path_from_vector(final_hybrid_nodes, global_frame_, costmap_));
+    if (hybrid_path_publisher_ && hybrid_path_publisher_->is_activated()) {
+      hybrid_path_publisher_->publish(path_from_vector(final_hybrid_nodes, global_frame_, costmap_));
     }
-    if (dubins_nodes_publisher_ && dubins_nodes_publisher_->is_activated()) {
-      dubins_nodes_publisher_->publish(path_from_vector(final_dubins_nodes, global_frame_, costmap_));
+    if (dubins_path_publisher_ && dubins_path_publisher_->is_activated()) {
+      dubins_path_publisher_->publish(path_from_vector(final_dubins_nodes, global_frame_, costmap_));
     }
     trailer_pos_publisher_->publish(path_from_vector(trailer_path, global_frame_, costmap_));
  
