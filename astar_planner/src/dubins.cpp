@@ -311,9 +311,11 @@ std::vector<nodeHybrid> create_dubins_path(
         goal.x = goal_node.x;
         goal.y = goal_node.y;
         goal.yaw = goal_node.yaw;
-        goal.tx = start_node.x;
-        goal.ty = start_node.y;
-        goal.trailer_yaw = start_node.trailer_yaw;
+        goal.is_dubins = true;
+        goal.g = calculateDist(goal.x, goal.y, start_node.x, start_node.y);
+        goal.h = 0;
+        goal.f = goal.g;
+        calc_trailer_config(goal, start_node, speed, rtr, costmap->getResolution(), 1);
         goal.parent = std::make_shared<nodeHybrid>(start_node);
         path_nodes.push_back(goal);
         return path_nodes;
@@ -341,7 +343,6 @@ std::vector<nodeHybrid> create_dubins_path(
     bool should_reverse = std::abs(start_heading_diff) > M_PI/2;
 
     // Check for obstacles in the direct path
-    bool has_obstacle = false;
     unsigned int check_x, check_y;
     double check_step = 0.1; // 10cm steps
     double check_dist = 0.0;
@@ -350,10 +351,7 @@ std::vector<nodeHybrid> create_dubins_path(
         double check_x_world = start_x_world + ratio * dx;
         double check_y_world = start_y_world + ratio * dy;
         if (costmap->worldToMap(check_x_world, check_y_world, check_x, check_y)) {
-            if (costmap->getCost(check_x, check_y) >= 254) {
-                has_obstacle = true;
-                break;
-            }
+            
         }
         check_dist += check_step;
     }
@@ -383,24 +381,11 @@ std::vector<nodeHybrid> create_dubins_path(
             // Check for invalid arc patterns
             bool invalid_pattern = false;
             
-            // Only check for invalid patterns when there's an obstacle
-            if (has_obstacle) {
-                // Check for degenerate cases where arcs would overlap
-                if (params[0] < 0.1 && params[2] < 0.1) {
-                    invalid_pattern = true;
-                }
-            }
 
             if (valid_direction && !invalid_pattern) {
                 double cost = params[0] + params[1] + params[2];
                 
                 // Simple cost adjustments
-                if (has_obstacle) {
-                    // Slightly prefer paths that start with a turn when obstacles are present
-                    if (i == LSL || i == RSR) {
-                        cost *= 1.2;
-                    }
-                }
 
                 if (cost < best_cost) {
                     best_word = i;
@@ -484,6 +469,9 @@ std::vector<nodeHybrid> create_dubins_path(
             node.yaw = mod2pi(qt[2]);
             node.is_dubins = true;  // Set node type at creation
             node.parent = std::make_shared<nodeHybrid>(path_nodes.back());
+            node.g = path_nodes.back().g + calculateDist(path_nodes.back().x, path_nodes.back().y, node.x, node.y);
+            node.h = std::pow(calculateDist(node.x, node.y, goal_node.x, goal_node.y), 2);
+            node.f = node.g + node.h;   
             calc_trailer_config(node, *(node.parent), speed, rtr, costmap->getResolution(), 1);
 
             // Skip if we're at the same position
@@ -501,6 +489,10 @@ std::vector<nodeHybrid> create_dubins_path(
                 goal.x = goal_node.x;
                 goal.y = goal_node.y;
                 goal.yaw = goal_node.yaw;
+                goal.is_dubins = true;
+                goal.g = path_nodes.back().g + dist_to_goal_now;
+                goal.h = 0;
+                goal.f = goal.g;
                 calc_trailer_config(goal, node, speed, rtr, costmap->getResolution(), 1);
                 goal.parent = std::make_shared<nodeHybrid>(path_nodes.back());
                 path_nodes.push_back(goal);
@@ -518,7 +510,7 @@ std::vector<nodeHybrid> create_dubins_path(
 
     // Add goal if not reached and we have a valid path
     if (!goal_reached && !path_nodes.empty()) {
-        // Check if we're close enough to the goal from the last point
+        // Check if we're close enough to the goal no the last point
         double last_x_world, last_y_world;
         costmap->mapToWorld(path_nodes.back().x, path_nodes.back().y, last_x_world, last_y_world);
         double dist_to_goal = sqrt(pow(last_x_world - goal_x_world, 2) + pow(last_y_world - goal_y_world, 2));
@@ -528,7 +520,10 @@ std::vector<nodeHybrid> create_dubins_path(
             goal.x = goal_node.x;
             goal.y = goal_node.y;
             goal.yaw = goal_node.yaw;
+            goal.is_dubins = true;
             calc_trailer_config(goal, path_nodes.back(), speed, rtr, costmap->getResolution(), 1);
+            goal.g = path_nodes.back().g + dist_to_goal;
+            goal.f = goal.g;
             goal.parent = std::make_shared<nodeHybrid>(path_nodes.back());
             path_nodes.push_back(goal);
         } else {
@@ -540,22 +535,13 @@ std::vector<nodeHybrid> create_dubins_path(
     return path_nodes;
 }
 
-// bool dubins_check_colision(std::vector<nodeHybrid> &path_nodes, nav2_costmap_2d::Costmap2D* costmap) {
-//     for (const auto& node : path_nodes) {
-//         if (costmap->getCost(node.x, node.y) > 0) {
-//             return true;
-//         }
-//     }
-//     return false;
-// }
 bool dubins_check_colision(std::vector<nodeHybrid> &path_nodes, nav2_costmap_2d::Costmap2D* costmap) {
     if (path_nodes.empty()) {
         return true;
     }
-    for (size_t i = 1; i < path_nodes.size(); i++) {
-
+    
+    for (size_t i = 0; i < path_nodes.size(); i++) {
         if (costmap->getCost(path_nodes[i].x, path_nodes[i].y) > 0) {
-            // std::cout << "Tractor Collision at node " << i << ": (" << path_nodes[i].x << ", " << path_nodes[i].y << ")" << std::endl;
             return true;
         }
         
@@ -563,16 +549,11 @@ bool dubins_check_colision(std::vector<nodeHybrid> &path_nodes, nav2_costmap_2d:
         double yaw_diff = -path_nodes[i].yaw + path_nodes[i].trailer_yaw;
         yaw_diff = abs(atan2(sin(yaw_diff), cos(yaw_diff)));
         if (yaw_diff > M_PI/4) {
-            // std::cout << "Yaw diff > pi at node " << i << ": " << yaw_diff << std::endl;
             return true;
         }
         if (costmap->getCost(path_nodes[i].tx, path_nodes[i].ty) > 253) {
-            // std::cout << "Collision at node " << i << ": (" << path_nodes[i].tx << ", " << path_nodes[i].ty << ")" << std::endl;
             return true;
         }
-        // std::cout << "trailer x: " << path_nodes[i].tx << ", trailer y: " << path_nodes[i].ty << std::endl;
-        
-
     }
     return false;
 }

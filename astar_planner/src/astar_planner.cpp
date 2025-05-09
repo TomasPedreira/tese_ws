@@ -55,6 +55,16 @@ namespace astar_planner
     nav2_util::declare_parameter_if_not_declared(
       node_, name_ + ".max_angle", rclcpp::ParameterValue(M_PI / 4));
     node_->get_parameter(name_ + ".max_angle", max_angle_);
+
+    // Add new parameters for motion primitives
+    nav2_util::declare_parameter_if_not_declared(
+      node_, name_ + ".step_size", rclcpp::ParameterValue(0.5));
+    node_->get_parameter(name_ + ".step_size", step_size_);
+    
+    nav2_util::declare_parameter_if_not_declared(
+      node_, name_ + ".num_motion_primitives", rclcpp::ParameterValue(3));
+    node_->get_parameter(name_ + ".num_motion_primitives", num_motion_primitives_);
+
     double step = max_angle_ / num_directions_;
     
     for (int i = -num_directions_ + 1; i < num_directions_; i++) {
@@ -256,10 +266,6 @@ namespace astar_planner
         dubins_path = create_dubins_path(costmap_, current_node, subgoal, turning_radius_, dubins_tolerance_);
         if (!dubins_check_colision(dubins_path, costmap_)) {
           cout << "Dubins path found!" << endl;
-          // Set Dubins node types
-          for (auto& node : dubins_path) {
-            node.is_dubins = true;
-          }
           dubins_nodes.insert(dubins_nodes.end(), dubins_path.begin(), dubins_path.end());
           
           dubins_path[0].parent = std::make_shared<nodeHybrid>(current_node);
@@ -283,8 +289,6 @@ namespace astar_planner
         }
       }
       if (!dubins_found){
-        cout << "No dubins path found, starting hybrid astar" << endl;
-        // start hybrid astar
         for (int forwards = -1; forwards <= 1; forwards += 2) {
           for (size_t i = 0; i < directions_.size(); i++){
             nodeHybrid successor = nodeHybrid();
@@ -294,9 +298,10 @@ namespace astar_planner
               continue;
             }
             costmap_->mapToWorld(current_node.x, current_node.y, wx, wy);
-            double step_size = 0.3;
-            wx = wx + forwards * step_size * std::cos(current_node.yaw + directions_[i]);
-            wy = wy + forwards * step_size * std::sin(current_node.yaw + directions_[i]);
+            
+            // Use the configurable step size
+            wx = wx + forwards * step_size_ * std::cos(current_node.yaw + directions_[i]);
+            wy = wy + forwards * step_size_ * std::sin(current_node.yaw + directions_[i]);
             if (!costmap_->worldToMap(wx, wy, mx, my)) {
               continue;
             }
@@ -316,19 +321,17 @@ namespace astar_planner
             // Add direction change penalty to heuristic
             double direction_penalty = 0.0;
             if (current_node.parent != nullptr) {
-                // Check if direction changed (forward/backward)
                 bool current_direction = forwards > 0;
-                bool parent_direction = current_node.parent->is_forward;
+                bool parent_direction = current_node.is_forward;
+             
                 if (current_direction != parent_direction) {
-                    direction_penalty = 5000.0;  // Heavy penalty for direction change
+                    direction_penalty = std::pow(1000.0, 2);  // Square the direction penalty
                 }
             }
-            successor.is_forward = forwards > 0;  // Store direction for future checks
+            successor.is_forward = forwards == 1;  // Store direction for future checks
             
-            successor.h = std::pow(calculateDist(successor.x, successor.y, goal_node.x, goal_node.y), 2) + 
-                         std::pow(std::abs(goal_node.yaw - successor.yaw), 2) +
-                         direction_penalty;
-            successor.f = successor.g + successor.h;
+            successor.h = std::pow(calculateDist(successor.x, successor.y, goal_node.x, goal_node.y), 2);
+            successor.f = successor.g + successor.h + direction_penalty;
             successor.parent = std::make_shared<nodeHybrid>(current_node);
             calc_trailer_config(successor, *successor.parent, speed, rtr, costmap_->getResolution(), forwards);
             double yaw_diff = -successor.trailer_yaw + successor.yaw;
@@ -376,6 +379,10 @@ namespace astar_planner
       }     
     }
 
+    if (!goal_found){
+      // cout << "No path found, returning empty path" << endl;
+      return global_path;
+    }
     // Collect nodes from the final path
     std::vector<nodeHybrid> final_hybrid_nodes;
     std::vector<nodeHybrid> final_dubins_nodes;

@@ -109,9 +109,12 @@
 [x] 11:15 Fix memory issue with the trailers positions in the nodes;
 
 ## 08/05 VEHICLE DYNAMICS
-[ ] FInd reason for crashing sometimes;
+[x] 16:00 FInd reason for crashing sometimes;
+
+## 09/05 HYBRID ASTAR
+[z] 11:30 Fix Dubins to not simply walk backwards;
 [ ] Fix/tune the trailer position calculations;
-[ ] Fix Dubins to not simply walk backwards;
+[ ] Tune the cosst not to switch directions a lot;
 
 ## next time
 [ ] Make the search have a depth (can only go for some amount of time/nodes); // No need?

@@ -66,10 +66,12 @@ private:
   double dubins_tolerance_;
 
   // Hybrid astar variables
+  double max_angle_;
+  double step_size_;
+  int num_motion_primitives_;
   std::vector<double> directions_;
   int num_directions_;
   bool allow_reverse_;
-  double max_angle_;
 
 
   rclcpp_lifecycle::LifecyclePublisher<nav_msgs::msg::Path>::SharedPtr node_expansion_publisher_;

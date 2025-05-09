@@ -213,12 +213,12 @@ controller_server:
       PreferForwardCritic:
         enabled: false
         cost_power: 1
-        cost_weight: 5.0
+        cost_weight: 0.0
         threshold_to_consider: 0.5
       CostCritic:
         enabled: true
         cost_power: 1
-        cost_weight: 3.81
+        cost_weight: 1.5
         critical_cost: 300.0
         consider_footprint: true
         collision_cost: 1000000.0
@@ -227,7 +227,7 @@ controller_server:
       PathAlignCritic:
         enabled: true
         cost_power: 1
-        cost_weight: 14.0
+        cost_weight: 5.0
         max_path_occupancy_ratio: 0.05
         trajectory_point_step: 4
         threshold_to_consider: 0.5
@@ -363,11 +363,13 @@ planner_server:
     GridBased:
       plugin: "astar_planner/Astar"
       turning_radius: 1.2
-      dubins_tolerance: 0.2
+      dubins_tolerance: 0.1
       tolerance: 20.0
-      num_directions: 4
+      num_directions: 10
       allow_reverse: true
       max_angle: 0.1
+      step_size: 0.5
+      num_motion_primitives: 3
 
 planner_server_rclcpp_node:
   ros__parameters:
