@@ -112,7 +112,7 @@
 [x] 16:00 FInd reason for crashing sometimes;
 
 ## 09/05 HYBRID ASTAR
-[z] 11:30 Fix Dubins to not simply walk backwards;
+[x] 11:30 Fix Dubins to not simply walk backwards;
 [ ] Fix/tune the trailer position calculations;
 [ ] Tune the cosst not to switch directions a lot;
 
