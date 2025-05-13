@@ -583,6 +583,45 @@
         </sensor>
     </gazebo>
 
+    <!-- GPS -->
+    <link name="gps_link">
+        <visual>
+            <geometry>
+                <box size="0.01 0.01 0.01"/>
+            </geometry>
+        </visual>
 
+        <collision>
+            <geometry>
+                <box size="0.01 0.01 0.01"/>
+            </geometry>
+        </collision>
+
+        <xacro:box_inertia m="0.1" w="0.1" d="0.1" h="0.1"/>
+    </link>
+
+    <joint name="gps_joint" type="fixed">
+        <parent link="base_link"/>
+        <child link="gps_link"/>
+        <origin xyz="0.0 0.0 0.0"/>
+    </joint>
+
+    <gazebo reference="gps_link">
+        <sensor name="gps" type="gps">
+            <plugin filename="libgazebo_ros_gps_sensor.so" name="gps_plugin">
+                <ros>
+                    <remapping>~/out:=gps</remapping>
+                </ros>
+                <gps>
+                    <horizontal_position_noise>0.1</horizontal_position_noise>
+                    <vertical_position_noise>0.1</vertical_position_noise>
+                    <horizontal_velocity_noise>0.1</horizontal_velocity_noise>
+                    <vertical_velocity_noise>0.1</vertical_velocity_noise>
+                </gps>
+            </plugin>
+            <always_on>true</always_on>
+            <update_rate>5.0</update_rate>
+        </sensor>
+    </gazebo>
 
 </robot>
