@@ -251,19 +251,30 @@ namespace astar_planner
     std::vector<nodeHybrid> dubins_path;
     while (!open_list.empty() && !goal_found) {
       int index = get_lowest_f_node(open_list);
+      if (index == -2){
+        cout << "Open list is crazy!" << endl;
+        break;
+      }
+      if (index == -1){
+        cout << "Open list is empty!" << endl;
+        break;
+      }
       current_node = open_list[index];
       open_list.erase(open_list.begin() + index);
       closed_list.push_back(current_node);
       dubins_found = false;
+      cout << "started subnode loop" << endl;
       for (int i = subgoals.size()-1; i > -1; i--) {
         nodeHybrid subgoal = subgoals[i];
-        if (is_node_in_list(subgoal, closed_list)){
-          continue;
-        }
         if (subgoal.x == last_subgoal.x && subgoal.y == last_subgoal.y) {
           break;
         }
+        if (is_node_in_list(subgoal, closed_list)){
+          continue;
+        }
+        cout << "creating dubins path" << endl;
         dubins_path = create_dubins_path(costmap_, current_node, subgoal, turning_radius_, dubins_tolerance_);
+        cout << "dubins path created" << endl;
         if (!dubins_check_colision(dubins_path, costmap_)) {
           cout << "Dubins path found!" << endl;
           dubins_nodes.insert(dubins_nodes.end(), dubins_path.begin(), dubins_path.end());
@@ -285,21 +296,20 @@ namespace astar_planner
             last_subgoal = subgoal;
           }
           dubins_found = true;
+          cout << "ended dubins loop" << endl;
           break;
         }
       }
+      cout << "ended subnode loop" << endl;
       if (!dubins_found){
-        for (int forwards = -1; forwards <= 1; forwards += 2) {
-          for (size_t i = 0; i < directions_.size(); i++){
+        cout << "starting hybrid astar loop" << endl;
+        for (int forwards = -1; forwards <= 1 && !goal_found; forwards += 2) {
+          for (size_t i = 0; i < directions_.size() && !goal_found; i++){
             nodeHybrid successor = nodeHybrid();
             unsigned int mx,my;
             double wx,wy;
-            if (current_node.x >= costmap_->getSizeInCellsX() || current_node.y >= costmap_->getSizeInCellsY()){
-              continue;
-            }
             costmap_->mapToWorld(current_node.x, current_node.y, wx, wy);
             
-            // Use the configurable step size
             wx = wx + forwards * step_size_ * std::cos(current_node.yaw + directions_[i]);
             wy = wy + forwards * step_size_ * std::sin(current_node.yaw + directions_[i]);
             if (!costmap_->worldToMap(wx, wy, mx, my)) {
@@ -318,20 +328,25 @@ namespace astar_planner
             successor.is_hybrid = true;
             successor.g = current_node.g + calculateDist(current_node.x, current_node.y, successor.x, successor.y);
             
-            // Add direction change penalty to heuristic
+            // Calculate goal angle difference penalty
+            double goal_angle_diff = std::abs(atan2(sin(goal_node.yaw - successor.yaw), cos(goal_node.yaw - successor.yaw)));
+            double angle_penalty = std::pow(goal_angle_diff, 2) * 100.0;  // Scale factor for angle penalty
+            
+            // Calculate direction switching penalty
             double direction_penalty = 0.0;
             if (current_node.parent != nullptr) {
                 bool current_direction = forwards > 0;
                 bool parent_direction = current_node.is_forward;
              
                 if (current_direction != parent_direction) {
-                    direction_penalty = std::pow(1000.0, 2);  // Square the direction penalty
+                    direction_penalty = 1000;  // Square the direction penalty
                 }
             }
-            successor.is_forward = forwards == 1;  // Store direction for future checks
             
-            successor.h = std::pow(calculateDist(successor.x, successor.y, goal_node.x, goal_node.y), 2);
-            successor.f = successor.g + successor.h + direction_penalty;
+            // Combine distance, angle, and direction penalties
+            double distance_cost = std::pow(calculateDist(successor.x, successor.y, goal_node.x, goal_node.y), 2);
+            successor.h = distance_cost + angle_penalty + direction_penalty;
+            successor.f = successor.g + successor.h;
             successor.parent = std::make_shared<nodeHybrid>(current_node);
             calc_trailer_config(successor, *successor.parent, speed, rtr, costmap_->getResolution(), forwards);
             double yaw_diff = -successor.trailer_yaw + successor.yaw;
@@ -362,6 +377,10 @@ namespace astar_planner
             }
             if (is_node_in_list(successor, closed_list)){
               int index = get_node_from_list(successor, closed_list);
+              if(index == -1){
+                cout << "Node not found in closed list!" << endl;
+                continue;
+              }
               if(successor.f < closed_list[index].f){
                 closed_list[index].parent = std::make_shared<nodeHybrid>(current_node);
                 closed_list[index].f = successor.f;
@@ -375,18 +394,21 @@ namespace astar_planner
               }
             }
           }
-        }   
+        }  
+        cout << "ended loop" << endl;
       }     
     }
+    cout << "goal found: " << goal_found << endl;
 
     if (!goal_found){
-      // cout << "No path found, returning empty path" << endl;
+      cout << "No path found, returning empty path" << endl;
       return global_path;
     }
     // Collect nodes from the final path
     std::vector<nodeHybrid> final_hybrid_nodes;
     std::vector<nodeHybrid> final_dubins_nodes;
     nodeHybrid path_node = goal_node;
+    cout << "collecting nodes from final path" << endl;
     while (path_node.parent != nullptr) {
       geometry_msgs::msg::PoseStamped pose;
       pose.header.stamp = node_->now();
@@ -419,7 +441,7 @@ namespace astar_planner
       dubins_path_publisher_->publish(path_from_vector(final_dubins_nodes, global_frame_, costmap_));
     }
     trailer_pos_publisher_->publish(path_from_vector(trailer_path, global_frame_, costmap_));
- 
+    cout << "returning global path" << endl;
     return global_path;
   }
 }  // namespace astar_planner

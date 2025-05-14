@@ -113,10 +113,19 @@
 
 ## 09/05 HYBRID ASTAR
 [x] 11:30 Fix Dubins to not simply walk backwards;
-[ ] Fix/tune the trailer position calculations;
-[ ] Tune the cosst not to switch directions a lot;
+
+
+## 13/05
+[x] 14:08 Add gps to localization ???????;
+[x] 16:22 Fix crash problem; 
+
+## 14/05
+[ ] Make hybrid astar have less points;
+[ ] Make tolerance for the angle on the hybrid astar;
 
 ## next time
+[ ] Tune the cost not to switch directions a lot;
+[ ] Fix/tune the trailer position calculations;
 [ ] Make the search have a depth (can only go for some amount of time/nodes); // No need?
 [ ] Make forward PP;
 [ ] Make Backwards PP;

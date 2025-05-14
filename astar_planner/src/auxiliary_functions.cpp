@@ -27,8 +27,8 @@ int get_lowest_f_node(std::vector<nodeHybrid> & open_list)
         return -1;
     }
 
-    int index = -1;
-    double min_f = 999999;
+    int index = -2;
+    double min_f = 9999999999;
     for (size_t i = 0; i < open_list.size(); i++) {
         if (open_list[i].f < min_f) {
         min_f = open_list[i].f;

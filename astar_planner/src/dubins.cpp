@@ -39,6 +39,8 @@ typedef struct
 typedef int (*DubinsWord)(double, double, double, double* );
 extern DubinsWord dubins_words[];
 
+using namespace std;
+
 DubinsWord dubins_words[] = {
     dubins_LSL,
     dubins_LSR,
@@ -536,11 +538,18 @@ std::vector<nodeHybrid> create_dubins_path(
 }
 
 bool dubins_check_colision(std::vector<nodeHybrid> &path_nodes, nav2_costmap_2d::Costmap2D* costmap) {
+    cout << "checking collision" << endl;
     if (path_nodes.empty()) {
         return true;
     }
     
     for (size_t i = 0; i < path_nodes.size(); i++) {
+        if (path_nodes[i].x >= costmap->getSizeInCellsX() || path_nodes[i].y >= costmap->getSizeInCellsY()) {
+            return true;
+        }
+        if (path_nodes[i].tx >= costmap->getSizeInCellsX() || path_nodes[i].ty >= costmap->getSizeInCellsY()) {
+            return true;
+        }
         if (costmap->getCost(path_nodes[i].x, path_nodes[i].y) > 0) {
             return true;
         }
@@ -555,5 +564,6 @@ bool dubins_check_colision(std::vector<nodeHybrid> &path_nodes, nav2_costmap_2d:
             return true;
         }
     }
+    cout << "ended collision check" << endl;
     return false;
 }

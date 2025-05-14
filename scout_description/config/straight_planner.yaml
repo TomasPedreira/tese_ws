@@ -368,7 +368,7 @@ planner_server:
       num_directions: 10
       allow_reverse: true
       max_angle: 0.1
-      step_size: 0.5
+      step_size: 0.3
       num_motion_primitives: 3
 
 planner_server_rclcpp_node:

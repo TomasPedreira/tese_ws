@@ -30,7 +30,12 @@ def generate_launch_description():
     gz_models_path = os.path.join(pkg_share, 'models')
     # default_world_path=os.path.join(pkg_share, 'world/indoor_2.world')
     default_world_path=os.path.join(pkg_share, 'world/wallworld.world')
+
     
+    # Create a conditional command for Gazebo
+    gazebo_cmd = ['gzserver' if LaunchConfiguration('headless') == 'true' else 'gazebo', 
+                 '--verbose', '-s', 'libgazebo_ros_init.so', '-s', 'libgazebo_ros_factory.so']
+    gazebo_cmd.append(LaunchConfiguration('world'))
     
     robot_state_publisher_node = launch_ros.actions.Node(
         package='robot_state_publisher',
@@ -43,7 +48,6 @@ def generate_launch_description():
         name='joint_state_publisher',
         arguments=[LaunchConfiguration('model')],
         parameters=[{'use_sim_time': LaunchConfiguration('use_sim_time')}]
-
     )
     rviz_node = launch_ros.actions.Node(
         package='rviz2',
@@ -128,7 +132,10 @@ def generate_launch_description():
                                             description='Absolute path to rviz config file'),
         launch.actions.DeclareLaunchArgument(name='use_sim_time', default_value='True',
                                             description='Flag to enable use_sim_time'),
-        launch.actions.ExecuteProcess(cmd=['gazebo', '--verbose', '-s', 'libgazebo_ros_init.so', '-s', 'libgazebo_ros_factory.so', LaunchConfiguration('world')], output='screen'),
+        launch.actions.ExecuteProcess(
+            cmd=gazebo_cmd,
+            output='screen'
+        ),
 
         joint_state_publisher_node,
         #joint_state_publisher_gui_node,
