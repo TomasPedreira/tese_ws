@@ -538,7 +538,7 @@ std::vector<nodeHybrid> create_dubins_path(
 }
 
 bool dubins_check_colision(std::vector<nodeHybrid> &path_nodes, nav2_costmap_2d::Costmap2D* costmap) {
-    cout << "checking collision" << endl;
+    // cout << "checking collision" << endl;
     if (path_nodes.empty()) {
         return true;
     }
@@ -564,6 +564,6 @@ bool dubins_check_colision(std::vector<nodeHybrid> &path_nodes, nav2_costmap_2d:
             return true;
         }
     }
-    cout << "ended collision check" << endl;
+    // cout << "ended collision check" << endl;
     return false;
 }

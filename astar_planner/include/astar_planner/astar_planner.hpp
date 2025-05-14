@@ -64,6 +64,7 @@ private:
   // Dubins variables
   double turning_radius_;
   double dubins_tolerance_;
+  double final_angle_tolerance_;  // Tolerance for the final angle in radians
 
   // Hybrid astar variables
   double max_angle_;

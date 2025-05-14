@@ -44,6 +44,10 @@ namespace astar_planner
       node_, name_ + ".dubins_tolerance", rclcpp::ParameterValue(0.2));
     node_->get_parameter(name_ + ".dubins_tolerance", dubins_tolerance_);
 
+    // Final angle tolerance parameter
+    nav2_util::declare_parameter_if_not_declared(
+      node_, name_ + ".final_angle_tolerance", rclcpp::ParameterValue(0.1));
+    node_->get_parameter(name_ + ".final_angle_tolerance", final_angle_tolerance_);
 
     // Hybrid astar parameters
     nav2_util::declare_parameter_if_not_declared(
@@ -263,7 +267,7 @@ namespace astar_planner
       open_list.erase(open_list.begin() + index);
       closed_list.push_back(current_node);
       dubins_found = false;
-      cout << "started subnode loop" << endl;
+      // cout << "started subnode loop" << endl;
       for (int i = subgoals.size()-1; i > -1; i--) {
         nodeHybrid subgoal = subgoals[i];
         if (subgoal.x == last_subgoal.x && subgoal.y == last_subgoal.y) {
@@ -272,18 +276,18 @@ namespace astar_planner
         if (is_node_in_list(subgoal, closed_list)){
           continue;
         }
-        cout << "creating dubins path" << endl;
+        // cout << "creating dubins path" << endl;
         dubins_path = create_dubins_path(costmap_, current_node, subgoal, turning_radius_, dubins_tolerance_);
-        cout << "dubins path created" << endl;
+        // cout << "dubins path created" << endl;
         if (!dubins_check_colision(dubins_path, costmap_)) {
-          cout << "Dubins path found!" << endl;
+          // cout << "Dubins path found!" << endl;
           dubins_nodes.insert(dubins_nodes.end(), dubins_path.begin(), dubins_path.end());
           
           dubins_path[0].parent = std::make_shared<nodeHybrid>(current_node);
           if (subgoal.x == goal_node.x && subgoal.y == goal_node.y) {
             goal_node.parent = std::make_shared<nodeHybrid>(dubins_path[dubins_path.size()-1]);
             goal_found = true;
-            cout << "Goal found through dubins!" << endl;
+            // cout << "Goal found through dubins!" << endl;
             calc_trailer_config(goal_node, *goal_node.parent, speed, rtr, costmap_->getResolution(), 1);
             nodeHybrid path_node = goal_node;
           }else{
@@ -296,13 +300,13 @@ namespace astar_planner
             last_subgoal = subgoal;
           }
           dubins_found = true;
-          cout << "ended dubins loop" << endl;
+          // cout << "ended dubins loop" << endl;
           break;
         }
       }
-      cout << "ended subnode loop" << endl;
+      // cout << "ended subnode loop" << endl;
       if (!dubins_found){
-        cout << "starting hybrid astar loop" << endl;
+        // cout << "starting hybrid astar loop" << endl;
         for (int forwards = -1; forwards <= 1 && !goal_found; forwards += 2) {
           for (size_t i = 0; i < directions_.size() && !goal_found; i++){
             nodeHybrid successor = nodeHybrid();
@@ -357,11 +361,11 @@ namespace astar_planner
             
             successor.is_hybrid = true;
             hybrid_nodes.push_back(successor);
-            
-            if (successor.x == goal_node.x && successor.y == goal_node.y){
+            double goal_yaw_diff = std::abs(atan2(sin(goal_node.yaw - successor.yaw), cos(goal_node.yaw - successor.yaw)));
+            if (successor.x == goal_node.x && successor.y == goal_node.y && goal_yaw_diff < final_angle_tolerance_){
               goal_node.parent = std::make_shared<nodeHybrid>(successor);
               goal_found = true;
-              cout << "Goal found through hybrid astar!" << endl;
+              // cout << "Goal found through hybrid astar!" << endl;
               calc_trailer_config(goal_node, *goal_node.parent, speed, rtr, costmap_->getResolution(), 1);
               nodeHybrid path_node = goal_node;
               continue;
@@ -378,7 +382,7 @@ namespace astar_planner
             if (is_node_in_list(successor, closed_list)){
               int index = get_node_from_list(successor, closed_list);
               if(index == -1){
-                cout << "Node not found in closed list!" << endl;
+                // cout << "Node not found in closed list!" << endl;
                 continue;
               }
               if(successor.f < closed_list[index].f){
@@ -395,10 +399,10 @@ namespace astar_planner
             }
           }
         }  
-        cout << "ended loop" << endl;
+        // cout << "ended loop" << endl;
       }     
     }
-    cout << "goal found: " << goal_found << endl;
+    // cout << "goal found: " << goal_found << endl;
 
     if (!goal_found){
       cout << "No path found, returning empty path" << endl;
