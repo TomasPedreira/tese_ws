@@ -120,9 +120,11 @@
 
 ## 14/05
 [x] 15:41 Added headless mode for gazebo;
+[x] 16:00 Make tolerance for the angle on the hybrid astar;
+
+## 15/05
+[ ] Make create_hybrid_segment() function;
 [ ] Make forward PP;
-[ ] Make hybrid astar have less points;
-[ ] Make tolerance for the angle on the hybrid astar;
 
 ## next time
 [ ] Tune the cost not to switch directions a lot;

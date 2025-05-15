@@ -60,14 +60,14 @@ namespace astar_planner
       node_, name_ + ".max_angle", rclcpp::ParameterValue(M_PI / 4));
     node_->get_parameter(name_ + ".max_angle", max_angle_);
 
-    // Add new parameters for motion primitives
     nav2_util::declare_parameter_if_not_declared(
       node_, name_ + ".step_size", rclcpp::ParameterValue(0.5));
     node_->get_parameter(name_ + ".step_size", step_size_);
-    
+
     nav2_util::declare_parameter_if_not_declared(
-      node_, name_ + ".num_motion_primitives", rclcpp::ParameterValue(3));
-    node_->get_parameter(name_ + ".num_motion_primitives", num_motion_primitives_);
+      node_, name_ + ".timeout", rclcpp::ParameterValue(7.5));
+    node_->get_parameter(name_ + ".timeout", timeout_);
+    
 
     double step = max_angle_ / num_directions_;
     
@@ -253,7 +253,20 @@ namespace astar_planner
     bool goal_found = false;
     std::vector<nodeHybrid> trailer_path;
     std::vector<nodeHybrid> dubins_path;
+    // start timer
+    auto start_time = node_->now();
     while (!open_list.empty() && !goal_found) {
+      // check timer for 10 seconds
+      auto current_time = node_->now();
+      if (current_time - start_time > rclcpp::Duration::from_seconds(timeout_)) {
+        cout << "Timeout, returning last known path" << endl;
+        if (last_path_.empty()){
+          cout << "No last path found, returning empty path" << endl;
+          return global_path;
+        }
+        global_path = path_from_vector(closed_list, global_frame_, costmap_);
+        return global_path;
+      }
       int index = get_lowest_f_node(open_list);
       if (index == -2){
         cout << "Open list is crazy!" << endl;
@@ -343,7 +356,7 @@ namespace astar_planner
                 bool parent_direction = current_node.is_forward;
              
                 if (current_direction != parent_direction) {
-                    direction_penalty = 1000;  // Square the direction penalty
+                    direction_penalty = 10000;  // Square the direction penalty
                 }
             }
             
@@ -413,6 +426,7 @@ namespace astar_planner
     std::vector<nodeHybrid> final_dubins_nodes;
     nodeHybrid path_node = goal_node;
     cout << "collecting nodes from final path" << endl;
+    // add node to the last path
     while (path_node.parent != nullptr) {
       geometry_msgs::msg::PoseStamped pose;
       pose.header.stamp = node_->now();
@@ -428,6 +442,8 @@ namespace astar_planner
       } else if (path_node.is_dubins) {
         final_dubins_nodes.push_back(path_node);
       }
+
+      last_path_.push_back(path_node);
       
       nodeHybrid trailer_node = nodeHybrid();
       trailer_node.x = path_node.tx;
@@ -436,6 +452,8 @@ namespace astar_planner
       trailer_path.push_back(trailer_node);
       path_node = *path_node.parent;
     }
+
+    
     
     // Publish only the final paths
     if (hybrid_path_publisher_ && hybrid_path_publisher_->is_activated()) {
