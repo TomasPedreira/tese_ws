@@ -24,6 +24,6 @@ bool getRobotTransforms(
 );
 void calc_trailer_config(nodeHybrid &node, nodeHybrid parent, double speed, double rtr, double resolution, int dir);
 bool is_node_behind(const nodeHybrid &node, const nodeHybrid &previous);
-
+std::vector<nodeHybrid> create_hybrid_segment(nodeHybrid &start, nodeHybrid &goal, nav2_costmap_2d::Costmap2D* costmap, double direction, int forward, double step_size, int num_steps);
 
 #endif // ASTAR_PLANNER_AUXILIARY_FUNCTIONS_HPP

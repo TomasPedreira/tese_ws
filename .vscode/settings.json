@@ -105,5 +105,6 @@
         "span": "cpp",
         "syncstream": "cpp",
         "netfwd": "cpp"
-    }
+    },
+    "cmake.sourceDirectory": "/wsl.localhost/Ubuntu-22.04/home/tomas/tt_ws/src/tese_ws/novamob_description"
 }

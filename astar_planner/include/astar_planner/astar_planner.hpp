@@ -77,6 +77,7 @@ private:
   int num_directions_;
   bool allow_reverse_;
 
+  int num_hybrid_segments_;
 
   rclcpp_lifecycle::LifecyclePublisher<nav_msgs::msg::Path>::SharedPtr node_expansion_publisher_;
   rclcpp_lifecycle::LifecyclePublisher<nav_msgs::msg::Path>::SharedPtr trailer_pos_publisher_;

@@ -11,6 +11,8 @@
 #include <nav2_costmap_2d/costmap_2d.hpp>
 #include <iostream>
 
+using namespace std;
+
 
 double calculateDist(double x1, double y1, double x2, double y2)
 {
@@ -139,4 +141,55 @@ bool is_node_behind(const nodeHybrid &node, const nodeHybrid &previous)
     
 
     return dot_product > 0;
+}
+
+std::vector<nodeHybrid> create_hybrid_segment(nodeHybrid &start, nodeHybrid &goal, nav2_costmap_2d::Costmap2D* costmap, double direction, int forward, double step_size, int num_steps){
+    std::vector<nodeHybrid> segment;
+    nodeHybrid current = start;
+    const double rtr = 0.5625 / costmap->getResolution();
+    const double speed = 0.4 / costmap->getResolution();
+    for (int i = 0; i < num_steps; i++){
+        nodeHybrid successor;
+        double yaw = current.yaw + direction;
+        unsigned int x_cell, y_cell;
+        double x, y;
+        costmap->mapToWorld(current.x, current.y, x, y);
+        x += forward * step_size * cos(yaw);
+        y += forward * step_size * sin(yaw);
+        if(!costmap->worldToMap(x, y, x_cell, y_cell)){
+            // cout << "node out of bounds: " << x << " " << y << endl;
+            return std::vector<nodeHybrid>();
+        }
+
+        successor.x = x_cell;
+        successor.y = y_cell;
+        successor.is_forward = forward > 0;
+        successor.yaw = yaw;
+        successor.is_hybrid = true;
+        successor.g = current.g + calculateDist(current.x, current.y, successor.x, successor.y);
+        // Calculate goal angle difference penalty
+        double goal_angle_diff = std::abs(atan2(sin(goal.yaw - successor.yaw), cos(goal.yaw - successor.yaw)));
+        double angle_penalty = std::pow(goal_angle_diff, 2) * 100.0;  // Scale factor for angle penalty
+        
+        // Calculate direction switching penalty
+        double direction_penalty = 0.0;
+        if (current.parent != nullptr) {
+            bool current_direction = forward > 0;
+            bool parent_direction = current.is_forward;
+            
+            if (current_direction != parent_direction) {
+                direction_penalty = 10000;  // Square the direction penalty
+            }
+        }
+        double distance_cost = std::pow(calculateDist(successor.x, successor.y, goal.x, goal.y), 2);
+        successor.h = current.h + distance_cost + angle_penalty + direction_penalty;
+        successor.f = successor.g + successor.h;
+        successor.parent = std::make_shared<nodeHybrid>(current);
+
+        calc_trailer_config(successor, current, speed, rtr, costmap->getResolution(), forward);
+        segment.push_back(successor);
+
+        current = successor;
+    }
+    return segment;
 }

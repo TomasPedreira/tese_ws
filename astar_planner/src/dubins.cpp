@@ -540,17 +540,21 @@ std::vector<nodeHybrid> create_dubins_path(
 bool dubins_check_colision(std::vector<nodeHybrid> &path_nodes, nav2_costmap_2d::Costmap2D* costmap) {
     // cout << "checking collision" << endl;
     if (path_nodes.empty()) {
+        // cout << "path nodes empty" << endl;
         return true;
     }
     
     for (size_t i = 0; i < path_nodes.size(); i++) {
         if (path_nodes[i].x >= costmap->getSizeInCellsX() || path_nodes[i].y >= costmap->getSizeInCellsY()) {
+            // cout << "node out of bounds: " << path_nodes[i].x << " " << path_nodes[i].y << endl;
             return true;
         }
         if (path_nodes[i].tx >= costmap->getSizeInCellsX() || path_nodes[i].ty >= costmap->getSizeInCellsY()) {
+            // cout << "trailer node out of bounds: " << path_nodes[i].tx << " " << path_nodes[i].ty << endl;
             return true;
         }
         if (costmap->getCost(path_nodes[i].x, path_nodes[i].y) > 0) {
+            // cout << "node in collision: " << path_nodes[i].x << " " << path_nodes[i].y << endl;
             return true;
         }
         
@@ -558,9 +562,11 @@ bool dubins_check_colision(std::vector<nodeHybrid> &path_nodes, nav2_costmap_2d:
         double yaw_diff = -path_nodes[i].yaw + path_nodes[i].trailer_yaw;
         yaw_diff = abs(atan2(sin(yaw_diff), cos(yaw_diff)));
         if (yaw_diff > M_PI/4) {
+            // cout << "yaw diff too large: " << yaw_diff << endl;
             return true;
         }
         if (costmap->getCost(path_nodes[i].tx, path_nodes[i].ty) > 253) {
+            // cout << "trailer node in collision: " << path_nodes[i].tx << " " << path_nodes[i].ty << endl;
             return true;
         }
     }

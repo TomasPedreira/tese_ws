@@ -69,6 +69,11 @@ namespace astar_planner
     node_->get_parameter(name_ + ".timeout", timeout_);
     
 
+    // Number of hybrid segments parameter
+    nav2_util::declare_parameter_if_not_declared(
+      node_, name_ + ".num_hybrid_segments", rclcpp::ParameterValue(20));
+    node_->get_parameter(name_ + ".num_hybrid_segments", num_hybrid_segments_);
+
     double step = max_angle_ / num_directions_;
     
     for (int i = -num_directions_ + 1; i < num_directions_; i++) {
@@ -258,6 +263,7 @@ namespace astar_planner
     while (!open_list.empty() && !goal_found) {
       // check timer for 10 seconds
       auto current_time = node_->now();
+      cout << "current time in milliseconds: " << current_time.nanoseconds()/1000 - start_time.nanoseconds()/1000 << endl;
       if (current_time - start_time > rclcpp::Duration::from_seconds(timeout_)) {
         cout << "Timeout, returning last known path" << endl;
         if (last_path_.empty()){
@@ -265,6 +271,7 @@ namespace astar_planner
           return global_path;
         }
         global_path = path_from_vector(closed_list, global_frame_, costmap_);
+        cout << "Returning path of size: " << global_path.poses.size() << endl;
         return global_path;
       }
       int index = get_lowest_f_node(open_list);
@@ -320,98 +327,45 @@ namespace astar_planner
       // cout << "ended subnode loop" << endl;
       if (!dubins_found){
         // cout << "starting hybrid astar loop" << endl;
-        for (int forwards = -1; forwards <= 1 && !goal_found; forwards += 2) {
-          for (size_t i = 0; i < directions_.size() && !goal_found; i++){
-            nodeHybrid successor = nodeHybrid();
-            unsigned int mx,my;
-            double wx,wy;
-            costmap_->mapToWorld(current_node.x, current_node.y, wx, wy);
-            
-            wx = wx + forwards * step_size_ * std::cos(current_node.yaw + directions_[i]);
-            wy = wy + forwards * step_size_ * std::sin(current_node.yaw + directions_[i]);
-            if (!costmap_->worldToMap(wx, wy, mx, my)) {
-              continue;
-            }
-            
-            if (mx >= costmap_->getSizeInCellsX() || my >= costmap_->getSizeInCellsY()) {
-              continue;
-            }
-            if (costmap_->getCost(mx, my) != 0) {
-              continue;
-            }
-            successor.x = mx;
-            successor.y = my;
-            successor.yaw = current_node.yaw + directions_[i];
-            successor.is_hybrid = true;
-            successor.g = current_node.g + calculateDist(current_node.x, current_node.y, successor.x, successor.y);
-            
-            // Calculate goal angle difference penalty
-            double goal_angle_diff = std::abs(atan2(sin(goal_node.yaw - successor.yaw), cos(goal_node.yaw - successor.yaw)));
-            double angle_penalty = std::pow(goal_angle_diff, 2) * 100.0;  // Scale factor for angle penalty
-            
-            // Calculate direction switching penalty
-            double direction_penalty = 0.0;
-            if (current_node.parent != nullptr) {
-                bool current_direction = forwards > 0;
-                bool parent_direction = current_node.is_forward;
-             
-                if (current_direction != parent_direction) {
-                    direction_penalty = 10000;  // Square the direction penalty
+        for (int forwards = -1; forwards <= 1; forwards += 2) {
+          for (size_t i = 0; i < directions_.size(); i++){
+            std::vector<nodeHybrid> hybrid_path = create_hybrid_segment(current_node, goal_node, costmap_, directions_[i], forwards, step_size_, num_hybrid_segments_);
+            // cout << "path length: " << hybrid_path.size() << endl;
+            if (!dubins_check_colision(hybrid_path, costmap_)){
+              nodeHybrid last_node = hybrid_path.back();
+              // cout << "last node: " << last_node.x << " " << last_node.y << endl;
+              if (!is_node_in_list(last_node, closed_list) && !is_node_in_list(last_node, open_list)) {
+                hybrid_path[0].parent = std::make_shared<nodeHybrid>(current_node);
+                expanded_nodes.insert(expanded_nodes.end(), hybrid_path.begin(), hybrid_path.end());
+                // Publish expanded nodes
+                if (node_expansion_publisher_ && node_expansion_publisher_->is_activated()) {
+                  node_expansion_publisher_->publish(path_from_vector(expanded_nodes, global_frame_, costmap_));
                 }
-            }
-            
-            // Combine distance, angle, and direction penalties
-            double distance_cost = std::pow(calculateDist(successor.x, successor.y, goal_node.x, goal_node.y), 2);
-            successor.h = distance_cost + angle_penalty + direction_penalty;
-            successor.f = successor.g + successor.h;
-            successor.parent = std::make_shared<nodeHybrid>(current_node);
-            calc_trailer_config(successor, *successor.parent, speed, rtr, costmap_->getResolution(), forwards);
-            double yaw_diff = -successor.trailer_yaw + successor.yaw;
-            yaw_diff = abs(atan2(sin(yaw_diff), cos(yaw_diff))); 
-            if (yaw_diff > M_PI/4) {
-              continue;
-            }
-            
-            successor.is_hybrid = true;
-            hybrid_nodes.push_back(successor);
-            double goal_yaw_diff = std::abs(atan2(sin(goal_node.yaw - successor.yaw), cos(goal_node.yaw - successor.yaw)));
-            if (successor.x == goal_node.x && successor.y == goal_node.y && goal_yaw_diff < final_angle_tolerance_){
-              goal_node.parent = std::make_shared<nodeHybrid>(successor);
-              goal_found = true;
-              // cout << "Goal found through hybrid astar!" << endl;
-              calc_trailer_config(goal_node, *goal_node.parent, speed, rtr, costmap_->getResolution(), 1);
-              nodeHybrid path_node = goal_node;
-              continue;
-            }
-            
-            if (!is_node_in_list(successor, closed_list) && !is_node_in_list(successor, open_list)) {
-              open_list.push_back(successor);
-              expanded_nodes.push_back(successor);
-              // Publish expanded nodes
-              if (node_expansion_publisher_ && node_expansion_publisher_->is_activated()) {
-                node_expansion_publisher_->publish(path_from_vector(expanded_nodes, global_frame_, costmap_));
+                current_node = expanded_nodes.back();
+                // cout << "pushed node to open list: " << expanded_nodes.back().x << " " << expanded_nodes.back().y << endl;
+                open_list.push_back(expanded_nodes.back());
+              }
+              if (is_node_in_list(last_node, closed_list)){
+                int index = get_node_from_list(last_node, closed_list);
+                if(index == -1){
+                  // cout << "Node not found in closed list!" << endl;
+                  continue;
+                }
+                if(last_node.f < closed_list[index].f){
+                  closed_list[index].parent = std::make_shared<nodeHybrid>(current_node);
+                  closed_list[index].f = last_node.f;
+                  closed_list[index].g = last_node.g;
+                  closed_list[index].h = last_node.h;
+                  closed_list[index].yaw = last_node.yaw;
+                  closed_list[index].tx = last_node.tx;
+                  closed_list[index].ty = last_node.ty;
+                  closed_list[index].trailer_yaw = last_node.trailer_yaw;
+                  closed_list[index].is_hybrid = true;
+                }
               }
             }
-            if (is_node_in_list(successor, closed_list)){
-              int index = get_node_from_list(successor, closed_list);
-              if(index == -1){
-                // cout << "Node not found in closed list!" << endl;
-                continue;
-              }
-              if(successor.f < closed_list[index].f){
-                closed_list[index].parent = std::make_shared<nodeHybrid>(current_node);
-                closed_list[index].f = successor.f;
-                closed_list[index].g = successor.g;
-                closed_list[index].h = successor.h;
-                closed_list[index].yaw = successor.yaw;
-                closed_list[index].tx = successor.tx;
-                closed_list[index].ty = successor.ty;
-                closed_list[index].trailer_yaw = successor.trailer_yaw;
-                closed_list[index].is_hybrid = true;
-              }
-            }
-          }
-        }  
+          }  
+        }
         // cout << "ended loop" << endl;
       }     
     }
