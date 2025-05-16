@@ -370,7 +370,7 @@ planner_server:
       max_angle: 0.1
       step_size: 0.1
       final_angle_tolerance: 0.2 # in radians
-      timeout: 5.0
+      timeout: 2.0
       num_hybrid_segments: 20
 planner_server_rclcpp_node:
   ros__parameters:
