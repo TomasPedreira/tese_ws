@@ -372,7 +372,13 @@ namespace astar_planner
     // cout << "goal found: " << goal_found << endl;
 
     if (!goal_found){
-      cout << "No path found, returning empty path" << endl;
+      cout << "No path found, returning last path" << endl;
+      if (last_path_.empty()){
+        cout << "No last path found, returning empty path" << endl;
+        return global_path;
+      }
+      global_path = path_from_vector(closed_list, global_frame_, costmap_);
+      cout << "Returning path of size: " << global_path.poses.size() << endl;
       return global_path;
     }
     // Collect nodes from the final path
