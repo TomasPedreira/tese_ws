@@ -1,0 +1,10 @@
+<?xml version="1.0"?>
+<library path="pp_controller">
+  <class name="pp_controller::PPController"
+         type="pp_controller::PPController"
+         base_class_type="nav2_core::Controller">
+    <description>
+      Pure Pursuit Controller for Tractor-Trailer System
+    </description>
+  </class>
+</library> 
