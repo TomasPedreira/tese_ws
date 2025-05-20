@@ -57,7 +57,7 @@ class TrailerJointStatePublisher(Node):
         now = self.get_clock().now().to_msg()
         dt = (now.sec + now.nanosec * 1e-9) - (self.time_now.sec + self.time_now.nanosec * 1e-9) 
         self.time_now = now
-
+        self.get_logger().error(f"Tractor yaw: {self.tractor_yaw}")
         try:
             m_to_bl_tf: TransformStamped = self.tf_buffer.lookup_transform('map', 'base_link', rclpy.time.Time())
             if self.trailer_yaw != -90.0:   
@@ -173,7 +173,7 @@ class TrailerJointStatePublisher(Node):
             
         except Exception as e:
             if not self.sent_exception:
-                self.get_logger().error(f"Failed to get transform: {str(e)}")
+                self.get_logger().error(f"TEST PUB HITCHFailed to get transform: {str(e)}")
                 self.sent_exception = True
 
 
