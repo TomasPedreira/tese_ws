@@ -607,20 +607,31 @@
     </joint>
 
     <gazebo reference="gps_link">
-        <sensor name="gps" type="gps">
-            <plugin filename="libgazebo_ros_gps_sensor.so" name="gps_plugin">
-                <ros>
-                    <remapping>~/out:=gps</remapping>
-                </ros>
-                <gps>
-                    <horizontal_position_noise>0.1</horizontal_position_noise>
-                    <vertical_position_noise>0.1</vertical_position_noise>
-                    <horizontal_velocity_noise>0.1</horizontal_velocity_noise>
-                    <vertical_velocity_noise>0.1</vertical_velocity_noise>
-                </gps>
-            </plugin>
+        <sensor name="tb3_gps" type="gps">
             <always_on>true</always_on>
-            <update_rate>5.0</update_rate>
+            <update_rate>1</update_rate>
+            <pose>0 0 0 0 0 0</pose>
+            <gps>
+                <position_sensing>
+                <horizontal>
+                    <noise type="gaussian">
+                    <mean>0.0</mean>
+                    <stddev>0.01</stddev>
+                    </noise>
+                </horizontal>
+                <vertical>
+                    <noise type="gaussian">
+                    <mean>0.0</mean>
+                    <stddev>0.01</stddev>
+                    </noise>
+                </vertical>
+                </position_sensing>
+            </gps>
+            <plugin name="my_gps_plugin" filename="libgazebo_ros_gps_sensor.so">
+                <ros>
+                <remapping>~/out:=/gps/fix</remapping>
+                </ros>
+            </plugin>
         </sensor>
     </gazebo>
 

@@ -115,7 +115,6 @@
 [x] 11:30 Fix Dubins to not simply walk backwards;
 
 ## 13/05
-[x] 14:08 Add gps to localization ???????;
 [x] 16:22 Fix crash problem; 
 
 ## 14/05
@@ -123,12 +122,16 @@
 [x] 16:00 Make tolerance for the angle on the hybrid astar;
 
 ## 15/05
-[ ] Make create_hybrid_segment() function;
+[x] Make create_hybrid_segment() function;
+[x] Tune the cost not to switch directions a lot;
+[x] Fix/tune the trailer position calculations;
+
+## 20/05
 [ ] Make forward PP;
+[ ] have gps localization;
+
 
 ## next time
-[ ] Tune the cost not to switch directions a lot;
-[ ] Fix/tune the trailer position calculations;
 [ ] Make the search have a depth (can only go for some amount of time/nodes); // No need?
 [ ] Make Backwards PP;
 [ ] Publish initial position in the launch options;
