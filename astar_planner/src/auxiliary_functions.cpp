@@ -40,6 +40,14 @@ int get_lowest_f_node(std::vector<nodeHybrid> & open_list)
     return index;
 } 
 
+
+/*
+    This function converts a vector of nodeHybrid objects into a nav_msgs::msg::Path object.
+    It takes a vector of nodeHybrid objects, a global frame, and a costmap.
+    It returns a nav_msgs::msg::Path object.
+    the first pose in the path is the current position of the robot.
+    the last pose in the path is the goal.
+*/
 nav_msgs::msg::Path path_from_vector(std::vector<nodeHybrid> & path_nodes, const std::string & global_frame, nav2_costmap_2d::Costmap2D* costmap)
 {
     nav_msgs::msg::Path path;

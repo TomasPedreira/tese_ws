@@ -57,21 +57,22 @@ geometry_msgs::msg::TwistStamped PPController::computeVelocityCommands(
   geometry_msgs::msg::PoseStamped current_goal_pose;
   int first_waypoint_index = 0;
 
-  if (!is_initialized_){
-    first_waypoint_index = last_waypoint_index_;
-  }
+  // if (!is_initialized_){
+  //   first_waypoint_index = last_waypoint_index_;
+  // }
 
-  double last_distance = sqrt(pow(global_plan_.poses[first_waypoint_index].pose.position.x - pose.pose.position.x, 2) + 
-                            pow(global_plan_.poses[first_waypoint_index].pose.position.y - pose.pose.position.y, 2));
-  for (int i = first_waypoint_index+1; i < (int)global_plan_.poses.size(); ++i){
-    current_goal_pose = global_plan_.poses[i];
-    double distance = sqrt(pow(current_goal_pose.pose.position.x - pose.pose.position.x, 2) + 
-                          pow(current_goal_pose.pose.position.y - pose.pose.position.y, 2));
-    if (distance > last_distance && distance < lookahead_distance_){
-      last_waypoint_index_ = i;
-      break;
-    }
-  }
+  // double last_distance = sqrt(pow(global_plan_.poses[first_waypoint_index].pose.position.x - pose.pose.position.x, 2) + 
+  //                           pow(global_plan_.poses[first_waypoint_index].pose.position.y - pose.pose.position.y, 2));
+  // for (int i = first_waypoint_index+1; i < (int)global_plan_.poses.size(); ++i){
+  //   current_goal_pose = global_plan_.poses[i];
+  //   double distance = sqrt(pow(current_goal_pose.pose.position.x - pose.pose.position.x, 2) + 
+  //                         pow(current_goal_pose.pose.position.y - pose.pose.position.y, 2));
+  //   if (distance > last_distance && distance < lookahead_distance_){
+  //     last_waypoint_index_ = i;
+  //     break;
+  //   }
+  // }
+  current_goal_pose = global_plan_.poses[global_plan_.poses.size() - 1];
 
   double yaw = tf2::impl::getYaw(tf2::Quaternion(
     current_goal_pose.pose.orientation.x,

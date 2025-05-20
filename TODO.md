@@ -127,8 +127,9 @@
 [x] Fix/tune the trailer position calculations;
 
 ## 20/05
-[ ] Make forward PP;
-[ ] have gps localization;
+[ ] Make node selection reasonable;
+[ ] Make forward PP (dont know if itll work);
+[ ] have gps localization (need help);
 
 
 ## next time

@@ -270,7 +270,10 @@ namespace astar_planner
           cout << "No last path found, returning empty path" << endl;
           return global_path;
         }
-        global_path = path_from_vector(closed_list, global_frame_, costmap_);
+        //insert current position node hybrid (start) to the last path 
+        last_path_[0] = start_node;
+
+        global_path = path_from_vector(last_path_, global_frame_, costmap_);
         cout << "Returning path of size: " << global_path.poses.size() << endl;
         return global_path;
       }
@@ -373,6 +376,13 @@ namespace astar_planner
 
     if (!goal_found){
       cout << "No path found, returning empty path" << endl;
+      if (last_path_.empty()){
+        cout << "No last path found, returning empty path" << endl;
+        return global_path;
+      }
+      last_path_[0] = start_node;
+      global_path = path_from_vector(last_path_, global_frame_, costmap_);
+      cout << "Returning path of size: " << global_path.poses.size() << endl;
       return global_path;
     }
     // Collect nodes from the final path
