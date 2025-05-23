@@ -50,12 +50,16 @@ private:
     std::string plugin_name_;
     std::shared_ptr<nav2_costmap_2d::Costmap2DROS> costmap_ros_;
     nav_msgs::msg::Path global_plan_;
+    nav_msgs::msg::Path trailer_plan_;
     double lookahead_distance_;
     double max_linear_speed_;
     double max_angular_speed_;
 
     bool is_initialized_;
     int last_waypoint_index_;
+
+    // trailer position publisher
+    rclcpp_lifecycle::LifecyclePublisher<nav_msgs::msg::Path>::SharedPtr trailer_position_publisher_;
 };
 
 } // namespace pp_controller

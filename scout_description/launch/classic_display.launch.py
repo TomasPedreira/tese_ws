@@ -117,6 +117,7 @@ def generate_launch_description():
             "nav2_bringup",
             "localization_launch.py",
             "map:=/home/tomas/tt_ws/src/tese_ws/scout_description/maps/wall_map.yaml",
+            "params_file:=/home/tomas/tt_ws/src/tese_ws/scout_description/config/amcl_params.yaml",
             "use_sim_time:=True",
         ],
         output="screen",

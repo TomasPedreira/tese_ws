@@ -375,7 +375,7 @@ namespace astar_planner
     // cout << "goal found: " << goal_found << endl;
 
     if (!goal_found){
-      cout << "No path found, returning empty path" << endl;
+      cout << "No path found" << endl;
       if (last_path_.empty()){
         cout << "No last path found, returning empty path" << endl;
         return global_path;

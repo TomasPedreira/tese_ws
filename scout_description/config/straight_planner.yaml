@@ -1,52 +1,3 @@
-amcl:
-  ros__parameters:
-    use_sim_time: True
-    alpha1: 0.2
-    alpha2: 0.2
-    alpha3: 0.2
-    alpha4: 0.2
-    alpha5: 0.2
-    base_frame_id: "base_footprint"
-    beam_skip_distance: 0.5
-    beam_skip_error_threshold: 0.9
-    beam_skip_threshold: 0.3
-    do_beamskip: false
-    global_frame_id: "map"
-    lambda_short: 0.1
-    laser_likelihood_max_dist: 2.0
-    laser_max_range: 100.0
-    laser_min_range: -1.0
-    laser_model_type: "likelihood_field"
-    max_beams: 60
-    max_particles: 2000
-    min_particles: 500
-    odom_frame_id: "odom"
-    pf_err: 0.05
-    pf_z: 0.99
-    recovery_alpha_fast: 0.0
-    recovery_alpha_slow: 0.0
-    resample_interval: 1
-    robot_model_type: "differential"
-    save_pose_rate: 0.5
-    sigma_hit: 0.2
-    tf_broadcast: true
-    transform_tolerance: 1.0
-    update_min_a: 0.2
-    update_min_d: 0.25
-    z_hit: 0.5
-    z_max: 0.05
-    z_rand: 0.5
-    z_short: 0.05
-    scan_topic: scan
-
-amcl_map_client:
-  ros__parameters:
-    use_sim_time: True
-
-amcl_rclcpp_node:
-  ros__parameters:
-    use_sim_time: True
-
 bt_navigator:
   ros__parameters:
     use_sim_time: True
@@ -98,49 +49,49 @@ bt_navigator:
 bt_navigator_rclcpp_node:
   ros__parameters:
     use_sim_time: True
-# controller_server:
-#   ros__parameters:
-#     use_sim_time: True
-#     controller_frequency: 20.0
-#     min_x_velocity_threshold: 0.001
-#     min_y_velocity_threshold: 0.5
-#     min_theta_velocity_threshold: 0.001
-#     progress_checker_plugins: ["progress_checker"] # progress_checker_plugin: "progress_checker" For Humble and older
-#     goal_checker_plugins: ["goal_checker"]
-#     controller_plugins: ["FollowPath"]
+controller_server:
+  ros__parameters:
+    use_sim_time: True
+    controller_frequency: 20.0
+    min_x_velocity_threshold: 0.001
+    min_y_velocity_threshold: 0.5
+    min_theta_velocity_threshold: 0.001
+    progress_checker_plugins: ["progress_checker"] # progress_checker_plugin: "progress_checker" For Humble and older
+    goal_checker_plugins: ["goal_checker"]
+    controller_plugins: ["FollowPath"]
 
-#     progress_checker:
-#       plugin: "nav2_controller::SimpleProgressChecker"
-#       required_movement_radius: 0.5
-#       movement_time_allowance: 10.0
-#     goal_checker:
-#       plugin: "nav2_controller::SimpleGoalChecker"
-#       xy_goal_tolerance: 0.25
-#       yaw_goal_tolerance: 0.25
-#       stateful: True
-#     FollowPath:
-#       plugin: "nav2_regulated_pure_pursuit_controller::RegulatedPurePursuitController"
-#       desired_linear_vel: 0.5
-#       lookahead_dist: 0.2
-#       min_lookahead_dist: 0.3
-#       max_lookahead_dist: 0.9
-#       lookahead_time: 1.5
-#       transform_tolerance: 0.1
-#       use_velocity_scaled_lookahead_dist: true
-#       min_approach_linear_velocity: 0.05
-#       approach_velocity_scaling_dist: 0.6
-#       use_collision_detection: true
-#       max_allowed_time_to_collision_up_to_carrot: 1.0
-#       use_regulated_linear_velocity_scaling: true
-#       use_fixed_curvature_lookahead: false
-#       curvature_lookahead_dist: 0.2
-#       use_cost_regulated_linear_velocity_scaling: false
-#       regulated_linear_scaling_min_radius: 0.9
-#       regulated_linear_scaling_min_speed: 0.15
-#       use_rotate_to_heading: false
-#       allow_reversing: true
-#       max_angular_accel: 3.2
-#       max_robot_pose_search_dist: 10.0
+    progress_checker:
+      plugin: "nav2_controller::SimpleProgressChecker"
+      required_movement_radius: 0.5
+      movement_time_allowance: 10.0
+    goal_checker:
+      plugin: "nav2_controller::SimpleGoalChecker"
+      xy_goal_tolerance: 0.25
+      yaw_goal_tolerance: 0.25
+      stateful: True
+    FollowPath:
+      plugin: "nav2_regulated_pure_pursuit_controller::RegulatedPurePursuitController"
+      desired_linear_vel: 0.5
+      lookahead_dist: 0.2
+      min_lookahead_dist: 0.3
+      max_lookahead_dist: 0.9
+      lookahead_time: 1.5
+      transform_tolerance: 0.1
+      use_velocity_scaled_lookahead_dist: true
+      min_approach_linear_velocity: 0.05
+      approach_velocity_scaling_dist: 0.6
+      use_collision_detection: true
+      max_allowed_time_to_collision_up_to_carrot: 1.0
+      use_regulated_linear_velocity_scaling: true
+      use_fixed_curvature_lookahead: false
+      curvature_lookahead_dist: 0.2
+      use_cost_regulated_linear_velocity_scaling: false
+      regulated_linear_scaling_min_radius: 0.9
+      regulated_linear_scaling_min_speed: 0.15
+      use_rotate_to_heading: false
+      allow_reversing: true
+      max_angular_accel: 3.2
+      max_robot_pose_search_dist: 10.0
 controller_server:
   ros__parameters:
     use_sim_time: True
@@ -165,31 +116,31 @@ controller_server:
       xy_goal_tolerance: 0.3
       yaw_goal_tolerance: 0.3
 
-    # Pure Pursuit Controller parameters
-    # FollowPath:
-    #   plugin: "pp_controller::PPController"
-    #   lookahead_distance: 0.1
-    #   max_linear_speed: 0.5
-    #   max_angular_speed: 1.0
 
+    # FollowPath:
+    #   plugin: "nav2_regulated_pure_pursuit_controller::RegulatedPurePursuitController"
+    #   desired_linear_vel: 0.4
+    #   lookahead_dist: 1.25
+    #   min_lookahead_dist: 0.5
+    #   max_lookahead_dist: 2.0
+    #   lookahead_time: 1.5
+    #   transform_tolerance: 0.2
+    #   use_velocity_scaled_lookahead_dist: true
+    #   use_collision_detection: true
+    #   use_regulated_linear_velocity_scaling: false
+    #   use_fixed_curvature_lookahead: true
+    #   curvature_lookahead_dist: 0.5
+    #   use_cost_regulated_linear_velocity_scaling: false
+    #   use_rotate_to_heading: false
+    #   allow_reversing: true
+    #   max_angular_accel: 1.0
+    #   max_robot_pose_search_dist: 10.0
+    
     FollowPath:
-      plugin: "nav2_regulated_pure_pursuit_controller::RegulatedPurePursuitController"
-      desired_linear_vel: 0.4
-      lookahead_dist: 1.25
-      min_lookahead_dist: 0.5
-      max_lookahead_dist: 2.0
-      lookahead_time: 1.5
-      transform_tolerance: 0.2
-      use_velocity_scaled_lookahead_dist: true
-      use_collision_detection: false
-      use_regulated_linear_velocity_scaling: false
-      use_fixed_curvature_lookahead: true
-      curvature_lookahead_dist: 0.5
-      use_cost_regulated_linear_velocity_scaling: false
-      use_rotate_to_heading: false
-      allow_reversing: true
-      max_angular_accel: 1.0
-      max_robot_pose_search_dist: 10.0
+      plugin: "pp_controller::PPController"
+      max_linear_speed: 0.4
+      max_angular_speed: 1.0
+      lookahead_distance: 1.25
 
     # MPPI Controller parameters (commented out)
     # FollowPath:
@@ -284,6 +235,7 @@ controller_server_rclcpp_node:
 local_costmap:
   local_costmap:
     ros__parameters:
+      use_sim_time: True
       update_frequency: 5.0
       publish_frequency: 2.0
       global_frame: odom
@@ -332,6 +284,7 @@ local_costmap:
 global_costmap:
   global_costmap:
     ros__parameters:
+      use_sim_time: True
       update_frequency: 1.0
       publish_frequency: 1.0
       global_frame: map
@@ -370,10 +323,6 @@ global_costmap:
     ros__parameters:
       use_sim_time: True
 
-map_server:
-  ros__parameters:
-    use_sim_time: True
-    yaml_filename: ""
 
 map_saver:
   ros__parameters:
@@ -398,13 +347,14 @@ planner_server:
       step_size: 0.1
       final_angle_tolerance: 0.2 # in radians
       timeout: 2.0
-      num_hybrid_segments: 10
+      num_hybrid_segments: 20
 planner_server_rclcpp_node:
   ros__parameters:
     use_sim_time: True
 
 recoveries_server:
   ros__parameters:
+    use_sim_time: True
     costmap_topic: local_costmap/costmap_raw
     footprint_topic: local_costmap/published_footprint
     cycle_frequency: 10.0
@@ -431,6 +381,7 @@ robot_state_publisher:
 
 waypoint_follower:
   ros__parameters:
+    use_sim_time: True
     loop_rate: 20
     stop_on_failure: false
     waypoint_task_executor_plugin: "wait_at_waypoint"   
