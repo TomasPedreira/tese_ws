@@ -60,6 +60,9 @@ private:
 
     // trailer position publisher
     rclcpp_lifecycle::LifecyclePublisher<nav_msgs::msg::Path>::SharedPtr trailer_position_publisher_;
+    rclcpp_lifecycle::LifecyclePublisher<geometry_msgs::msg::PoseStamped>::SharedPtr goal_pose_publisher_;
+    rclcpp_lifecycle::LifecyclePublisher<geometry_msgs::msg::PoseStamped>::SharedPtr control_goal_pose_publisher_;
+    rclcpp_lifecycle::LifecyclePublisher<geometry_msgs::msg::PoseStamped>::SharedPtr goal_trailer_publisher_;
 };
 
 } // namespace pp_controller

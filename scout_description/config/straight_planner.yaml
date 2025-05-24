@@ -138,8 +138,10 @@ controller_server:
     
     FollowPath:
       plugin: "pp_controller::PPController"
-      max_linear_speed: 0.4
-      max_angular_speed: 1.0
+      # max_linear_speed: 0.4 
+      # max_angular_speed: 1.0
+      max_linear_speed: 0.0 
+      max_angular_speed: 0.0
       lookahead_distance: 1.25
 
     # MPPI Controller parameters (commented out)

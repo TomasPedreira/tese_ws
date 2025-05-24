@@ -177,6 +177,12 @@ namespace astar_planner
     global_path.header.frame_id = global_frame_;
 
     // double start_orientation = tf2::getYaw(start.pose.orientation); 
+    const double trailer_link_offset = 0.55/2 + 0.55/4;
+
+    double trailer_yaw = tf2::getYaw(trailer_link_transform.transform.rotation);
+
+    trailer_link_transform.transform.translation.x = trailer_link_transform.transform.translation.x - trailer_link_offset * cos(trailer_yaw);
+    trailer_link_transform.transform.translation.y = trailer_link_transform.transform.translation.y - trailer_link_offset * sin(trailer_yaw);
 
     unsigned int start_x, start_y, goal_x, goal_y;
     if (!costmap_->worldToMap(

@@ -116,6 +116,7 @@ class TrailerJointStatePublisher(Node):
             trailer_tf.transform.rotation.z = rot[2]
             trailer_tf.transform.rotation.w = rot[3]
 
+
             trailer_link_tf.header.stamp = self.get_clock().now().to_msg()
             trailer_link_tf.header.frame_id = 'trailer_connector_link'  # Parent frame
             trailer_link_tf.child_frame_id = 'trailer_link'  # Child frame
