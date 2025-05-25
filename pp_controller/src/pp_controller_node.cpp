@@ -3,23 +3,27 @@
 using namespace std;
 namespace pp_controller
 {
-double calculate_angvel_reverse(geometry_msgs::msg::PoseStamped goal_trailer_pose, geometry_msgs::msg::PoseStamped current_trailer_pose, const double max_linear_speed, double lookahead_distance){
+double calculate_angvel_reverse(geometry_msgs::msg::PoseStamped goal_trailer_pose, geometry_msgs::msg::PoseStamped current_trailer_pose, geometry_msgs::msg::PoseStamped current_tractor_pose,const double max_linear_speed, double lookahead_distance){
   const double rtr = 0.5625;
-  const double k = 1.5;
+  const double k = 1.0;
 
   double parent_trailer_yaw = tf2::getYaw(current_trailer_pose.pose.orientation);
   
   double alpha = atan2(goal_trailer_pose.pose.position.y - current_trailer_pose.pose.position.y, 
                       goal_trailer_pose.pose.position.x - current_trailer_pose.pose.position.x);
-  double heading_error = alpha - parent_trailer_yaw;
+  double heading_error = -alpha - parent_trailer_yaw;
   while (heading_error > M_PI) heading_error -= 2 * M_PI;
   while (heading_error < -M_PI) heading_error += 2 * M_PI;
-
+  double t0 = tf2::getYaw(current_tractor_pose.pose.orientation);
+  double t1 = t0 - parent_trailer_yaw;
+  while (t1 > M_PI) t1 -= 2 * M_PI;
+  while (t1 < -M_PI) t1 += 2 * M_PI;
 
   double hitch_angle = -atan2(2*rtr*sin(heading_error), lookahead_distance);
 
-  cout << "heading error: " << heading_error << endl;
-  double desired_angular_speed = max_linear_speed * (-k * (parent_trailer_yaw - hitch_angle) - (sin(parent_trailer_yaw)/rtr));
+  double desired_angular_speed = max_linear_speed * (-k * (t1 - hitch_angle) - (sin(t1)/rtr));
+  cout << "heading error: " << heading_error << " ang speed: " << desired_angular_speed << " hitch angle: " << hitch_angle <<endl;
+  // desired_angular_speed = 0.0;
 
   return desired_angular_speed;
 }
@@ -229,7 +233,7 @@ geometry_msgs::msg::TwistStamped PPController::computeVelocityCommands(
   double linear_speed;
   if (abs(heading_error) > M_PI/2) {
     linear_speed = -max_linear_speed_;
-    desired_angular_speed = calculate_angvel_reverse(current_goal_trailer_pose, current_trailer_pose, max_linear_speed_, lookahead_distance_);
+    desired_angular_speed = calculate_angvel_reverse(current_goal_trailer_pose, current_trailer_pose, pose, max_linear_speed_, lookahead_distance_);
   }else{
     linear_speed = max_linear_speed_;
     desired_angular_speed = calculate_angvel_forward(current_goal_pose, pose, lookahead_distance_);
