@@ -117,7 +117,7 @@ namespace astar_planner
     hybrid_path_publisher_->on_activate();
     dubins_path_publisher_->on_activate();
     voronoi_nodes_ = read_nodes(
-      "/home/tomas/tt_ws/src/tese_ws/astar_planner/map/voronoi_nodes.txt", 
+      "/home/tomas/tt_ws/src/tese_ws/astar_planner/map/voronoi_nodes_v10.txt", 
       costmap_
     );
   }

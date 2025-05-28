@@ -15,9 +15,9 @@ import yaml
 class VoronoiGraphNode(Node):
     def __init__(self):
         super().__init__('voronoi_graph_node')
-        self.declare_parameter('pgm_file', '/home/tomas/tt_ws/wall_map.pgm')
-        self.declare_parameter('yaml_file', '/home/tomas/tt_ws/wall_map.yaml')
-        self.declare_parameter('output_file', '/home/tomas/tt_ws/voronoi_nodes.txt')
+        self.declare_parameter('pgm_file', '/home/tomas/tt_ws/src/tese_ws/scout_description/maps/wallworldV2.pgm')
+        self.declare_parameter('yaml_file', '/home/tomas/tt_ws/src/tese_ws/scout_description/maps/wallworldV2.yaml')
+        self.declare_parameter('output_file', '/home/tomas/tt_ws/src/tese_ws/voronoi_nodes.txt')
         self.declare_parameter('min_node_distance', 10.0)
         self.pgm_file = self.get_parameter('pgm_file').value
         self.yaml_file = self.get_parameter('yaml_file').value
@@ -34,11 +34,22 @@ class VoronoiGraphNode(Node):
     def load_pgm_map(self):
         """Load a PGM file as a NumPy array."""
         image = cv2.imread(self.pgm_file, cv2.IMREAD_GRAYSCALE)
+        if image is None:
+            self.get_logger().error(f"Failed to load image from {self.pgm_file}")
+            raise RuntimeError(f"Could not load image from {self.pgm_file}")
         return image
     
     def get_obstacle_edges(self, image):
         """Extract obstacle edges from the map using Canny edge detection."""
+        if image is None:
+            self.get_logger().error("Input image is None")
+            raise ValueError("Input image is None")
+            
         edges = cv2.Canny(image, 200, 254)
+        if edges is None:
+            self.get_logger().error("Canny edge detection failed")
+            raise RuntimeError("Canny edge detection failed")
+            
         obstacle_points = np.column_stack(np.where(edges > 0))
         return obstacle_points
     
@@ -196,7 +207,7 @@ class VoronoiGraphNode(Node):
                 cv2.line(output, tuple(p1[::-1]), tuple(p2[::-1]), (0, 0, 255), 1)
         for point in valid_vertices:
             cv2.circle(output, tuple(point[::-1].astype(int)), 2, (255, 0, 0), -1)
-        cv2.imwrite('/home/tomas/tt_ws/voronoi_graph_V33.png', output)
+        cv2.imwrite('/home/tomas/tt_ws/src/tese_ws/voronoi_graph_V33.png', output)
         self.get_logger().info("Saved Voronoi graph visualization")
         
     def process_map(self):

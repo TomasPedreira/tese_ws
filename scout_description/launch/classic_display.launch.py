@@ -29,7 +29,7 @@ def generate_launch_description():
     default_rviz_config_path = os.path.join(pkg_share, 'rviz/navigation_config.rviz')
     gz_models_path = os.path.join(pkg_share, 'models')
     # default_world_path=os.path.join(pkg_share, 'world/indoor_2.world')
-    default_world_path=os.path.join(pkg_share, 'world/wallworld.world')
+    default_world_path=os.path.join(pkg_share, 'world/wallworldV2.world')
 
     # Add headless argument declaration
     headless_arg = DeclareLaunchArgument(
@@ -116,7 +116,7 @@ def generate_launch_description():
             "launch",
             "nav2_bringup",
             "localization_launch.py",
-            "map:=/home/tomas/tt_ws/src/tese_ws/scout_description/maps/wall_map.yaml",
+            "map:=/home/tomas/tt_ws/src/tese_ws/scout_description/maps/wallworldV2.yaml",
             "params_file:=/home/tomas/tt_ws/src/tese_ws/scout_description/config/amcl_params.yaml",
             "use_sim_time:=True",
         ],
