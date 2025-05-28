@@ -90,7 +90,7 @@ class TrailerJointStatePublisher(Node):
             self.prev_pos = new_pos
             self.tractor_pos = new_pos
 
-            # self.get_logger().info(f"Current velocity: {self.cur_vel}")
+            self.get_logger().info(f"Current velocity: {self.cur_vel}")
 
             yaw = tf_transformations.euler_from_quaternion([m_to_bl_tf.transform.rotation.x, m_to_bl_tf.transform.rotation.y, m_to_bl_tf.transform.rotation.z, m_to_bl_tf.transform.rotation.w])[2]
             rot = tf_transformations.quaternion_from_euler(0, 0, self.trailer_yaw)

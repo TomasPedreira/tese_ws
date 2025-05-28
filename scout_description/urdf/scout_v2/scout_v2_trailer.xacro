@@ -586,51 +586,44 @@
     <!-- GPS -->
     <link name="gps_link">
         <visual>
+            <origin xyz="0 0 0" rpy="0 0 0"/>
             <geometry>
-                <box size="0.01 0.01 0.01"/>
+                <box size="0.05 0.05 0.02"/>
             </geometry>
+            <material name="Black">
+                <color rgba="0.1 0.1 0.1 1.0"/>
+            </material>
         </visual>
-
         <collision>
+            <origin xyz="0 0 0" rpy="0 0 0"/>
             <geometry>
-                <box size="0.01 0.01 0.01"/>
+                <box size="0.05 0.05 0.02"/>
             </geometry>
         </collision>
-
-        <xacro:box_inertia m="0.1" w="0.1" d="0.1" h="0.1"/>
+        <xacro:box_inertia m="0.1" w="0.05" d="0.05" h="0.02"/>
     </link>
 
     <joint name="gps_joint" type="fixed">
-        <parent link="base_link"/>
+        <parent link="camera_stand_link"/>
         <child link="gps_link"/>
-        <origin xyz="0.0 0.0 0.0"/>
+        <origin xyz="0 0 0.02" rpy="0 0 0"/>
     </joint>
 
     <gazebo reference="gps_link">
-        <sensor name="tb3_gps" type="gps">
-            <always_on>true</always_on>
-            <update_rate>1</update_rate>
-            <pose>0 0 0 0 0 0</pose>
+        <sensor type="gps" name="gps">
+            <always_on>1</always_on>
+            <update_rate>1.0</update_rate>
             <gps>
-                <position_sensing>
-                <horizontal>
-                    <noise type="gaussian">
-                    <mean>0.0</mean>
-                    <stddev>0.01</stddev>
-                    </noise>
-                </horizontal>
-                <vertical>
-                    <noise type="gaussian">
-                    <mean>0.0</mean>
-                    <stddev>0.01</stddev>
-                    </noise>
-                </vertical>
-                </position_sensing>
+                <horizontal_position_noise>0.1</horizontal_position_noise>
+                <vertical_position_noise>0.1</vertical_position_noise>
+                <horizontal_velocity_noise>0.1</horizontal_velocity_noise>
+                <vertical_velocity_noise>0.1</vertical_velocity_noise>
             </gps>
-            <plugin name="my_gps_plugin" filename="libgazebo_ros_gps_sensor.so">
+            <plugin name="gps_plugin" filename="libgazebo_ros_gps_sensor.so">
                 <ros>
-                <remapping>~/out:=/gps/fix</remapping>
+                    <remapping>~/out:=/gps/fix</remapping>
                 </ros>
+                <frame_name>gps_link</frame_name>
             </plugin>
         </sensor>
     </gazebo>

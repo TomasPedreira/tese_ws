@@ -22,7 +22,6 @@ double calculate_angvel_reverse(geometry_msgs::msg::PoseStamped goal_trailer_pos
   double hitch_angle = -atan2(2*rtr*sin(heading_error), lookahead_distance);
 
   double desired_angular_speed = max_linear_speed * (-k * (t1 - hitch_angle) - (sin(t1)/rtr));
-  cout << "heading error: " << heading_error << " ang speed: " << desired_angular_speed << " hitch angle: " << hitch_angle <<endl;
   // desired_angular_speed = 0.0;
 
   return desired_angular_speed;

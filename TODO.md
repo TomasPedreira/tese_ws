@@ -127,12 +127,17 @@
 [x] Fix/tune the trailer position calculations;
 
 ## 20/05
-[ ] Make node selection reasonable;
-[ ] Make forward PP (dont know if itll work);
-[ ] have gps localization (need help);
+[x] Make node selection reasonable;
+[x] Make forward PP (dont know if itll work);
+
+## 25/05
+[x] Publish initial position in the amcl options;
+[x] Make reverse PP;
+
+## 26/06
+[ ] Debug trailer rotations that seem to be reversed;
+
 
 
 ## next time
 [ ] Make the search have a depth (can only go for some amount of time/nodes); // No need?
-[ ] Make Backwards PP;
-[ ] Publish initial position in the launch options;

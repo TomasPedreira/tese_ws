@@ -142,7 +142,7 @@ controller_server:
       max_angular_speed: 1.0
       # max_linear_speed: 0.0
       # max_angular_speed: 0.0
-      lookahead_distance: 1.25
+      lookahead_distance: 0.6
 
     # MPPI Controller parameters (commented out)
     # FollowPath:
