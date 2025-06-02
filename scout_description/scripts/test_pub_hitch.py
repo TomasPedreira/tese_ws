@@ -8,14 +8,18 @@ from tf2_ros import StaticTransformBroadcaster,TransformBroadcaster, TransformLi
 from math import cos, sin, sqrt, pi, atan2
 import tf_transformations
 
-def calculate_trailer_yaw(tractor_yaw, trailer_yaw, velocity, dt):
+def calculate_trailer_yaw(self,tractor_yaw, trailer_yaw, velocity, dt):
     rtr = 0.5625 # Distance between the hitch and the trailer's axle center
 
     # Calculate new yaw based on velocity and current angles
     yaw = trailer_yaw + ((velocity / rtr) * sin(tractor_yaw - trailer_yaw)) * dt
 
-    # Calculate angle difference and normalize to [-pi, pi]
-    angle_diff = yaw - tractor_yaw
+    while yaw > 2*pi:
+        yaw -= 2 * pi
+    while yaw < 0:
+        yaw += 2 * pi
+
+    angle_diff = -yaw + tractor_yaw
     while angle_diff > pi:
         angle_diff -= 2 * pi
     while angle_diff < -pi:
@@ -23,7 +27,8 @@ def calculate_trailer_yaw(tractor_yaw, trailer_yaw, velocity, dt):
 
     # If angle difference exceeds ±45 degrees, lock the trailer at the maximum allowed angle
     if abs(angle_diff) > pi/4:
-        yaw = tractor_yaw + (pi/4 if angle_diff > 0 else -pi/4)
+        yaw = tractor_yaw - (pi/4 if angle_diff > 0 else -pi/4)
+        self.get_logger().info(f"Trailer yaw locked at {yaw}")
 
     return yaw
 
@@ -61,7 +66,7 @@ class TrailerJointStatePublisher(Node):
         try:
             m_to_bl_tf: TransformStamped = self.tf_buffer.lookup_transform('map', 'base_link', rclpy.time.Time())
             if self.trailer_yaw != -90.0:   
-                self.trailer_yaw = calculate_trailer_yaw(self.tractor_yaw, self.trailer_yaw, self.cur_vel, dt)
+                self.trailer_yaw = calculate_trailer_yaw(self,self.tractor_yaw, self.trailer_yaw, self.cur_vel, dt)
             else:
                 self.trailer_yaw = tf_transformations.euler_from_quaternion([m_to_bl_tf.transform.rotation.x, m_to_bl_tf.transform.rotation.y, m_to_bl_tf.transform.rotation.z, m_to_bl_tf.transform.rotation.w])[2]
                 self.get_logger().info("WHAT DI HEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEL")     
@@ -89,8 +94,6 @@ class TrailerJointStatePublisher(Node):
             
             self.prev_pos = new_pos
             self.tractor_pos = new_pos
-
-            self.get_logger().info(f"Current velocity: {self.cur_vel}")
 
             yaw = tf_transformations.euler_from_quaternion([m_to_bl_tf.transform.rotation.x, m_to_bl_tf.transform.rotation.y, m_to_bl_tf.transform.rotation.z, m_to_bl_tf.transform.rotation.w])[2]
             rot = tf_transformations.quaternion_from_euler(0, 0, self.trailer_yaw)

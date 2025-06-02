@@ -5,13 +5,13 @@ namespace pp_controller
 {
 double calculate_angvel_reverse(geometry_msgs::msg::PoseStamped goal_trailer_pose, geometry_msgs::msg::PoseStamped current_trailer_pose, geometry_msgs::msg::PoseStamped current_tractor_pose,const double max_linear_speed, double lookahead_distance){
   const double rtr = 0.5625;
-  const double k = 1.0;
+  const double k = 2.0;
 
   double parent_trailer_yaw = tf2::getYaw(current_trailer_pose.pose.orientation);
   
   double alpha = atan2(goal_trailer_pose.pose.position.y - current_trailer_pose.pose.position.y, 
                       goal_trailer_pose.pose.position.x - current_trailer_pose.pose.position.x);
-  double heading_error = -alpha - parent_trailer_yaw;
+  double heading_error = alpha - parent_trailer_yaw;
   while (heading_error > M_PI) heading_error -= 2 * M_PI;
   while (heading_error < -M_PI) heading_error += 2 * M_PI;
   double t0 = tf2::getYaw(current_tractor_pose.pose.orientation);
@@ -19,10 +19,11 @@ double calculate_angvel_reverse(geometry_msgs::msg::PoseStamped goal_trailer_pos
   while (t1 > M_PI) t1 -= 2 * M_PI;
   while (t1 < -M_PI) t1 += 2 * M_PI;
 
-  double hitch_angle = -atan2(2*rtr*sin(heading_error), lookahead_distance);
+  double hitch_angle = atan2(2*rtr*sin(heading_error), lookahead_distance);
 
   double desired_angular_speed = max_linear_speed * (-k * (t1 - hitch_angle) - (sin(t1)/rtr));
   // desired_angular_speed = 0.0;
+  cout << "desired_angular_speed: " << desired_angular_speed << endl;
 
   return desired_angular_speed;
 }
