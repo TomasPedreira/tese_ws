@@ -271,16 +271,7 @@ namespace astar_planner
       auto current_time = node_->now();
       cout << "current time in milliseconds: " << current_time.nanoseconds()/1000 - start_time.nanoseconds()/1000 << endl;
       if (current_time - start_time > rclcpp::Duration::from_seconds(timeout_)) {
-        cout << "Timeout, returning last known path" << endl;
-        if (last_path_.empty()){
-          cout << "No last path found, returning empty path" << endl;
-          return global_path;
-        }
-        //insert current position node hybrid (start) to the last path 
-        last_path_[0] = start_node;
-
-        global_path = path_from_vector(last_path_, global_frame_, costmap_);
-        cout << "Returning path of size: " << global_path.poses.size() << endl;
+        cout << "Timeout reached, returning empty path" << endl;
         return global_path;
       }
       int index = get_lowest_f_node(open_list);
@@ -382,13 +373,6 @@ namespace astar_planner
 
     if (!goal_found){
       cout << "No path found" << endl;
-      if (last_path_.empty()){
-        cout << "No last path found, returning empty path" << endl;
-        return global_path;
-      }
-      last_path_[0] = start_node;
-      global_path = path_from_vector(last_path_, global_frame_, costmap_);
-      cout << "Returning path of size: " << global_path.poses.size() << endl;
       return global_path;
     }
     // Collect nodes from the final path
