@@ -126,11 +126,20 @@ std::vector<nodeHybrid> read_nodes(const std::string& filename, nav2_costmap_2d:
       if (costmap_->getCost(x, y) != 0) {
         continue;
       }
+
+
       
       successor.g = current_node.g + calculateDist(current_node.x, current_node.y, x, y);
-      successor.h = calculateDist(x, y, goal_node.x, goal_node.y);
       successor.f = successor.g + successor.h;
       successor.yaw = calculateOrientation(current_node.x, current_node.y, x, y);
+
+
+      double yaw_diff_forward = std::abs(atan2(sin(successor.yaw - goal_node.yaw), cos(successor.yaw - goal_node.yaw)));
+      // if (yaw_diff_forward > 0.5){
+      //   continue;
+      // } 
+      
+      successor.h = calculateDist(x, y, goal_node.x, goal_node.y) ;
       successor.parent = std::make_shared<nodeHybrid>(current_node);
       if (successor.f < f_cost_map[x][y]){
         node_map[x][y] = successor;
