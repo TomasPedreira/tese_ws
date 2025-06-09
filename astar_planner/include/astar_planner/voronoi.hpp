@@ -7,7 +7,7 @@ std::vector<int> get_neighbours(const std::vector<nodeHybrid>& voronoi_nodes, co
 std::vector<nodeHybrid> compute_subgoals (
     const std::vector<nodeHybrid> & voronoi_nodes,
     const nodeHybrid & start_node,
-    const nodeHybrid & goal_node,
+    nodeHybrid & goal_node,
     nav2_costmap_2d::Costmap2D* costmap_,
     double tolerance
   );

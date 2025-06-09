@@ -97,10 +97,11 @@ controller_server:
     FollowPath:
       plugin: "pp_controller::PPController"
       max_linear_speed: 0.3
-      max_angular_speed: 2.0
+      max_angular_speed: 1.5
       # max_linear_speed: 0.0
       # max_angular_speed: 0.0
       lookahead_distance: 0.8
+      collision_check_distance: 0.5
 
 
 controller_server_rclcpp_node:
@@ -215,7 +216,7 @@ planner_server:
       plugin: "astar_planner/Astar"
       turning_radius: 1.2
       dubins_tolerance: 0.1
-      tolerance: 20.0
+      tolerance: 45.0
       num_directions: 10
       allow_reverse: true
       max_angle: 0.1

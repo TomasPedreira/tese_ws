@@ -23,7 +23,7 @@ double calculate_angvel_reverse(geometry_msgs::msg::PoseStamped goal_trailer_pos
 
   double desired_angular_speed = max_linear_speed * (-k * (t1 - hitch_angle) - (sin(t1)/rtr));
   // desired_angular_speed = 0.0;
-  cout << "desired_angular_speed: " << desired_angular_speed << endl;
+  // cout << "desired_angular_speed: " << desired_angular_speed << endl;
 
   return desired_angular_speed;
 }
@@ -99,6 +99,7 @@ void PPController::configure(
     lookahead_distance_ = node_->declare_parameter(name + ".lookahead_distance", 1.0);
     max_linear_speed_ = node_->declare_parameter(name + ".max_linear_speed", 0.5);
     max_angular_speed_ = node_->declare_parameter(name + ".max_angular_speed", 1.0);
+    collision_check_distance_ = node_->declare_parameter(name + ".collision_check_distance", 0.5);
 
     // trailer position publisher
     trailer_position_publisher_ = node_->create_publisher<nav_msgs::msg::Path>("/control_trailer_position", 10);
@@ -134,6 +135,77 @@ void PPController::deactivate()
     goal_pose_publisher_->on_deactivate();
     control_goal_pose_publisher_->on_deactivate();
     goal_trailer_publisher_->on_deactivate();
+}
+
+bool PPController::checkForCollisions(
+    const geometry_msgs::msg::PoseStamped & current_pose,
+    const geometry_msgs::msg::PoseStamped & goal_pose)
+{
+    // Get the costmap
+    auto costmap = costmap_ros_->getCostmap();
+    
+    // Robot footprint dimensions in meters
+    const double robot_width = 0.7;  // meters
+    const double robot_length = 1.0; // meters
+
+    // Calculate the angle of the path
+    double path_angle = std::atan2(
+        goal_pose.pose.position.y - current_pose.pose.position.y,
+        goal_pose.pose.position.x - current_pose.pose.position.x
+    );
+
+    // Calculate perpendicular vector for width
+    double perp_x = -std::sin(path_angle);
+    double perp_y = std::cos(path_angle);
+
+    // Number of points to check along the path
+    const double check_distance = std::hypot(
+        goal_pose.pose.position.x - current_pose.pose.position.x,
+        goal_pose.pose.position.y - current_pose.pose.position.y
+    );
+    
+    // Check more points for better coverage
+    int num_points = std::max(10, static_cast<int>(check_distance / 0.1));  // Check every 10cm
+    
+    for (int i = 0; i <= num_points; ++i) {
+        double ratio = static_cast<double>(i) / num_points;
+        
+        // Calculate center point
+        double center_x = current_pose.pose.position.x + ratio * (goal_pose.pose.position.x - current_pose.pose.position.x);
+        double center_y = current_pose.pose.position.y + ratio * (goal_pose.pose.position.y - current_pose.pose.position.y);
+        
+        // Check points in a rectangle around the center
+        for (double w = -robot_width/2; w <= robot_width/2; w += 0.1) {
+            for (double l = -robot_length/2; l <= robot_length/2; l += 0.1) {
+                // Calculate rotated offset
+                double offset_x = w * perp_x + l * std::cos(path_angle);
+                double offset_y = w * perp_y + l * std::sin(path_angle);
+                
+                // Calculate world coordinates
+                double check_x = center_x + offset_x;
+                double check_y = center_y + offset_y;
+                
+                // Convert to costmap coordinates
+                unsigned int map_x, map_y;
+                if (!costmap->worldToMap(check_x, check_y, map_x, map_y)) {
+                    continue;  // Skip if outside costmap
+                }
+                
+                // Get cost at this point
+                unsigned char cost = costmap->getCost(map_x, map_y);
+                
+                // If cost is above threshold, consider it a collision
+                if (cost > nav2_costmap_2d::INSCRIBED_INFLATED_OBSTACLE) {
+                    RCLCPP_WARN(node_->get_logger(), 
+                        "Collision detected at world pos (%.2f, %.2f) map pos (%d, %d) with cost %d (threshold: %d)", 
+                        check_x, check_y, map_x, map_y, cost, nav2_costmap_2d::INSCRIBED_INFLATED_OBSTACLE);
+                    return true;
+                }
+            }
+        }
+    }
+    
+    return false;
 }
 
 geometry_msgs::msg::TwistStamped PPController::computeVelocityCommands(
@@ -216,6 +288,14 @@ geometry_msgs::msg::TwistStamped PPController::computeVelocityCommands(
   }
   if (goal_trailer_publisher_->is_activated()) {
     goal_trailer_publisher_->publish(current_goal_trailer_pose);
+  }
+
+  // Check for collisions before proceeding
+  if (checkForCollisions(pose, current_goal_pose)) {
+    RCLCPP_WARN(node_->get_logger(), "Collision detected! Stopping robot.");
+    cmd_vel.twist.linear.x = 0.0;
+    cmd_vel.twist.angular.z = 0.0;
+    return cmd_vel;
   }
 
   // Pure pursuit steering angle calculation

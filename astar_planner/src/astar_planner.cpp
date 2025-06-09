@@ -231,7 +231,7 @@ namespace astar_planner
     start_node.yaw = tf2::getYaw(start.pose.orientation);
     start_node.parent = nullptr;
     
-    start_node.neighbours = get_neighbours(voronoi_nodes_, start_node, costmap_, 5);
+    start_node.neighbours = get_neighbours(voronoi_nodes_, start_node, costmap_, 10);
     
     nodeHybrid goal_node = nodeHybrid();
     goal_node.x = goal_x;
@@ -244,6 +244,10 @@ namespace astar_planner
     const double speed = 0.4 / costmap_->getResolution();
    
     std::vector<nodeHybrid> subgoals = compute_subgoals(voronoi_nodes_, start_node, goal_node, costmap_, tolerance_);
+    if (subgoals.size() == 0){
+      cout << "No subgoals found" << endl;
+      return global_path;
+    }
     
     // Publish Voronoi subgoals
     if (voronoi_subgoals_publisher_ && voronoi_subgoals_publisher_->is_activated()) {
@@ -269,7 +273,7 @@ namespace astar_planner
     while (!open_list.empty() && !goal_found) {
       // check timer for 10 seconds
       auto current_time = node_->now();
-      cout << "current time in milliseconds: " << current_time.nanoseconds()/1000 - start_time.nanoseconds()/1000 << endl;
+      // cout << "current time in milliseconds: " << current_time.nanoseconds()/1000 - start_time.nanoseconds()/1000 << endl;
       if (current_time - start_time > rclcpp::Duration::from_seconds(timeout_)) {
         cout << "Timeout reached, returning empty path" << endl;
         return global_path;

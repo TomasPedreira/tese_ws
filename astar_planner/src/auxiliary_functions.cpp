@@ -156,9 +156,12 @@ std::vector<nodeHybrid> create_hybrid_segment(nodeHybrid &start, nodeHybrid &goa
     nodeHybrid current = start;
     const double rtr = 0.5625 / costmap->getResolution();
     const double speed = 0.4 / costmap->getResolution();
+    const double wheelbase = 0.498 / costmap->getResolution();
+    nodeHybrid successor;
     for (int i = 0; i < num_steps; i++){
-        nodeHybrid successor;
-        double yaw = current.yaw + direction;
+        
+         double yaw = current.yaw + direction;
+        
         unsigned int x_cell, y_cell;
         double x, y;
         costmap->mapToWorld(current.x, current.y, x, y);

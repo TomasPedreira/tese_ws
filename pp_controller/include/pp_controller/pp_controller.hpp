@@ -54,9 +54,14 @@ private:
     double lookahead_distance_;
     double max_linear_speed_;
     double max_angular_speed_;
+    double collision_check_distance_;  // Distance to check for collisions
 
     bool is_initialized_;
     int last_waypoint_index_;
+
+    // Helper method to check for collisions
+    bool checkForCollisions(const geometry_msgs::msg::PoseStamped & current_pose, 
+                          const geometry_msgs::msg::PoseStamped & goal_pose);
 
     // trailer position publisher
     rclcpp_lifecycle::LifecyclePublisher<nav_msgs::msg::Path>::SharedPtr trailer_position_publisher_;

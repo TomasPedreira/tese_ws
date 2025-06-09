@@ -17,12 +17,13 @@ class VoronoiGraphNode(Node):
         super().__init__('voronoi_graph_node')
         self.declare_parameter('pgm_file', '/home/tomas/tt_ws/src/tese_ws/scout_description/maps/wallworldV2.pgm')
         self.declare_parameter('yaml_file', '/home/tomas/tt_ws/src/tese_ws/scout_description/maps/wallworldV2.yaml')
-        self.declare_parameter('output_file', '/home/tomas/tt_ws/src/tese_ws/voronoi_nodesV46.txt')
-        self.declare_parameter('min_node_distance', 20.0)
+        self.declare_parameter('output_file', '/home/tomas/tt_ws/src/tese_ws/voronoi_nodesV102.txt')
+        self.declare_parameter('min_node_distance', 7.5)
         self.pgm_file = self.get_parameter('pgm_file').value
         self.yaml_file = self.get_parameter('yaml_file').value
         self.output_file = self.get_parameter('output_file').value
         self.min_node_distance = self.get_parameter('min_node_distance').value
+        self.output_image = '/home/tomas/tt_ws/src/tese_ws/voronoi_graph_V102.png'
                 
         self.bridge = CvBridge()
         self.publisher = self.create_publisher(Image, 'voronoi_graph', 10)
@@ -207,7 +208,7 @@ class VoronoiGraphNode(Node):
                 cv2.line(output, tuple(p1[::-1]), tuple(p2[::-1]), (0, 0, 255), 1)
         for point in valid_vertices:
             cv2.circle(output, tuple(point[::-1].astype(int)), 2, (255, 0, 0), -1)
-        cv2.imwrite('/home/tomas/tt_ws/src/tese_ws/voronoi_graph_V34.png', output)
+        cv2.imwrite(self.output_image, output)
         self.get_logger().info("Saved Voronoi graph visualization")
         
     def process_map(self):
