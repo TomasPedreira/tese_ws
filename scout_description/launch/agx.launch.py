@@ -52,25 +52,20 @@ def generate_launch_description():
                 'control_rate': launch.substitutions.LaunchConfiguration('control_rate'),
         }])
 
-    # Paths to URDF and RViz config
-    xacro_file = os.path.join(
-        get_package_share_directory('scout_description'),
-        'urdf/scout_v2/scout_v2_trailer.xacro'  # Adjust if needed
-    )
-    rviz_config_file = os.path.join(
-        get_package_share_directory('scout_description'),
-        'rviz/navigation_config.rviz'  # Adjust if needed
-    )
+    pkg_share = get_package_share_directory('scout_description')
+    default_model_path = os.path.join(pkg_share, 'urdf/scout_v2/scout_v2_trailer.xacro')
+    rviz_config_file = os.path.join(pkg_share, 'rviz/navigation_config.rviz')
 
-    # Read xacro file
-    with open(xacro_file, 'r') as infp:
-        robot_description = infp.read()
-
+    model_arg = DeclareLaunchArgument(
+        'model',
+        default_value=default_model_path,
+        description='Absolute path to robot xacro file'
+    )
+    #making change to teh«he souc«rece
     robot_state_publisher_node = Node(
         package='robot_state_publisher',
         executable='robot_state_publisher',
-        output='screen',
-        parameters=[{'robot_description': robot_description}]
+        parameters=[{'robot_description': Command(['xacro ', LaunchConfiguration('model')]), 'use_sim_time': LaunchConfiguration('use_sim_time')}]
     )
 
     rviz_node = Node(
@@ -78,7 +73,8 @@ def generate_launch_description():
         executable='rviz2',
         name='rviz2',
         output='screen',
-        arguments=['-d', rviz_config_file]
+        arguments=['-d', rviz_config_file],
+        parameters=[{'use_sim_time': LaunchConfiguration('use_sim_time')}]
     )
 
     return LaunchDescription([
@@ -92,6 +88,7 @@ def generate_launch_description():
         auto_reconnect_arg,
         simulated_robot_arg,
         sim_control_rate_arg,
+        model_arg,
         scout_base_node,
         robot_state_publisher_node,
         rviz_node
