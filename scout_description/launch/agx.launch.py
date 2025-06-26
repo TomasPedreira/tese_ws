@@ -34,7 +34,7 @@ def generate_launch_description():
     sim_control_rate_arg = DeclareLaunchArgument('control_rate', default_value='50',
                                                  description='Simulation control loop update rate')
     
-    scout_base_node = launch_ros.actions.Node(
+    scout_base_node = Node(
         package='scout_base',
         executable='scout_base_node',
         output='screen',

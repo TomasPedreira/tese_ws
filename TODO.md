@@ -134,10 +134,21 @@
 [x] Publish initial position in the amcl options;
 [x] Make reverse PP;
 
-## 26/06
-[ ] Debug trailer rotations that seem to be reversed;
+## 26/05
+[x] Debug trailer rotations that seem to be reversed;
 
+## 26/06 REAL ROBOT PHASE
+[x] Launch the base package of the robot;
+[x] Launch rviz withing th erobot with the robot description;
+[x] Launch the lidar;
+[ ] Convert popint cloud to laser scan;
+[ ] Launch slam;
+[ ] Launch Navigation;
 
 
 ## next time
-[ ] Make the search have a depth (can only go for some amount of time/nodes); // No need?
+[ ] Adapt the algorithm to be ran inside the agx;
+[ ] Map the room;
+[ ] Run the algo inside the room;
+????
+[ ] Profit;
