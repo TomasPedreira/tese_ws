@@ -130,6 +130,8 @@ Visualization Manager:
       Min Intensity: 0
       Name: LaserScan
       Position Transformer: XYZ
+      QoS Override:
+        Reliability: Best Effort
       Selectable: true
       Size (Pixels): 3
       Size (m): 0.01

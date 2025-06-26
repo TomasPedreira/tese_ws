@@ -67,17 +67,5 @@ def generate_launch_description():
                     'online_async_launch.py'
                 ])
             ]),
-        ),
-        # RViz2
-        Node(
-            package='rviz2',
-            executable='rviz2',
-            name='rviz2',
-            output='screen',
-            parameters=[
-                {'qos_overrides./scan.reliability': 'best_effort'},
-                {'qos_overrides./scan.durability': 'volatile'},
-                {'qos_overrides./scan.depth': 10}
-            ]
         )
     ])

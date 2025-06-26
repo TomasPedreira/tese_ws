@@ -54,7 +54,7 @@ def generate_launch_description():
 
     pkg_share = get_package_share_directory('scout_description')
     default_model_path = os.path.join(pkg_share, 'urdf/scout_v2/scout_v2_trailer.xacro')
-    rviz_config_file = os.path.join(pkg_share, 'rviz/navigation_config.rviz')
+    rviz_config_file = os.path.join(pkg_share, 'rviz/agx_config.rviz')
 
     model_arg = DeclareLaunchArgument(
         'model',
@@ -99,5 +99,6 @@ def generate_launch_description():
         model_arg,
         scout_base_node,
         robot_state_publisher_node,
+        robot_localization_node,
         rviz_node
     ])
