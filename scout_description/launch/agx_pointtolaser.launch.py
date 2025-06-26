@@ -45,7 +45,7 @@ def generate_launch_description():
             ],
             parameters=[
                 {'target_frame': 'rslidar'},
-                {'transform_tolerance': 0.1},  # Increased tolerance for TF
+                {'transform_tolerance': 0.1},  # Increased for TF robustness
                 {'min_height': -0.5},
                 {'max_height': 0.5},
                 {'angle_min': -3.14159},
@@ -58,27 +58,15 @@ def generate_launch_description():
                 {'inf_epsilon': 1.0}
             ]
         ),
-        # SLAM Toolbox
-        Node(
-            package='slam_toolbox',
-            executable='async_slam_toolbox',
-            name='slam_toolbox',
-            output='screen',
-            parameters=[
-                {'use_sim_time': False},
-                {'scan_topic': '/scan'},
-                {'odom_topic': '/odom'},
-                {'map_frame': 'map'},
-                {'odom_frame': 'odom'},
-                {'base_frame': 'base_link'},
-                {'resolution': 0.05},
-                {'max_laser_range': 100.0},
-                {'minimum_travel_distance': 0.5},
-                {'minimum_travel_heading': 0.436},
-                {'qos_overrides./scan.reliability': 'best_effort'},
-                {'qos_overrides./scan.durability': 'volatile'},
-                {'qos_overrides./scan.depth': 10}
-            ]
+        # Include slam_toolbox online_async_launch
+        IncludeLaunchDescription(
+            PythonLaunchDescriptionSource([
+                PathJoinSubstitution([
+                    FindPackageShare('slam_toolbox'),
+                    'launch',
+                    'online_async_launch.py'
+                ])
+            ]),
         ),
         # RViz2
         Node(
