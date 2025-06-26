@@ -1,8 +1,13 @@
 from launch import LaunchDescription
+from launch.actions import IncludeLaunchDescription
+from launch.launch_description_sources import PythonLaunchDescriptionSource
+from launch.substitutions import PathJoinSubstitution
 from launch_ros.actions import Node
+from launch_ros.substitutions import FindPackageShare
 from rclpy.qos import QoSProfile, ReliabilityPolicy, DurabilityPolicy, HistoryPolicy
 
 def generate_launch_description():
+    # QoS profile for /scan
     qos_profile = QoSProfile(
         depth=10,
         reliability=ReliabilityPolicy.BEST_EFFORT,
@@ -11,12 +16,15 @@ def generate_launch_description():
     )
 
     return LaunchDescription([
-        # RS-LiDAR-16 Driver
-        Node(
-            package='rslidar_sdk',
-            executable='rslidar_sdk_node',
-            name='rslidar_sdk_node',
-            output='screen'
+        # Include rslidar_sdk launch file
+        IncludeLaunchDescription(
+            PythonLaunchDescriptionSource([
+                PathJoinSubstitution([
+                    FindPackageShare('rslidar_sdk'),
+                    'launch',
+                    'start.py'
+                ])
+            ])
         ),
         # Static Transform: base_link -> rslidar
         Node(
@@ -37,7 +45,7 @@ def generate_launch_description():
             ],
             parameters=[
                 {'target_frame': 'rslidar'},
-                {'transform_tolerance': 0.01},
+                {'transform_tolerance': 0.1},  # Increased tolerance for TF
                 {'min_height': -0.5},
                 {'max_height': 0.5},
                 {'angle_min': -3.14159},
@@ -58,15 +66,15 @@ def generate_launch_description():
             output='screen',
             parameters=[
                 {'use_sim_time': False},
-                {'slam_toolbox/scan_topic': '/scan'},
-                {'slam_toolbox/odom_topic': '/odom'},
-                {'slam_toolbox/map_frame': 'map'},
-                {'slam_toolbox/odom_frame': 'odom'},
-                {'slam_toolbox/base_frame': 'base_link'},
-                {'slam_toolbox/resolution': 0.05},
-                {'slam_toolbox/max_laser_range': 100.0},
-                {'slam_toolbox/minimum_travel_distance': 0.5},
-                {'slam_toolbox/minimum_travel_heading': 0.436},
+                {'scan_topic': '/scan'},
+                {'odom_topic': '/odom'},
+                {'map_frame': 'map'},
+                {'odom_frame': 'odom'},
+                {'base_frame': 'base_link'},
+                {'resolution': 0.05},
+                {'max_laser_range': 100.0},
+                {'minimum_travel_distance': 0.5},
+                {'minimum_travel_heading': 0.436},
                 {'qos_overrides./scan.reliability': 'best_effort'},
                 {'qos_overrides./scan.durability': 'volatile'},
                 {'qos_overrides./scan.depth': 10}
