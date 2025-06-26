@@ -26,13 +26,6 @@ def generate_launch_description():
                 ])
             ])
         ),
-        # Static Transform: base_link -> rslidar
-        Node(
-            package='tf2_ros',
-            executable='static_transform_publisher',
-            name='base_to_lidar_tf',
-            arguments=['0', '0', '0', '0', '0', '0', 'base_link', 'rslidar']
-        ),
         # PointCloud to LaserScan
         Node(
             package='pointcloud_to_laserscan',
@@ -44,7 +37,7 @@ def generate_launch_description():
                 ('scan', '/scan')
             ],
             parameters=[
-                {'target_frame': 'rslidar'},
+                {'target_frame': 'lidar_link'},
                 {'transform_tolerance': 0.1},  # Increased for TF robustness
                 {'min_height': -0.5},
                 {'max_height': 0.5},

@@ -130,7 +130,7 @@ Visualization Manager:
       Min Intensity: 0
       Name: LaserScan
       Position Transformer: XYZ
-      QoS Override:
+      QoS Profile:
         Reliability: Best Effort
       Selectable: true
       Size (Pixels): 3
@@ -138,6 +138,7 @@ Visualization Manager:
       Style: Flat Squares
       Topic:
         Value: /scan
+        QoS Profile: Best Effort
       Use Fixed Frame: true
       Use rainbow: true
       Value: true
