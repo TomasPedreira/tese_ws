@@ -141,10 +141,11 @@
 [x] Launch the base package of the robot;
 [x] Launch rviz withing th erobot with the robot description;
 [x] Launch the lidar;
-[ ] Convert popint cloud to laser scan;
+
+## 27/06 
+[x] Convert popint cloud to laser scan;
 [ ] Launch slam;
 [ ] Launch Navigation;
-
 
 ## next time
 [ ] Adapt the algorithm to be ran inside the agx;
