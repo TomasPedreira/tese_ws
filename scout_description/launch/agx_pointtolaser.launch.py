@@ -60,5 +60,12 @@ def generate_launch_description():
                     'online_async_launch.py'
                 ])
             ]),
+            launch_arguments={
+                'params_file': PathJoinSubstitution([
+                    FindPackageShare('scout_description'),
+                    'config',
+                    'slam_toolbox_best_effort.yaml'
+                ])
+            }.items(),
         )
     ])
