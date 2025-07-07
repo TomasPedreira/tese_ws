@@ -7,6 +7,7 @@ slam_toolbox:
     scan_topic: /scan
     odom_topic: /odom
     publish_tf: true
+    use_sim_time: false
     transform_publish_period: 0.02
     map_update_interval: 1.0
     minimum_travel_distance: 0.1
