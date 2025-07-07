@@ -27,7 +27,8 @@ def generate_launch_description():
                 'use_sim_time': 'false',
                 'use_system_time': 'true',
                 'timestamp_mode': 'system',
-                'time_offset': '0.0'  # Adjust as needed
+                'use_lidar_time': 'false',
+                'time_offset': '0.0'
             }.items()
         ),
         Node(
@@ -37,7 +38,6 @@ def generate_launch_description():
             output='screen',
             parameters=[
                 {'use_sim_time': False},  # Explicitly set
-                {'use_point_time': False},
                 {'target_frame': 'lidar_link'},
                 {'transform_tolerance': 2.0},
                 {'min_height': -0.5},
