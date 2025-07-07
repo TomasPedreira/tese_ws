@@ -7,7 +7,6 @@ from launch_ros.substitutions import FindPackageShare
 from rclpy.qos import QoSProfile, ReliabilityPolicy, DurabilityPolicy, HistoryPolicy
 
 def generate_launch_description():
-    # QoS profile for /scan
     qos_profile = QoSProfile(
         depth=10,
         reliability=ReliabilityPolicy.BEST_EFFORT,
@@ -16,7 +15,6 @@ def generate_launch_description():
     )
 
     return LaunchDescription([
-        # Include rslidar_sdk launch file
         IncludeLaunchDescription(
             PythonLaunchDescriptionSource([
                 PathJoinSubstitution([
@@ -24,21 +22,20 @@ def generate_launch_description():
                     'launch',
                     'start.py'
                 ])
-            ])
+            ]),
+            launch_arguments={
+                'use_sim_time': 'false'  # Ensure rslidar_sdk uses system time
+            }.items()
         ),
-        # PointCloud to LaserScan
         Node(
             package='pointcloud_to_laserscan',
             executable='pointcloud_to_laserscan_node',
             name='pointcloud_to_laserscan',
             output='screen',
-            remappings=[
-                ('cloud_in', '/rslidar_points'),
-                ('scan', '/scan')
-            ],
             parameters=[
+                {'use_sim_time': False},  # Explicitly set
                 {'target_frame': 'lidar_link'},
-                {'transform_tolerance': 0.1},  # Increased for TF robustness
+                {'transform_tolerance': 2.0},
                 {'min_height': -0.5},
                 {'max_height': 0.5},
                 {'angle_min': -3.14159},
@@ -49,9 +46,12 @@ def generate_launch_description():
                 {'range_max': 100.0},
                 {'use_inf': True},
                 {'inf_epsilon': 1.0}
+            ],
+            remappings=[
+                ('cloud_in', '/rslidar_points'),
+                ('scan', '/scan')
             ]
         ),
-        # Include slam_toolbox online_async_launch
         IncludeLaunchDescription(
             PythonLaunchDescriptionSource([
                 PathJoinSubstitution([
@@ -61,11 +61,12 @@ def generate_launch_description():
                 ])
             ]),
             launch_arguments={
-                'params_file': PathJoinSubstitution([
-                    FindPackageShare('scout_description'),
+                'slam_params_file': PathJoinSubstitution([
+                    FindPackageShare('your_package_name'),
                     'config',
-                    'slam_toolbox_best_effort.yaml'
-                ])
-            }.items(),
+                    'slam_toolbox.yaml'
+                ]),
+                'use_sim_time': 'false'  # Force system time
+            }.items()
         )
     ])
