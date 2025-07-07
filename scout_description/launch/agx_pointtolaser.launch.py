@@ -62,7 +62,7 @@ def generate_launch_description():
             ]),
             launch_arguments={
                 'slam_params_file': PathJoinSubstitution([
-                    FindPackageShare('your_package_name'),
+                    FindPackageShare('scout_description'),
                     'config',
                     'slam_toolbox.yaml'
                 ]),
