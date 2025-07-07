@@ -25,9 +25,9 @@ def generate_launch_description():
             ]),
             launch_arguments={
                 'use_sim_time': 'false',
-                'use_system_time': 'true',
+                'use_system_time': 'false',
                 'timestamp_mode': 'system',
-                'use_lidar_time': 'false',
+                'use_lidar_time': 'true',
                 'time_offset': '0.0'
             }.items()
         ),
