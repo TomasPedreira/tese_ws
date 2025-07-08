@@ -1,4 +1,4 @@
-## NOVAMOB
+## AGX SCOUT
 
 
 This repository provides simulation environments for the **NovaMob** and **Agilex Scout** robots in **ROS2**, compatible with both **Gazebo Classic** (only basic features) and **Gazebo Fortress** (Ignition Gazebo). This packages include different robot models, sensors, controllers, and configuration files necessary for seamless simulation and testing.
@@ -61,6 +61,7 @@ Novamob is a small 4 wheel drive custom robot designed for indoor environments. 
 
 ### Visualizing the robots
 
+### Agilex Scout (Main focus)
 To visualize the Agilex Scout robot in Gazebo Fortress, use the following command:
  
 ```bash
@@ -73,13 +74,8 @@ To visualize the Agilex Scout robot in Gazebo Classic, use the following command
 ros2 launch scout_description classic_display.launch.py
 ```
 
-### Running the Navigation Stack
+To use the navigation, simply wait for the nav2 servers to load and choose a goal pose. Tipicaly the branch to be used in the simulations will be the hybridastar.
 
-To run the navigation stack for the Agilex Scout robot (when using Fortress, Classic has navigation integrated in the launch file), use the following command:
-
-```bash
-ros2 launch scout_nav2_gz complete_navigation.launch.py use_trailer:=True
-```
 
 ## Useful Resources
 
