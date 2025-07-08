@@ -68,7 +68,7 @@ To visualize the Agilex Scout robot in Gazebo Fortress, use the following comman
 ros2 launch scout_nav2_gz display.launch.py use_trailer:=True
 ```
 
-To visualize the Agilex Scout robot in Gazebo Classic, use the following command:
+To visualize the Agilex Scout robot in Gazebo Classic (Recomended), use the following command:
  
 ```bash
 ros2 launch scout_description classic_display.launch.py
