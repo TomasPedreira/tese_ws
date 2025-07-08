@@ -1,7 +1,13 @@
 ## AGX SCOUT
 
 
-This repository provides simulation environments for the **NovaMob** and **Agilex Scout** robots in **ROS2**, compatible with both **Gazebo Classic** (only basic features) and **Gazebo Fortress** (Ignition Gazebo). This packages include different robot models, sensors, controllers, and configuration files necessary for seamless simulation and testing.
+This repository provides simulation environments for the **NovaMob** and **Agilex Scout** robots in **ROS2**, compatible with both **Gazebo Classic** and **Gazebo Fortress** (Ignition Gazebo). This packages include different robot models, sensors, controllers, and configuration files necessary for seamless simulation and testing.
+
+This repo is a fork from the original developer of the NovaMob and focouses on the navigation of the Agilex Scout.
+The relevant directories for this matter are:
+- scout_descrioption: URDF/Trailer positio estimator/EKF/Navigation parameters
+- pp_controller: Controller defenitions
+- astar_planner: Voronoi Hybrid A* custom planner inspired by https://github.com/tanujthakkar/Voronoi-Based-Hybrid-Astar.
 
 
 ## Installation
