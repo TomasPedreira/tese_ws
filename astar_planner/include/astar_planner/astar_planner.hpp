@@ -16,11 +16,13 @@
 #include "nav2_util/robot_utils.hpp"
 #include "nav2_util/lifecycle_node.hpp"
 #include "nav2_costmap_2d/costmap_2d_ros.hpp"
+#include "astar_planner/nodeHybrid.hpp"
+
+
 
 namespace astar_planner
 {
 
-  typedef struct node_ Node;
 class Astar : public nav2_core::GlobalPlanner
 {
 public:
@@ -55,9 +57,35 @@ private:
   // The global frame of the costmap
   std::string global_frame_, name_;
 
-  double interpolation_resolution_;
-  bool allow_diagonal_;
-  double heuristic_weight_;
+  std::vector<nodeHybrid> voronoi_nodes_;
+
+  double tolerance_;
+
+  double timeout_;
+
+  std::vector<nodeHybrid> last_path_;
+
+  // Dubins variables
+  double turning_radius_;
+  double dubins_tolerance_;
+  double final_angle_tolerance_;  // Tolerance for the final angle in radians
+
+  // Hybrid astar variables
+  double max_angle_;
+  double step_size_;
+  std::vector<double> directions_;
+  int num_directions_;
+  bool allow_reverse_;
+
+  int num_hybrid_segments_;
+
+  rclcpp_lifecycle::LifecyclePublisher<nav_msgs::msg::Path>::SharedPtr node_expansion_publisher_;
+  rclcpp_lifecycle::LifecyclePublisher<nav_msgs::msg::Path>::SharedPtr trailer_pos_publisher_;
+  rclcpp_lifecycle::LifecyclePublisher<nav_msgs::msg::Path>::SharedPtr voronoi_subgoals_publisher_;
+  rclcpp_lifecycle::LifecyclePublisher<nav_msgs::msg::Path>::SharedPtr dubins_path_publisher_;
+  rclcpp_lifecycle::LifecyclePublisher<nav_msgs::msg::Path>::SharedPtr hybrid_path_publisher_;
+
+
 };
 
 }  // namespace astar_planner

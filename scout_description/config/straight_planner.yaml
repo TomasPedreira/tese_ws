@@ -1,52 +1,3 @@
-amcl:
-  ros__parameters:
-    use_sim_time: True
-    alpha1: 0.2
-    alpha2: 0.2
-    alpha3: 0.2
-    alpha4: 0.2
-    alpha5: 0.2
-    base_frame_id: "base_footprint"
-    beam_skip_distance: 0.5
-    beam_skip_error_threshold: 0.9
-    beam_skip_threshold: 0.3
-    do_beamskip: false
-    global_frame_id: "map"
-    lambda_short: 0.1
-    laser_likelihood_max_dist: 2.0
-    laser_max_range: 100.0
-    laser_min_range: -1.0
-    laser_model_type: "likelihood_field"
-    max_beams: 60
-    max_particles: 2000
-    min_particles: 500
-    odom_frame_id: "odom"
-    pf_err: 0.05
-    pf_z: 0.99
-    recovery_alpha_fast: 0.0
-    recovery_alpha_slow: 0.0
-    resample_interval: 1
-    robot_model_type: "differential"
-    save_pose_rate: 0.5
-    sigma_hit: 0.2
-    tf_broadcast: true
-    transform_tolerance: 1.0
-    update_min_a: 0.2
-    update_min_d: 0.25
-    z_hit: 0.5
-    z_max: 0.05
-    z_rand: 0.5
-    z_short: 0.05
-    scan_topic: scan
-
-amcl_map_client:
-  ros__parameters:
-    use_sim_time: True
-
-amcl_rclcpp_node:
-  ros__parameters:
-    use_sim_time: True
-
 bt_navigator:
   ros__parameters:
     use_sim_time: True
@@ -59,7 +10,7 @@ bt_navigator:
     groot_zmq_publisher_port: 1666
     groot_zmq_server_port: 1667
     # 'default_nav_through_poses_bt_xml' and 'default_nav_to_pose_bt_xml' are use defaults:
-    # nav2_bt_navigator/navigate_to_pose_w_replanning_and_recovery.xml
+    default_nav_to_pose_bt_xml: /home/tomas/tt_ws/src/tese_ws/scout_description/config/nova_bt.xml
     # nav2_bt_navigator/navigate_through_poses_w_replanning_and_recovery.xml
     # They can be set here or via a RewrittenYaml remap from a parent launch file to Nav2.
     plugin_lib_names:
@@ -98,7 +49,7 @@ bt_navigator:
 bt_navigator_rclcpp_node:
   ros__parameters:
     use_sim_time: True
-
+      
 controller_server:
   ros__parameters:
     use_sim_time: True
@@ -108,7 +59,7 @@ controller_server:
     min_theta_velocity_threshold: 0.001
     failure_tolerance: 0.3
     progress_checker_plugin: "progress_checker"
-    goal_checker_plugins: ["general_goal_checker"] # "precise_goal_checker"
+    goal_checker_plugins: ["general_goal_checker"]
     controller_plugins: ["FollowPath"]
 
     # Progress checker parameters
@@ -120,93 +71,39 @@ controller_server:
     general_goal_checker:
       stateful: True
       plugin: "nav2_controller::SimpleGoalChecker"
-      xy_goal_tolerance: 0.7
+      xy_goal_tolerance: 0.3
       yaw_goal_tolerance: 0.3
-    # MPPI parameters
+
+
+    # FollowPath:
+    #   plugin: "nav2_regulated_pure_pursuit_controller::RegulatedPurePursuitController"
+    #   desired_linear_vel: 0.4
+    #   lookahead_dist: 1.25
+    #   min_lookahead_dist: 0.5
+    #   max_lookahead_dist: 2.0
+    #   lookahead_time: 1.5
+    #   transform_tolerance: 0.2
+    #   use_velocity_scaled_lookahead_dist: true
+    #   use_collision_detection: true
+    #   use_regulated_linear_velocity_scaling: false
+    #   use_fixed_curvature_lookahead: true
+    #   curvature_lookahead_dist: 0.5
+    #   use_cost_regulated_linear_velocity_scaling: false
+    #   use_rotate_to_heading: false
+    #   allow_reversing: true
+    #   max_angular_accel: 1.0
+    #   max_robot_pose_search_dist: 10.0
+
     FollowPath:
-      plugin: "nav2_mppi_controller::MPPIController"
-      time_steps: 56
-      model_dt: 0.05
-      batch_size: 2000
-      vx_std: 0.2
-      vy_std: 0.2
-      wz_std: 0.4
-      vx_max: 0.5
-      vx_min: -0.35
-      vy_max: 0.25
-      wz_max: 1.9
-      ax_max: 3.0
-      ax_min: -3.0
-      ay_max: 3.0
-      az_max: 3.5
-      iteration_count: 1
-      prune_distance: 1.7
-      transform_tolerance: 0.4
-      temperature: 0.3
-      gamma: 0.015
-      motion_model: "Ackermann"
-      visualize: false
-      reset_period: 1.0 # (only in Humble)
-      regenerate_noises: false
-      TrajectoryVisualizer:
-        trajectory_step: 5
-        time_step: 3
-      AckermannConstraints:
-        min_turning_r: 0.5
-      critics: ["ConstraintCritic", "CostCritic", "GoalCritic", "GoalAngleCritic", "PathAlignCritic", "PathFollowCritic", "PathAngleCritic", "PreferForwardCritic"]
-      ConstraintCritic:
-        enabled: true
-        cost_power: 1
-        cost_weight: 4.0
-      GoalCritic:
-        enabled: true
-        cost_power: 1
-        cost_weight: 5.0
-        threshold_to_consider: 1.4
-      GoalAngleCritic:
-        enabled: true
-        cost_power: 1
-        cost_weight: 3.0
-        threshold_to_consider: 0.5
-      PreferForwardCritic:
-        enabled: true
-        cost_power: 1
-        cost_weight: 5.0
-        threshold_to_consider: 0.5
-      CostCritic:
-        enabled: true
-        cost_power: 1
-        cost_weight: 3.81
-        critical_cost: 300.0
-        consider_footprint: true
-        collision_cost: 1000000.0
-        near_goal_distance: 1.0
-        trajectory_point_step: 2
-      PathAlignCritic:
-        enabled: true
-        cost_power: 1
-        cost_weight: 14.0
-        max_path_occupancy_ratio: 0.05
-        trajectory_point_step: 4
-        threshold_to_consider: 0.5
-        offset_from_furthest: 20
-        use_path_orientations: false
-      PathFollowCritic:
-        enabled: true
-        cost_power: 1
-        cost_weight: 5.0
-        offset_from_furthest: 5
-        threshold_to_consider: 1.4
-      PathAngleCritic:
-        enabled: true
-        cost_power: 1
-        cost_weight: 2.0
-        offset_from_furthest: 4
-        threshold_to_consider: 0.5
-        max_angle_to_furthest: 1.0
-        mode: 0   
-    
-      
+      plugin: "pp_controller::PPController"
+      max_linear_speed: 0.3
+      max_angular_speed: 1.5
+      # max_linear_speed: 0.0
+      # max_angular_speed: 0.0
+      lookahead_distance: 0.8
+      collision_check_distance: 0.5
+
+
 controller_server_rclcpp_node:
   ros__parameters:
     use_sim_time: True
@@ -214,6 +111,7 @@ controller_server_rclcpp_node:
 local_costmap:
   local_costmap:
     ros__parameters:
+      use_sim_time: True
       update_frequency: 5.0
       publish_frequency: 2.0
       global_frame: odom
@@ -262,6 +160,7 @@ local_costmap:
 global_costmap:
   global_costmap:
     ros__parameters:
+      use_sim_time: True
       update_frequency: 1.0
       publish_frequency: 1.0
       global_frame: map
@@ -300,10 +199,6 @@ global_costmap:
     ros__parameters:
       use_sim_time: True
 
-map_server:
-  ros__parameters:
-    use_sim_time: True
-    yaml_filename: ""
 
 map_saver:
   ros__parameters:
@@ -319,14 +214,23 @@ planner_server:
     use_sim_time: True
     GridBased:
       plugin: "astar_planner/Astar"
-      interpolation_resolution: 0.1
-
+      turning_radius: 1.2
+      dubins_tolerance: 0.1
+      tolerance: 45.0
+      num_directions: 10
+      allow_reverse: true
+      max_angle: 0.1
+      step_size: 0.1
+      final_angle_tolerance: 0.2 # in radians
+      timeout: 3.0
+      num_hybrid_segments: 15
 planner_server_rclcpp_node:
   ros__parameters:
     use_sim_time: True
 
 recoveries_server:
   ros__parameters:
+    use_sim_time: True
     costmap_topic: local_costmap/costmap_raw
     footprint_topic: local_costmap/published_footprint
     cycle_frequency: 10.0
@@ -345,6 +249,7 @@ recoveries_server:
     max_rotational_vel: 1.0
     min_rotational_vel: 0.4
     rotational_acc_lim: 3.2
+    timeout: 10.0
 
 robot_state_publisher:
   ros__parameters:
@@ -352,9 +257,10 @@ robot_state_publisher:
 
 waypoint_follower:
   ros__parameters:
+    use_sim_time: True
     loop_rate: 20
     stop_on_failure: false
-    waypoint_task_executor_plugin: "wait_at_waypoint"   
+    waypoint_task_executor_plugin: "wait_at_waypoint"
     wait_at_waypoint:
       plugin: "nav2_waypoint_follower::WaitAtWaypoint"
       enabled: True

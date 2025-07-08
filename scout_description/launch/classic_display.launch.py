@@ -29,8 +29,31 @@ def generate_launch_description():
     default_rviz_config_path = os.path.join(pkg_share, 'rviz/navigation_config.rviz')
     gz_models_path = os.path.join(pkg_share, 'models')
     # default_world_path=os.path.join(pkg_share, 'world/indoor_2.world')
-    default_world_path=os.path.join(pkg_share, 'world/wallworld.world')
+    default_world_path=os.path.join(pkg_share, 'world/wallworldV2.world')
+
+    # Add headless argument declaration
+    headless_arg = DeclareLaunchArgument(
+        'headless',
+        default_value='false',
+        description='Run Gazebo in headless mode'
+    )
     
+    # Create the Gazebo commands
+    gazebo_cmd = [
+        'gazebo',
+        '--verbose',
+        '-s', 'libgazebo_ros_init.so',
+        '-s', 'libgazebo_ros_factory.so',
+        LaunchConfiguration('world')
+    ]
+    
+    gzserver_cmd = [
+        'gzserver',
+        '--verbose',
+        '-s', 'libgazebo_ros_init.so',
+        '-s', 'libgazebo_ros_factory.so',
+        LaunchConfiguration('world')
+    ]
     
     robot_state_publisher_node = launch_ros.actions.Node(
         package='robot_state_publisher',
@@ -43,7 +66,6 @@ def generate_launch_description():
         name='joint_state_publisher',
         arguments=[LaunchConfiguration('model')],
         parameters=[{'use_sim_time': LaunchConfiguration('use_sim_time')}]
-
     )
     rviz_node = launch_ros.actions.Node(
         package='rviz2',
@@ -94,7 +116,8 @@ def generate_launch_description():
             "launch",
             "nav2_bringup",
             "localization_launch.py",
-            "map:=/home/tomas/tt_ws/src/tese_ws/scout_description/maps/wall_map.yaml",
+            "map:=/home/tomas/tt_ws/src/tese_ws/scout_description/maps/wallworldV2.yaml",
+            "params_file:=/home/tomas/tt_ws/src/tese_ws/scout_description/config/amcl_params.yaml",
             "use_sim_time:=True",
         ],
         output="screen",
@@ -128,7 +151,17 @@ def generate_launch_description():
                                             description='Absolute path to rviz config file'),
         launch.actions.DeclareLaunchArgument(name='use_sim_time', default_value='True',
                                             description='Flag to enable use_sim_time'),
-        launch.actions.ExecuteProcess(cmd=['gazebo', '--verbose', '-s', 'libgazebo_ros_init.so', '-s', 'libgazebo_ros_factory.so', LaunchConfiguration('world')], output='screen'),
+        headless_arg,
+        launch.actions.ExecuteProcess(
+            cmd=gazebo_cmd,
+            output='screen',
+            condition=launch.conditions.UnlessCondition(LaunchConfiguration('headless'))
+        ),
+        launch.actions.ExecuteProcess(
+            cmd=gzserver_cmd,
+            output='screen',
+            condition=launch.conditions.IfCondition(LaunchConfiguration('headless'))
+        ),
 
         joint_state_publisher_node,
         #joint_state_publisher_gui_node,

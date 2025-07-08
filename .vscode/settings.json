@@ -86,6 +86,25 @@
         "cinttypes": "cpp",
         "typeindex": "cpp",
         "typeinfo": "cpp",
-        "variant": "cpp"
-    }
+        "variant": "cpp",
+        "csetjmp": "cpp",
+        "valarray": "cpp",
+        "*.ipp": "cpp",
+        "barrier": "cpp",
+        "charconv": "cpp",
+        "coroutine": "cpp",
+        "cuchar": "cpp",
+        "source_location": "cpp",
+        "hash_map": "cpp",
+        "hash_set": "cpp",
+        "rope": "cpp",
+        "slist": "cpp",
+        "latch": "cpp",
+        "ranges": "cpp",
+        "scoped_allocator": "cpp",
+        "span": "cpp",
+        "syncstream": "cpp",
+        "netfwd": "cpp"
+    },
+    "cmake.sourceDirectory": "/wsl.localhost/Ubuntu-22.04/home/tomas/tt_ws/src/tese_ws/novamob_description"
 }
