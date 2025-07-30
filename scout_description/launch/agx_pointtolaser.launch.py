@@ -20,15 +20,15 @@ def generate_launch_description():
                 PathJoinSubstitution([
                     FindPackageShare('rslidar_sdk'),
                     'launch',
-                    'start.py'
+                    'humble_start.py'
                 ])
             ]),
             launch_arguments={
                 'use_sim_time': 'false',
-                'use_system_time': 'false',
+                'use_system_time': 'true',
                 'timestamp_mode': 'system',
-                'use_lidar_time': 'true',
-                'time_offset': '0.0'
+                'use_lidar_time': 'false',
+                'time_offset': '0.0'    
             }.items()
         ),
         Node(
