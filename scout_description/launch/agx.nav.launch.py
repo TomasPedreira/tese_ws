@@ -14,19 +14,26 @@ from launch.actions import (
 from launch.events.process import ProcessIO
 from launch.event_handlers import OnProcessIO
 import tf_transformations
+from launch.actions import IncludeLaunchDescription
+from launch.launch_description_sources import PythonLaunchDescriptionSource
+from launch.substitutions import PathJoinSubstitution
+from launch_ros.substitutions import FindPackageShare
+from rclpy.qos import QoSProfile, ReliabilityPolicy, DurabilityPolicy, HistoryPolicy
 
-def on_matching_output(matcher: str, result: launch.SomeActionsType):
-    def on_output(event: ProcessIO):
-        for line in event.text.decode().splitlines():
-            if matcher in line:
-                return result
 
-    return on_output
 
 def generate_launch_description():
     pkg_share = launch_ros.substitutions.FindPackageShare(package='scout_description').find('scout_description')
     default_model_path = os.path.join(pkg_share, 'urdf/scout_v2/scout_v2_trailer.xacro')
     default_rviz_config_path = os.path.join(pkg_share, 'rviz/navigation_config.rviz')
+
+    # QoS profile for lidar
+    qos_profile = QoSProfile(
+        depth=10,
+        reliability=ReliabilityPolicy.BEST_EFFORT,
+        durability=DurabilityPolicy.VOLATILE,
+        history=HistoryPolicy.KEEP_LAST
+    )
 
     # Scout base node for real robot
     scout_base_node = launch_ros.actions.Node(
@@ -88,6 +95,45 @@ def generate_launch_description():
         executable="test_pub_hitch.py",
         name="test_pub_hitch",
         output="screen",
+    )
+
+    # Lidar launch
+    lidar_launch = IncludeLaunchDescription(
+        PythonLaunchDescriptionSource([
+            PathJoinSubstitution([
+                FindPackageShare('rslidar_sdk'),
+                'launch',
+                'humble_start.py'
+            ])
+        ]),
+
+    )
+
+    # Pointcloud to laserscan conversion
+    pointcloud_to_laserscan_node = launch_ros.actions.Node(
+        package='pointcloud_to_laserscan',
+        executable='pointcloud_to_laserscan_node',
+        name='pointcloud_to_laserscan',
+        output='screen',
+        parameters=[
+            {'use_sim_time': False},  # Explicitly set for real robot
+            {'target_frame': 'lidar_link'},
+            {'transform_tolerance': 2.0},
+            {'min_height': -0.5},
+            {'max_height': 0.5},
+            {'angle_min': -3.14159},
+            {'angle_max': 3.14159},
+            {'angle_increment': 0.00873},
+            {'scan_time': 0.1},
+            {'range_min': 0.3},
+            {'range_max': 100.0},
+            {'use_inf': True},
+            {'inf_epsilon': 1.0}
+        ],
+        remappings=[
+            ('cloud_in', '/rslidar_points'),
+            ('scan', '/scan')
+        ]
     )
     
     # Navigation localization
@@ -153,6 +199,8 @@ def generate_launch_description():
         robot_localization_node,
         rviz_node,
         trailer_pub,
+        lidar_launch,
+        pointcloud_to_laserscan_node,
         nav_loc,
         nav_nav
     ])
