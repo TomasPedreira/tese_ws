@@ -6,6 +6,7 @@
 #include <unordered_set>
 #include <algorithm>
 #include <fstream>
+#include "ament_index_cpp/get_package_share_directory.hpp"
 #include "nav2_util/node_utils.hpp"
 #include "astar_planner/astar_planner.hpp"
 #include "astar_planner/node2d.hpp"
@@ -74,6 +75,10 @@ namespace astar_planner
       node_, name_ + ".num_hybrid_segments", rclcpp::ParameterValue(20));
     node_->get_parameter(name_ + ".num_hybrid_segments", num_hybrid_segments_);
 
+    nav2_util::declare_parameter_if_not_declared(
+      node_, name_ + ".nodes_file", rclcpp::ParameterValue("basement_nodes.txt"));
+    node_->get_parameter(name_ + ".nodes_file", nodes_file_);
+
     double step = max_angle_ / num_directions_;
     
     for (int i = -num_directions_ + 1; i < num_directions_; i++) {
@@ -116,10 +121,10 @@ namespace astar_planner
     voronoi_subgoals_publisher_->on_activate();
     hybrid_path_publisher_->on_activate();
     dubins_path_publisher_->on_activate();
-    voronoi_nodes_ = read_nodes(
-      "/home/tomas/tt_ws/src/tese_ws/astar_planner/map/voronoi_nodes_v10.txt", 
-      costmap_
-    );
+    // Get the package share directory and construct the full path to the Voronoi nodes file
+    std::string package_share_dir = ament_index_cpp::get_package_share_directory("astar_planner");
+    std::string voronoi_nodes_path = package_share_dir + "/map/" + nodes_file_;
+    voronoi_nodes_ = read_nodes(voronoi_nodes_path, costmap_);
   }
 
   void Astar::deactivate()

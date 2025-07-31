@@ -79,6 +79,9 @@ private:
 
   int num_hybrid_segments_;
 
+  // File paths
+  std::string nodes_file_;
+
   rclcpp_lifecycle::LifecyclePublisher<nav_msgs::msg::Path>::SharedPtr node_expansion_publisher_;
   rclcpp_lifecycle::LifecyclePublisher<nav_msgs::msg::Path>::SharedPtr trailer_pos_publisher_;
   rclcpp_lifecycle::LifecyclePublisher<nav_msgs::msg::Path>::SharedPtr voronoi_subgoals_publisher_;

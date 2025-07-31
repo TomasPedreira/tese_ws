@@ -22,6 +22,7 @@ find_package(nav2_costmap_2d REQUIRED)
 find_package(nav2_core REQUIRED)
 find_package(pluginlib REQUIRED)
 find_package(ament_cmake_python REQUIRED)
+find_package(ament_index_cpp REQUIRED)
 
 
 include_directories(
@@ -47,6 +48,7 @@ set(dependencies
   nav2_costmap_2d
   nav2_core
   pluginlib
+  ament_index_cpp
 )
 
 add_library(${library_name} SHARED

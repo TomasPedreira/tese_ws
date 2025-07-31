@@ -20,7 +20,7 @@ find_package(xacro REQUIRED)
 find_package(ament_cmake_python REQUIRED)
 find_package(rclpy REQUIRED)
 
-install(DIRECTORY scripts launch urdf meshes world rviz config models
+install(DIRECTORY scripts launch urdf meshes world rviz config models maps models
   DESTINATION share/${PROJECT_NAME}
 )
 install(PROGRAMS
