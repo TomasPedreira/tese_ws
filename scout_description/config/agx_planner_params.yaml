@@ -10,7 +10,7 @@ bt_navigator:
     groot_zmq_publisher_port: 1666
     groot_zmq_server_port: 1667
     # 'default_nav_through_poses_bt_xml' and 'default_nav_to_pose_bt_xml' are use defaults:
-    default_nav_to_pose_bt_xml: /home/tomas/tt_ws/src/tese_ws/scout_description/config/nova_bt.xml
+    default_nav_to_pose_bt_xml: /home/rics_ws/src/tese_ws/scout_description/config/nova_bt.xml
     # nav2_bt_navigator/navigate_through_poses_w_replanning_and_recovery.xml
     # They can be set here or via a RewrittenYaml remap from a parent launch file to Nav2.
     plugin_lib_names:
