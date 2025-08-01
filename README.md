@@ -56,9 +56,7 @@ The Scout is a bigger 4 wheel drive custom robot more suited for outdoor environ
 
 It is equipped with the following sensors:
 - **VLP16 LIDAR**
-- **IMU mpu6050**
 - **Intel Realsense D435if**
-- **GPS sensor**
 
 ### Novamob
 Novamob is a small 4 wheel drive custom robot designed for indoor environments. This is not the focus of this thesis and is a result of a previous project developed in the original repo.
