@@ -5,7 +5,7 @@ This repository provides simulation environments for the **NovaMob** and **Agile
 
 This repo is a fork from the original developer of the NovaMob and focouses on the navigation of the Agilex Scout.
 The relevant directories for this matter are:
-- scout_descrioption: URDF/Trailer positio estimator/EKF/Navigation parameters
+- scout_description: URDF/Trailer; position estimator; EKF; Navigation parameters
 - pp_controller: Controller definitions
 - astar_planner: Voronoi Hybrid A* custom planner inspired by https://github.com/tanujthakkar/Voronoi-Based-Hybrid-Astar.
 
