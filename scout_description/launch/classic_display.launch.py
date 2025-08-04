@@ -116,8 +116,8 @@ def generate_launch_description():
             "launch",
             "nav2_bringup",
             "localization_launch.py",
-            # f"map:={os.path.join(pkg_share, 'maps/wallworldV2.yaml')}",
-            f"map:={os.path.join(pkg_share, 'maps/basement.yaml')}",
+            f"map:={os.path.join(pkg_share, 'maps/wallworldV2.yaml')}",
+            # f"map:={os.path.join(pkg_share, 'maps/basement.yaml')}",
             f"params_file:={os.path.join(pkg_share, 'config/amcl_params.yaml')}",
             "use_sim_time:=True",
         ],
@@ -138,12 +138,12 @@ def generate_launch_description():
 
     # Timer actions for delayed start
     nav_loc_timer = TimerAction(
-        period=20.0,
+        period=5.0,
         actions=[nav_loc]
     )
     
     nav_nav_timer = TimerAction(
-        period=40.0,
+        period=10.0,
         actions=[nav_nav]
     )
   

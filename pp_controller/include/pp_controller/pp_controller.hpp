@@ -54,8 +54,8 @@ private:
     double lookahead_distance_;
     double max_linear_speed_;
     double max_angular_speed_;
-    double collision_check_distance_;  // Distance to check for collisions
-
+    double collision_check_distance_;  
+    bool use_collision_check_;
     bool is_initialized_;
     int last_waypoint_index_;
 

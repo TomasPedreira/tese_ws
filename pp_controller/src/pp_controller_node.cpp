@@ -100,6 +100,7 @@ void PPController::configure(
     max_linear_speed_ = node_->declare_parameter(name + ".max_linear_speed", 0.5);
     max_angular_speed_ = node_->declare_parameter(name + ".max_angular_speed", 1.0);
     collision_check_distance_ = node_->declare_parameter(name + ".collision_check_distance", 0.5);
+    use_collision_check_ = node_->declare_parameter(name + ".use_collision_check", false);
 
     // trailer position publisher
     trailer_position_publisher_ = node_->create_publisher<nav_msgs::msg::Path>("/control_trailer_position", 10);
@@ -291,7 +292,7 @@ geometry_msgs::msg::TwistStamped PPController::computeVelocityCommands(
   }
 
   // Check for collisions before proceeding
-  if (checkForCollisions(pose, current_goal_pose)) {
+  if (use_collision_check_ && checkForCollisions(pose, current_goal_pose)) {
     RCLCPP_WARN(node_->get_logger(), "Collision detected! Stopping robot.");
     cmd_vel.twist.linear.x = 0.0;
     cmd_vel.twist.angular.z = 0.0;

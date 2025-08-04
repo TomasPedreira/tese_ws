@@ -102,7 +102,7 @@ controller_server:
       # max_angular_speed: 0.0
       lookahead_distance: 0.8
       collision_check_distance: 0.5
-
+      use_collision_check: false
 
 controller_server_rclcpp_node:
   ros__parameters:
