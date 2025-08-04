@@ -165,12 +165,12 @@ def generate_launch_description():
 
     # Timer actions for delayed start
     nav_loc_timer = TimerAction(
-        period=10.0,
+        period=5.0,
         actions=[nav_loc]
     )
     
     nav_nav_timer = TimerAction(
-        period=20.0,
+        period=25.0,
         actions=[nav_nav]
     )
 
