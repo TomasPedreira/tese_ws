@@ -23,12 +23,12 @@ double calculate_angvel_reverse(geometry_msgs::msg::PoseStamped goal_trailer_pos
 
   double desired_angular_speed = max_linear_speed * (-k * (t1 - hitch_angle) - (sin(t1)/rtr));
   // desired_angular_speed = 0.0;
-  // cout << "desired_angular_speed: " << desired_angular_speed << endl;
+  cout << "desired_angular_speed reverse: " << desired_angular_speed << endl;
 
   return desired_angular_speed;
 }
 double calculate_angvel_forward(geometry_msgs::msg::PoseStamped goal_pose, geometry_msgs::msg::PoseStamped current_pose, double lookahead_distance){
-  const double wheel_base = 0.498;
+  const double wheel_base = 0.6;
 
 
   double tractor_yaw = tf2::getYaw(current_pose.pose.orientation);
@@ -43,6 +43,7 @@ double calculate_angvel_forward(geometry_msgs::msg::PoseStamped goal_pose, geome
 
   // Pure pursuit steering angle calculation
   double desired_angular_speed = atan2(2*wheel_base*sin(heading_error), lookahead_distance);
+  cout << "desired_angular_speed forward: " << desired_angular_speed << endl; 
   return desired_angular_speed;
 }
 
