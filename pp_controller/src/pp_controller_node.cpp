@@ -321,7 +321,7 @@ geometry_msgs::msg::TwistStamped PPController::computeVelocityCommands(
   }
 
   cmd_vel.twist.linear.x = linear_speed;
-  cmd_vel.twist.angular.z = std::clamp(desired_angular_speed, -max_angular_speed_, max_angular_speed_);
+  cmd_vel.twist.angular.z = -std::clamp(desired_angular_speed, -max_angular_speed_, max_angular_speed_);
 
   is_initialized_ = false;
   return cmd_vel;
