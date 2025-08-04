@@ -135,6 +135,17 @@ def generate_launch_description():
         ],
         output="screen",
     )
+
+    # Timer actions for delayed start
+    nav_loc_timer = TimerAction(
+        period=20.0,
+        actions=[nav_loc]
+    )
+    
+    nav_nav_timer = TimerAction(
+        period=40.0,
+        actions=[nav_nav]
+    )
   
 
   
@@ -171,6 +182,6 @@ def generate_launch_description():
         robot_localization_node,
         rviz_node,
         trailer_pub,
-        nav_loc,
-        nav_nav
+        nav_loc_timer,
+        nav_nav_timer
     ])

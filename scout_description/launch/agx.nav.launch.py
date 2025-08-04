@@ -163,6 +163,17 @@ def generate_launch_description():
         output="screen",
     )
 
+    # Timer actions for delayed start
+    nav_loc_timer = TimerAction(
+        period=10.0,
+        actions=[nav_loc]
+    )
+    
+    nav_nav_timer = TimerAction(
+        period=20.0,
+        actions=[nav_nav]
+    )
+
     return launch.LaunchDescription([
         # Launch arguments
         launch.actions.DeclareLaunchArgument(name='model', default_value=default_model_path,
@@ -198,9 +209,9 @@ def generate_launch_description():
         robot_state_publisher_node,
         robot_localization_node,
         rviz_node,
-        trailer_pub,
         lidar_launch,
         pointcloud_to_laserscan_node,
-        nav_loc,
-        nav_nav
+        nav_loc_timer,
+        nav_nav_timer,
+        trailer_pub,
     ])
