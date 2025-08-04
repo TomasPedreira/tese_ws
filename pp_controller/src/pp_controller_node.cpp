@@ -127,6 +127,12 @@ void PPController::activate()
     goal_pose_publisher_->on_activate();
     control_goal_pose_publisher_->on_activate();
     goal_trailer_publisher_->on_activate();
+    // print the parameters
+    RCLCPP_INFO(node_->get_logger(), "Lookahead distance: %f", lookahead_distance_);
+    RCLCPP_INFO(node_->get_logger(), "Max linear speed: %f", max_linear_speed_);
+    RCLCPP_INFO(node_->get_logger(), "Max angular speed: %f", max_angular_speed_);
+    RCLCPP_INFO(node_->get_logger(), "Collision check distance: %f", collision_check_distance_);
+    RCLCPP_INFO(node_->get_logger(), "Use collision check: %d", use_collision_check_);
 }
 
 void PPController::deactivate()
