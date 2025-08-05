@@ -68,6 +68,11 @@ private:
     rclcpp_lifecycle::LifecyclePublisher<geometry_msgs::msg::PoseStamped>::SharedPtr goal_pose_publisher_;
     rclcpp_lifecycle::LifecyclePublisher<geometry_msgs::msg::PoseStamped>::SharedPtr control_goal_pose_publisher_;
     rclcpp_lifecycle::LifecyclePublisher<geometry_msgs::msg::PoseStamped>::SharedPtr goal_trailer_publisher_;
+
+    // Helper methods
+    double calculate_angvel_reverse(geometry_msgs::msg::PoseStamped goal_trailer_pose, geometry_msgs::msg::PoseStamped current_trailer_pose, geometry_msgs::msg::PoseStamped current_tractor_pose,const double max_linear_speed, double lookahead_distance);
+    double calculate_angvel_forward(geometry_msgs::msg::PoseStamped goal_pose, geometry_msgs::msg::PoseStamped current_pose, double lookahead_distance);
+    geometry_msgs::msg::PoseStamped calc_trailer_config(  geometry_msgs::msg::PoseStamped &tractor_pose, geometry_msgs::msg::PoseStamped &previous_trailer_pose, geometry_msgs::msg::PoseStamped &previous_tractor_pose, int dir);
 };
 
 } // namespace pp_controller

@@ -3,7 +3,7 @@
 using namespace std;
 namespace pp_controller
 {
-double calculate_angvel_reverse(geometry_msgs::msg::PoseStamped goal_trailer_pose, geometry_msgs::msg::PoseStamped current_trailer_pose, geometry_msgs::msg::PoseStamped current_tractor_pose,const double max_linear_speed, double lookahead_distance){
+double PPController::calculate_angvel_reverse(geometry_msgs::msg::PoseStamped goal_trailer_pose, geometry_msgs::msg::PoseStamped current_trailer_pose, geometry_msgs::msg::PoseStamped current_tractor_pose,const double max_linear_speed, double lookahead_distance){
   const double rtr = 0.5625;
   const double k = 2.0;
 
@@ -23,11 +23,11 @@ double calculate_angvel_reverse(geometry_msgs::msg::PoseStamped goal_trailer_pos
 
   double desired_angular_speed = max_linear_speed * (-k * (t1 - hitch_angle) - (sin(t1)/rtr));
   // desired_angular_speed = 0.0;
-  cout << "desired_angular_speed reverse: " << desired_angular_speed << endl;
+  RCLCPP_INFO(node_->get_logger(), "desired_angular_speed reverse: %f", desired_angular_speed);
 
   return desired_angular_speed;
 }
-double calculate_angvel_forward(geometry_msgs::msg::PoseStamped goal_pose, geometry_msgs::msg::PoseStamped current_pose, double lookahead_distance){
+double PPController::calculate_angvel_forward(geometry_msgs::msg::PoseStamped goal_pose, geometry_msgs::msg::PoseStamped current_pose, double lookahead_distance){
   const double wheel_base = 0.6;
 
 
@@ -43,11 +43,11 @@ double calculate_angvel_forward(geometry_msgs::msg::PoseStamped goal_pose, geome
 
   // Pure pursuit steering angle calculation
   double desired_angular_speed = atan2(2*wheel_base*sin(heading_error), lookahead_distance);
-  cout << "desired_angular_speed forward: " << desired_angular_speed << endl; 
+  RCLCPP_INFO(node_->get_logger(), "desired_angular_speed forward: %f", desired_angular_speed);
   return desired_angular_speed;
 }
 
-geometry_msgs::msg::PoseStamped calc_trailer_config(  geometry_msgs::msg::PoseStamped &tractor_pose, geometry_msgs::msg::PoseStamped &previous_trailer_pose, geometry_msgs::msg::PoseStamped &previous_tractor_pose, int dir){
+geometry_msgs::msg::PoseStamped PPController::calc_trailer_config(  geometry_msgs::msg::PoseStamped &tractor_pose, geometry_msgs::msg::PoseStamped &previous_trailer_pose, geometry_msgs::msg::PoseStamped &previous_tractor_pose, int dir){
   double distance = hypot(
     tractor_pose.pose.position.x - previous_tractor_pose.pose.position.x, 
     tractor_pose.pose.position.y - previous_tractor_pose.pose.position.y
