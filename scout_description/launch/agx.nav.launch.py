@@ -145,7 +145,7 @@ def generate_launch_description():
             "localization_launch.py",
             f"map:={os.path.join(pkg_share, 'maps/basement.yaml')}",
             f"params_file:={os.path.join(pkg_share, 'config/agx_amcl_params.yaml')}",
-            "use_sim_time:=False",
+            "use_sim_time:=false",
         ],
         output="screen",
     )
@@ -158,7 +158,7 @@ def generate_launch_description():
             "nav2_bringup",
             "navigation_launch.py",
             f"params_file:={os.path.join(pkg_share, 'config/agx_planner_params.yaml')}",
-            "use_sim_time:=False",
+            "use_sim_time:=false",
         ],
         output="screen",
     )
@@ -180,7 +180,7 @@ def generate_launch_description():
                                             description='Absolute path to robot urdf file'),
         launch.actions.DeclareLaunchArgument(name='rvizconfig', default_value=default_rviz_config_path,
                                             description='Absolute path to rviz config file'),
-        launch.actions.DeclareLaunchArgument(name='use_sim_time', default_value='False',
+        launch.actions.DeclareLaunchArgument(name='use_sim_time', default_value='false',
                                             description='Flag to enable use_sim_time'),
         
         # Scout base arguments

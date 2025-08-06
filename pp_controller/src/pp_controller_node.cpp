@@ -28,7 +28,8 @@ double PPController::calculate_angvel_reverse(geometry_msgs::msg::PoseStamped go
   return desired_angular_speed;
 }
 double PPController::calculate_angvel_forward(geometry_msgs::msg::PoseStamped goal_pose, geometry_msgs::msg::PoseStamped current_pose, double lookahead_distance){
-  const double wheel_base = 0.6;
+  const double wheel_base = 0.498;
+  const double turn_gain = 0.75;
 
 
   double tractor_yaw = tf2::getYaw(current_pose.pose.orientation);
@@ -42,7 +43,7 @@ double PPController::calculate_angvel_forward(geometry_msgs::msg::PoseStamped go
   while (heading_error < -M_PI) heading_error += 2 * M_PI;
 
   // Pure pursuit steering angle calculation
-  double desired_angular_speed = atan2(2*wheel_base*sin(heading_error), lookahead_distance);
+  double desired_angular_speed = turn_gain*atan2(2*wheel_base*sin(heading_error), lookahead_distance);
   RCLCPP_INFO(node_->get_logger(), "desired_angular_speed forward: %f", desired_angular_speed);
   return desired_angular_speed;
 }
@@ -108,6 +109,7 @@ void PPController::configure(
     goal_pose_publisher_ = node_->create_publisher<geometry_msgs::msg::PoseStamped>("/goal_pose", 10);
     control_goal_pose_publisher_ = node_->create_publisher<geometry_msgs::msg::PoseStamped>("/control_goal_pose", 10);
     goal_trailer_publisher_ = node_->create_publisher<geometry_msgs::msg::PoseStamped>("/goal_trailer_pose", 10);
+    collision_check_publisher_ = node_->create_publisher<nav_msgs::msg::Path>("/collision_check_areas", 10);
 
     RCLCPP_INFO(node_->get_logger(), "Pure Pursuit Controller configured");
 }
@@ -118,6 +120,7 @@ void PPController::cleanup()
     goal_pose_publisher_.reset();
     control_goal_pose_publisher_.reset();
     goal_trailer_publisher_.reset();
+    collision_check_publisher_.reset();
     RCLCPP_INFO(node_->get_logger(), "Cleaning up Pure Pursuit Controller");
 }
 
@@ -128,6 +131,7 @@ void PPController::activate()
     goal_pose_publisher_->on_activate();
     control_goal_pose_publisher_->on_activate();
     goal_trailer_publisher_->on_activate();
+    collision_check_publisher_->on_activate();
     // print the parameters
     RCLCPP_INFO(node_->get_logger(), "Lookahead distance: %f", lookahead_distance_);
     RCLCPP_INFO(node_->get_logger(), "Max linear speed: %f", max_linear_speed_);
@@ -143,6 +147,7 @@ void PPController::deactivate()
     goal_pose_publisher_->on_deactivate();
     control_goal_pose_publisher_->on_deactivate();
     goal_trailer_publisher_->on_deactivate();
+    collision_check_publisher_->on_deactivate();
 }
 
 bool PPController::checkForCollisions(
@@ -156,64 +161,89 @@ bool PPController::checkForCollisions(
     const double robot_width = 0.7;  // meters
     const double robot_length = 1.0; // meters
 
-    // Calculate the angle of the path
-    double path_angle = std::atan2(
+    // Calculate the direction from current pose to goal pose (fixed direction for entire check)
+    double goal_direction = std::atan2(
         goal_pose.pose.position.y - current_pose.pose.position.y,
         goal_pose.pose.position.x - current_pose.pose.position.x
     );
 
-    // Calculate perpendicular vector for width
-    double perp_x = -std::sin(path_angle);
-    double perp_y = std::cos(path_angle);
-
-    // Number of points to check along the path
-    const double check_distance = std::hypot(
-        goal_pose.pose.position.x - current_pose.pose.position.x,
-        goal_pose.pose.position.y - current_pose.pose.position.y
-    );
+    // Check 3 meters in front of the robot in the direction of the goal
+    const double check_distance = 1.0;  // 3 meters
+    const double step_size = 0.1;  // Check every 10cm
+    int num_points = static_cast<int>(check_distance / step_size);
     
-    // Check more points for better coverage
-    int num_points = std::max(10, static_cast<int>(check_distance / 0.1));  // Check every 10cm
+    // Create a path for the collision check positions
+    nav_msgs::msg::Path collision_check_path;
+    collision_check_path.header.stamp = node_->get_clock()->now();
+    collision_check_path.header.frame_id = "map";
     
+    // Calculate the direction vectors
+    double goal_dir_x = std::cos(goal_direction);
+    double goal_dir_y = std::sin(goal_direction);
+    double perp_x = -std::sin(goal_direction);
+    double perp_y = std::cos(goal_direction);
+    
+    // Robot footprint dimensions
+    double half_width = robot_width / 2.0;
+    double half_length = robot_length / 2.0;
+    
+    bool collision_detected = false;
+    
+    // Check for collisions along the path and create path points
     for (int i = 0; i <= num_points; ++i) {
-        double ratio = static_cast<double>(i) / num_points;
+        double distance_along_path = i * step_size;
         
-        // Calculate center point
-        double center_x = current_pose.pose.position.x + ratio * (goal_pose.pose.position.x - current_pose.pose.position.x);
-        double center_y = current_pose.pose.position.y + ratio * (goal_pose.pose.position.y - current_pose.pose.position.y);
+        // Move the robot center along the goal direction
+        double center_x = current_pose.pose.position.x + distance_along_path * goal_dir_x;
+        double center_y = current_pose.pose.position.y + distance_along_path * goal_dir_y;
         
-        // Check points in a rectangle around the center
+        // Calculate the front center position of the rectangle (middle front)
+        double front_center_x = center_x + half_length * goal_dir_x;
+        double front_center_y = center_y + half_length * goal_dir_y;
+        
+        // Create pose for the front center position
+        geometry_msgs::msg::PoseStamped front_center_pose;
+        front_center_pose.header.stamp = node_->get_clock()->now();
+        front_center_pose.header.frame_id = "map";
+        front_center_pose.pose.position.x = front_center_x;
+        front_center_pose.pose.position.y = front_center_y;
+        front_center_pose.pose.position.z = 0.0;
+        
+        // Set orientation to point in the goal direction
+        front_center_pose.pose.orientation = tf2::toMsg(tf2::Quaternion(tf2::Vector3(0, 0, 1), goal_direction));
+        
+        // Add to path
+        collision_check_path.poses.push_back(front_center_pose);
+        
+        // Check for collisions
         for (double w = -robot_width/2; w <= robot_width/2; w += 0.1) {
             for (double l = -robot_length/2; l <= robot_length/2; l += 0.1) {
-                // Calculate rotated offset
-                double offset_x = w * perp_x + l * std::cos(path_angle);
-                double offset_y = w * perp_y + l * std::sin(path_angle);
+                double check_x = center_x + w * goal_dir_x - l * perp_x;
+                double check_y = center_y + w * goal_dir_y + l * perp_y;
                 
-                // Calculate world coordinates
-                double check_x = center_x + offset_x;
-                double check_y = center_y + offset_y;
-                
-                // Convert to costmap coordinates
                 unsigned int map_x, map_y;
                 if (!costmap->worldToMap(check_x, check_y, map_x, map_y)) {
-                    continue;  // Skip if outside costmap
+                    continue;  
                 }
                 
-                // Get cost at this point
                 unsigned char cost = costmap->getCost(map_x, map_y);
                 
-                // If cost is above threshold, consider it a collision
                 if (cost > nav2_costmap_2d::INSCRIBED_INFLATED_OBSTACLE) {
                     RCLCPP_WARN(node_->get_logger(), 
-                        "Collision detected at world pos (%.2f, %.2f) map pos (%d, %d) with cost %d (threshold: %d)", 
-                        check_x, check_y, map_x, map_y, cost, nav2_costmap_2d::INSCRIBED_INFLATED_OBSTACLE);
-                    return true;
+                        "Collision detected at world pos (%.2f, %.2f) map pos (%d, %d) with cost %d (threshold: %d) at distance %.2f m", 
+                        check_x, check_y, map_x, map_y, cost, nav2_costmap_2d::INSCRIBED_INFLATED_OBSTACLE, distance_along_path);
+                    collision_detected = true;
                 }
             }
         }
     }
     
-    return false;
+    // Publish the collision check path
+    if (collision_check_publisher_->is_activated()) {
+        collision_check_publisher_->publish(collision_check_path);
+    }
+    
+    return collision_detected;
 }
 
 geometry_msgs::msg::TwistStamped PPController::computeVelocityCommands(
@@ -299,7 +329,7 @@ geometry_msgs::msg::TwistStamped PPController::computeVelocityCommands(
   }
 
   // Check for collisions before proceeding
-  if (use_collision_check_ && checkForCollisions(pose, current_goal_pose)) {
+  if (checkForCollisions(pose, current_goal_pose)) {
     RCLCPP_WARN(node_->get_logger(), "Collision detected! Stopping robot.");
     cmd_vel.twist.linear.x = 0.0;
     cmd_vel.twist.angular.z = 0.0;
@@ -329,9 +359,6 @@ geometry_msgs::msg::TwistStamped PPController::computeVelocityCommands(
 
   cmd_vel.twist.linear.x = linear_speed;
   cmd_vel.twist.angular.z = std::clamp(desired_angular_speed, -max_angular_speed_, max_angular_speed_);
-
-  cmd_vel.twist.linear.x = 0.0;
-  cmd_vel.twist.angular.z = 0.0;
 
   is_initialized_ = false;
   return cmd_vel;
@@ -415,4 +442,5 @@ void PPController::setSpeedLimit(const double & speed_limit, const bool & percen
 } // namespace pp_controller
 
 PLUGINLIB_EXPORT_CLASS(pp_controller::PPController, nav2_core::Controller)
+
 
