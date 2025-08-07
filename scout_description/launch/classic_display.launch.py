@@ -87,8 +87,8 @@ def generate_launch_description():
         arguments=[
             '-entity', 'scout_v2',
             '-topic', 'robot_description',
-            '-x', '0.0',    # X position
-            '-y', '0.0',    # Y position 
+            '-x', '3.0',    # X position
+            '-y', '-1.0',    # Y position 
             '-z', '0.4',    # Z position
             '-R', '0.0',    # Roll in radians
             '-P', '0.0',    # Pitch in radians

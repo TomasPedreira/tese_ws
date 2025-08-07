@@ -3,6 +3,68 @@
 using namespace std;
 namespace pp_controller
 {
+
+geometry_msgs::msg::PoseStamped PPController::from_odom_to_map(geometry_msgs::msg::PoseStamped &pose){
+  geometry_msgs::msg::TransformStamped transform;
+  geometry_msgs::msg::PoseStamped pose_map;
+  try{
+    transform = tf_->lookupTransform("map", "odom", tf2::TimePointZero, tf2::durationFromSec(0.5));
+  }catch(const tf2::TransformException & ex){
+    RCLCPP_ERROR(node_->get_logger(), "Transform error: %s", ex.what());
+    return pose_map;
+  }
+  tf2::doTransform(pose, pose_map, transform);
+  pose_map.header.frame_id = "map";
+  return pose_map;
+}
+
+geometry_msgs::msg::PoseStamped PPController::from_map_to_odom(geometry_msgs::msg::PoseStamped &pose){
+  geometry_msgs::msg::TransformStamped transform;
+  geometry_msgs::msg::PoseStamped pose_odom;
+  try{
+    transform = tf_->lookupTransform("odom", "map", tf2::TimePointZero, tf2::durationFromSec(0.5));
+  }catch(const tf2::TransformException & ex){
+    RCLCPP_ERROR(node_->get_logger(), "Transform error: %s", ex.what());
+    return pose_odom;
+  }
+  tf2::doTransform(pose, pose_odom, transform);
+  pose_odom.header.frame_id = "odom";
+  return pose_odom;
+}
+
+geometry_msgs::msg::PointStamped PPController::point_from_odom_to_map(geometry_msgs::msg::PoseStamped &pose){
+  geometry_msgs::msg::PointStamped point_map;
+  geometry_msgs::msg::TransformStamped transform;
+  try{
+    transform = tf_->lookupTransform("map", "odom", tf2::TimePointZero, tf2::durationFromSec(0.5));
+  }catch(const tf2::TransformException & ex){
+    RCLCPP_ERROR(node_->get_logger(), "Transform error: %s", ex.what());
+    return point_map;
+  }
+  
+  // Create a PointStamped from the pose position
+  geometry_msgs::msg::PointStamped point_odom;
+  point_odom.header = pose.header;
+  point_odom.point = pose.pose.position;
+  
+  tf2::doTransform(point_odom, point_map, transform);
+  point_map.header.frame_id = "map";
+  return point_map;
+}
+
+geometry_msgs::msg::PointStamped PPController::point_from_map_to_odom(geometry_msgs::msg::PointStamped &point){
+  geometry_msgs::msg::PointStamped point_odom;
+  geometry_msgs::msg::TransformStamped transform;
+  try{
+    transform = tf_->lookupTransform("odom", "map", tf2::TimePointZero, tf2::durationFromSec(0.5));
+  }catch(const tf2::TransformException & ex){
+    RCLCPP_ERROR(node_->get_logger(), "Transform error: %s", ex.what());
+    return point_odom;
+  }
+  tf2::doTransform(point, point_odom, transform);
+  point_odom.header.frame_id = "odom";
+  return point_odom;
+}
 double PPController::calculate_angvel_reverse(geometry_msgs::msg::PoseStamped goal_trailer_pose, geometry_msgs::msg::PoseStamped current_trailer_pose, geometry_msgs::msg::PoseStamped current_tractor_pose,const double max_linear_speed, double lookahead_distance){
   const double rtr = 0.5625;
   const double k = 2.0;
@@ -97,6 +159,8 @@ void PPController::configure(
     trailer_plan_.header.stamp = node_->get_clock()->now();
     trailer_plan_.header.frame_id = "map";
 
+    global_plan_.header.frame_id = "map";
+
     // Get parameters
     lookahead_distance_ = node_->declare_parameter(name + ".lookahead_distance", 1.0);
     max_linear_speed_ = node_->declare_parameter(name + ".max_linear_speed", 0.5);
@@ -106,10 +170,10 @@ void PPController::configure(
 
     // trailer position publisher
     trailer_position_publisher_ = node_->create_publisher<nav_msgs::msg::Path>("/control_trailer_position", 10);
-    goal_pose_publisher_ = node_->create_publisher<geometry_msgs::msg::PoseStamped>("/goal_pose", 10);
     control_goal_pose_publisher_ = node_->create_publisher<geometry_msgs::msg::PoseStamped>("/control_goal_pose", 10);
     goal_trailer_publisher_ = node_->create_publisher<geometry_msgs::msg::PoseStamped>("/goal_trailer_pose", 10);
     collision_check_publisher_ = node_->create_publisher<nav_msgs::msg::Path>("/collision_check_areas", 10);
+    global_plan_map_publisher_ = node_->create_publisher<nav_msgs::msg::Path>("/global_plan_map", 10);
 
     RCLCPP_INFO(node_->get_logger(), "Pure Pursuit Controller configured");
 }
@@ -117,10 +181,10 @@ void PPController::configure(
 void PPController::cleanup()
 {
     trailer_position_publisher_.reset();
-    goal_pose_publisher_.reset();
     control_goal_pose_publisher_.reset();
     goal_trailer_publisher_.reset();
     collision_check_publisher_.reset();
+    global_plan_map_publisher_.reset();
     RCLCPP_INFO(node_->get_logger(), "Cleaning up Pure Pursuit Controller");
 }
 
@@ -128,10 +192,10 @@ void PPController::activate()
 {
     RCLCPP_INFO(node_->get_logger(), "Activating Pure Pursuit Controller");
     trailer_position_publisher_->on_activate();
-    goal_pose_publisher_->on_activate();
     control_goal_pose_publisher_->on_activate();
     goal_trailer_publisher_->on_activate();
     collision_check_publisher_->on_activate();
+    global_plan_map_publisher_->on_activate();
     // print the parameters
     RCLCPP_INFO(node_->get_logger(), "Lookahead distance: %f", lookahead_distance_);
     RCLCPP_INFO(node_->get_logger(), "Max linear speed: %f", max_linear_speed_);
@@ -144,10 +208,10 @@ void PPController::deactivate()
 {
     RCLCPP_INFO(node_->get_logger(), "Deactivating Pure Pursuit Controller");
     trailer_position_publisher_->on_deactivate();
-    goal_pose_publisher_->on_deactivate();
     control_goal_pose_publisher_->on_deactivate();
     goal_trailer_publisher_->on_deactivate();
     collision_check_publisher_->on_deactivate();
+    global_plan_map_publisher_->on_deactivate();
 }
 
 bool PPController::checkForCollisions(
@@ -184,7 +248,7 @@ bool PPController::checkForCollisions(
     double perp_y = std::cos(goal_direction);
     
     // Robot footprint dimensions
-    double half_width = robot_width / 2.0;
+    // double half_width = robot_width / 2.0;
     double half_length = robot_length / 2.0;
     
     bool collision_detected = false;
@@ -222,7 +286,15 @@ bool PPController::checkForCollisions(
                 double check_y = center_y + w * goal_dir_y + l * perp_y;
                 
                 unsigned int map_x, map_y;
-                if (!costmap->worldToMap(check_x, check_y, map_x, map_y)) {
+                //pass the check_x and y from map to odom and then preform the check
+                geometry_msgs::msg::PointStamped point_map;
+                point_map.header.stamp = node_->get_clock()->now();
+                point_map.header.frame_id = "map";
+                point_map.point.x = check_x;
+                point_map.point.y = check_y;
+                point_map.point.z = 0.0;
+                geometry_msgs::msg::PointStamped point_odom = point_from_map_to_odom(point_map);
+                if (!costmap->worldToMap(point_odom.point.x, point_odom.point.y, map_x, map_y)) {
                     continue;  
                 }
                 
@@ -255,11 +327,24 @@ geometry_msgs::msg::TwistStamped PPController::computeVelocityCommands(
   (void)goal_checker;
   geometry_msgs::msg::TwistStamped cmd_vel;
   geometry_msgs::msg::TransformStamped transform_trailer;
+  geometry_msgs::msg::TransformStamped transform_tractor;
+  geometry_msgs::msg::PoseStamped pose_map;
   try {
       transform_trailer = tf_->lookupTransform(
       "map", "trailer_link", tf2::TimePointZero,
       tf2::durationFromSec(0.5));
-
+      transform_tractor = tf_->lookupTransform(
+        "map", "base_link", tf2::TimePointZero, 
+        tf2::durationFromSec(0.5));
+      pose_map.pose.position.x = transform_tractor.transform.translation.x;
+      pose_map.pose.position.y = transform_tractor.transform.translation.y;
+      pose_map.pose.position.z = transform_tractor.transform.translation.z;
+      pose_map.pose.orientation.x = transform_tractor.transform.rotation.x;
+      pose_map.pose.orientation.y = transform_tractor.transform.rotation.y;
+      pose_map.pose.orientation.z = transform_tractor.transform.rotation.z;
+      pose_map.pose.orientation.w = transform_tractor.transform.rotation.w;
+      pose_map.header.stamp = node_->get_clock()->now();
+      pose_map.header.frame_id = "map";
   } catch (const tf2::TransformException & ex) {
       RCLCPP_ERROR(node_->get_logger(), "Transform error: %s", ex.what());
       return cmd_vel;
@@ -268,12 +353,6 @@ geometry_msgs::msg::TwistStamped PPController::computeVelocityCommands(
   cmd_vel.header.stamp = node_->get_clock()->now();
   cmd_vel.header.frame_id = "base_link";
 
-  geometry_msgs::msg::PoseStamped current_goal_pose;
-  current_goal_pose.header.stamp = node_->get_clock()->now();
-  current_goal_pose.header.frame_id = "map";
-  geometry_msgs::msg::PoseStamped current_goal_trailer_pose;
-  current_goal_trailer_pose.header.stamp = node_->get_clock()->now();
-  current_goal_trailer_pose.header.frame_id = "map";
   geometry_msgs::msg::PoseStamped current_trailer_pose;
   current_trailer_pose.header.stamp = node_->get_clock()->now();
   current_trailer_pose.header.frame_id = "map";
@@ -295,8 +374,8 @@ geometry_msgs::msg::TwistStamped PPController::computeVelocityCommands(
   int target_index = global_plan_.poses.size() - 1;  // Default to last point
 
   for (int i = first_waypoint_index; i < (int)global_plan_.poses.size(); ++i) {
-    double distance = sqrt(pow(global_plan_.poses[i].pose.position.x - pose.pose.position.x, 2) + 
-                          pow(global_plan_.poses[i].pose.position.y - pose.pose.position.y, 2));
+    double distance = sqrt(pow(global_plan_.poses[i].pose.position.x - pose_map.pose.position.x, 2) + 
+                          pow(global_plan_.poses[i].pose.position.y - pose_map.pose.position.y, 2));
     
     double distance_diff = abs(distance - lookahead_distance_);
     
@@ -311,13 +390,12 @@ geometry_msgs::msg::TwistStamped PPController::computeVelocityCommands(
     }
   }
 
+  
+  geometry_msgs::msg::PoseStamped current_goal_trailer_pose;
+  geometry_msgs::msg::PoseStamped current_goal_pose;
   current_goal_pose = global_plan_.poses[target_index];
   current_goal_trailer_pose = trailer_plan_.poses[target_index];
   last_waypoint_index_ = target_index;
-
-  // Publish goal poses and goal trailer pose
-  current_goal_pose.header.stamp = node_->get_clock()->now();
-  current_goal_pose.header.frame_id = "map";
   current_goal_trailer_pose.header.stamp = node_->get_clock()->now();
   current_goal_trailer_pose.header.frame_id = "map";
   
@@ -329,7 +407,7 @@ geometry_msgs::msg::TwistStamped PPController::computeVelocityCommands(
   }
 
   // Check for collisions before proceeding
-  if (checkForCollisions(pose, current_goal_pose)) {
+  if (checkForCollisions(pose_map, current_goal_pose)) {
     RCLCPP_WARN(node_->get_logger(), "Collision detected! Stopping robot.");
     cmd_vel.twist.linear.x = 0.0;
     cmd_vel.twist.angular.z = 0.0;
@@ -337,10 +415,10 @@ geometry_msgs::msg::TwistStamped PPController::computeVelocityCommands(
   }
 
   // Pure pursuit steering angle calculation
-  double tractor_yaw = tf2::getYaw(pose.pose.orientation);
+  double tractor_yaw = tf2::getYaw(pose_map.pose.orientation);
 
-  double alpha = atan2(current_goal_pose.pose.position.y - pose.pose.position.y, 
-                      current_goal_pose.pose.position.x - pose.pose.position.x);
+  double alpha = atan2(current_goal_pose.pose.position.y - pose_map.pose.position.y, 
+                      current_goal_pose.pose.position.x - pose_map.pose.position.x);
   
   double heading_error = alpha - tractor_yaw;
   
@@ -351,10 +429,10 @@ geometry_msgs::msg::TwistStamped PPController::computeVelocityCommands(
   double linear_speed;
   if (abs(heading_error) > M_PI/2) {
     linear_speed = -max_linear_speed_;
-    desired_angular_speed = calculate_angvel_reverse(current_goal_trailer_pose, current_trailer_pose, pose, max_linear_speed_, lookahead_distance_);
+    desired_angular_speed = calculate_angvel_reverse(current_goal_trailer_pose, current_trailer_pose, pose_map, max_linear_speed_, lookahead_distance_);
   }else{
     linear_speed = max_linear_speed_;
-    desired_angular_speed = calculate_angvel_forward(current_goal_pose, pose, lookahead_distance_);
+    desired_angular_speed = calculate_angvel_forward(current_goal_pose, pose_map, lookahead_distance_);
   }
 
   cmd_vel.twist.linear.x = linear_speed;
@@ -402,7 +480,7 @@ void PPController::setPlan(const nav_msgs::msg::Path & path)
     for (int i = 1; i < (int)global_plan_.poses.size(); i++) {
       // calculaton of the direction, either reverse or foward
       geometry_msgs::msg::PoseStamped current_tractor_pose = global_plan_.poses[i-1];
-      double current_tractor_yaw = tf2::impl::getYaw(tf2::Quaternion(
+      double current_tractor_yaw = tf2::getYaw(tf2::Quaternion(
         current_tractor_pose.pose.orientation.x,
         current_tractor_pose.pose.orientation.y,
         current_tractor_pose.pose.orientation.z,
@@ -431,12 +509,22 @@ void PPController::setPlan(const nav_msgs::msg::Path & path)
     }else{
       RCLCPP_INFO(node_->get_logger(), "Trailer position publisher is not activated");
     }
+    
+    // Publish the global plan in map frame
+    //publishGlobalPlanMap();
 }
 
 void PPController::setSpeedLimit(const double & speed_limit, const bool & percentage)
 {
     (void)speed_limit;
     (void)percentage;
+}
+
+void PPController::publishGlobalPlanMap()
+{
+   
+    
+    global_plan_map_publisher_->publish(global_plan_);
 }
 
 } // namespace pp_controller
