@@ -276,7 +276,7 @@ bool PPController::checkForCollisions(
         // Set orientation to point in the goal direction
         front_center_pose.pose.orientation = tf2::toMsg(tf2::Quaternion(tf2::Vector3(0, 0, 1), goal_direction));
         
-        // Add to path
+        
         collision_check_path.poses.push_back(front_center_pose);
         
         // Check for collisions
