@@ -18,9 +18,9 @@ class VoronoiGraphNode(Node):
         self.get_logger().info("Initializing VoronoiGraphNode...")
         
         self.get_logger().info("Declaring parameters...")
-        self.declare_parameter('pgm_file', '/home/tomas/tt_ws/basement.pgm')
-        self.declare_parameter('yaml_file', '/home/tomas/tt_ws/basement.yaml')
-        self.declare_parameter('output_file', '/home/tomas/tt_ws/basement_nodes.txt')
+        self.declare_parameter('pgm_file', '/home/tomas/tt_ws/corridor.pgm')
+        self.declare_parameter('yaml_file', '/home/tomas/tt_ws/corridor.yaml')
+        self.declare_parameter('output_file', '/home/tomas/tt_ws/corridor_nodes.txt')
         self.declare_parameter('min_node_distance', 7.5)
         
         self.get_logger().info("Getting parameter values...")
@@ -58,7 +58,7 @@ class VoronoiGraphNode(Node):
     def _get_next_image_path(self):
         """Get the next available image path with incremental naming."""
         self.get_logger().info("Finding next available image path...")
-        base_name = "basement_graph"
+        base_name = "corridor_graph"
         counter = 1
         while True:
             filename = f"{base_name}_{counter:03d}.png"
@@ -71,7 +71,7 @@ class VoronoiGraphNode(Node):
     def _get_next_txt_path(self):
         """Get the next available txt file path with incremental naming."""
         self.get_logger().info("Finding next available txt file path...")
-        base_name = "basement_nodes"
+        base_name = "corridor_nodes"
         counter = 1
         while True:
             filename = f"{base_name}_{counter:03d}.txt"
