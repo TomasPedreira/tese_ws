@@ -96,11 +96,11 @@ controller_server:
 
     FollowPath:
       plugin: "pp_controller::PPController"
-      max_linear_speed: 0.3
-      max_angular_speed: 1.0
+      max_linear_speed: 0.4
+      max_angular_speed: 1.5 
       # max_linear_speed: 0.0
       # max_angular_speed: 0.0
-      lookahead_distance: 0.7
+      lookahead_distance: 0.75
       collision_check_distance: 0.5
       use_collision_check: false
 

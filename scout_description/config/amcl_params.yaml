@@ -1,9 +1,9 @@
 amcl:
   ros__parameters:
     use_sim_time: True
-    set_initial_pose: false
-    initial_pose.x: 3.0
-    initial_pose.y: -1.0
+    set_initial_pose: true
+    initial_pose.x: 0.0
+    initial_pose.y: 0.0
     initial_pose.z: 0.0
     initial_pose.yaw: 1.578
     alpha1: 0.2

@@ -85,7 +85,7 @@ double PPController::calculate_angvel_reverse(geometry_msgs::msg::PoseStamped go
 
   double desired_angular_speed = max_linear_speed * (-k * (t1 - hitch_angle) - (sin(t1)/rtr));
   // desired_angular_speed = 0.0;
-  RCLCPP_INFO(node_->get_logger(), "desired_angular_speed reverse: %f", desired_angular_speed);
+  // RCLCPP_INFO(node_->get_logger(), "desired_angular_speed reverse: %f", desired_angular_speed);
 
   return desired_angular_speed;
 }
@@ -106,7 +106,7 @@ double PPController::calculate_angvel_forward(geometry_msgs::msg::PoseStamped go
 
   // Pure pursuit steering angle calculation
   double desired_angular_speed = turn_gain*atan2(2*wheel_base*sin(heading_error), lookahead_distance);
-  RCLCPP_INFO(node_->get_logger(), "desired_angular_speed forward: %f", desired_angular_speed);
+  // RCLCPP_INFO(node_->get_logger(), "desired_angular_speed forward: %f", desired_angular_speed);
   return desired_angular_speed;
 }
 
@@ -300,10 +300,10 @@ bool PPController::checkForCollisions(
                 
                 unsigned char cost = costmap->getCost(map_x, map_y);
                 
-                if (cost > nav2_costmap_2d::INSCRIBED_INFLATED_OBSTACLE) {
+                if (cost > 254) {
                     RCLCPP_WARN(node_->get_logger(), 
                         "Collision detected at world pos (%.2f, %.2f) map pos (%d, %d) with cost %d (threshold: %d) at distance %.2f m", 
-                        check_x, check_y, map_x, map_y, cost, nav2_costmap_2d::INSCRIBED_INFLATED_OBSTACLE, distance_along_path);
+                        check_x, check_y, map_x, map_y, cost, 254, distance_along_path);
                     collision_detected = true;
                 }
             }

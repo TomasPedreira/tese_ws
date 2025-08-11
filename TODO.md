@@ -147,9 +147,90 @@
 [ ] Launch slam;
 [ ] Launch Navigation;
 
-## next time
-[ ] Adapt the algorithm to be ran inside the agx;
-[ ] Map the room;
-[ ] Run the algo inside the room;
-????
-[ ] Profit;
+
+## TESTS
+
+### Exec time of planner in 3 scenarios:
+
+#### Simultaion
+- In direct mode:
+1 - 16.608 ms
+2 - 15.653 ms
+3 - 14.873 ms
+4 - 16.024 ms
+5 - 16.411 ms
+- Did it twice: 
+1 - 20.839 ms
+2 - 17.901 ms
+3 - 18.050 ms
+4 - 18.618 ms
+5 - 18.432 ms
+- Recovery:
+1 - 25.990 ms
+2 - 25.513 ms
+3 - 22.841 ms
+4 - 23.806 ms
+5 - 22.914 ms
+
+#### Real
+- In direct mode:
+1 - 
+2 - 
+3 - 
+4 - 
+5 - 
+- Did it twice: 
+1 - 
+2 - 
+3 - 
+4 - 
+5 - 
+- Recovery:
+1 - 
+2 - 
+3 - 
+4 - 
+5 - 
+
+
+### Time to goal in the 3 scenarios:
+
+#### Simultaion
+- In direct mode:
+1 - 20.06 s
+2 - 19.87 s
+3 - 19.54 s
+4 - 20.11 s
+5 - 19.72 s
+- Did it twice: 
+1 - 51.83 s
+2 - 50.52 s
+3 - 51.45 s
+4 - 53.70 s
+5 - 52.44 s
+- Recovery:
+1 - 20.83 s
+2 - 20.61 s
+3 - 21.14 s
+4 - 20.89 s
+5 - 20.45 s
+
+#### Real
+- In direct mode:
+1 - 
+2 - 
+3 - 
+4 - 
+5 - 
+- Did it twice: 
+1 - 
+2 - 
+3 - 
+4 - 
+5 - 
+- Recovery:
+1 - 
+2 - 
+3 - 
+4 - 
+5 - 

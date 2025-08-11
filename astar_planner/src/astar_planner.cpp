@@ -6,6 +6,8 @@
 #include <unordered_set>
 #include <algorithm>
 #include <fstream>
+#include <chrono>
+#include <iomanip>
 #include "ament_index_cpp/get_package_share_directory.hpp"
 #include "nav2_util/node_utils.hpp"
 #include "astar_planner/astar_planner.hpp"
@@ -145,6 +147,7 @@ namespace astar_planner
     const geometry_msgs::msg::PoseStamped & goal
   )
   {
+    auto algo_start_time = std::chrono::steady_clock::now();
     nav_msgs::msg::Path global_path;
 
     geometry_msgs::msg::TransformStamped base_link_transform;
@@ -427,6 +430,11 @@ namespace astar_planner
     }
     trailer_pos_publisher_->publish(path_from_vector(trailer_path, global_frame_, costmap_));
     cout << "returning global path" << endl;
+    auto algo_end_time = std::chrono::steady_clock::now();
+    auto exec_ms = std::chrono::duration<double, std::milli>(
+      algo_end_time - algo_start_time).count();
+    cout << std::fixed << std::setprecision(3)
+         << "Exec time: " << exec_ms << " ms" << endl;
     return global_path;
   }
 }  // namespace astar_planner
