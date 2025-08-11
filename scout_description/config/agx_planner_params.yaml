@@ -225,7 +225,8 @@ planner_server:
       timeout: 3.0
       num_hybrid_segments: 15
       # nodes_file: "voronoi_nodes_v10.txt"
-      nodes_file: "basement_nodes_002.txt"
+      # nodes_file: "basement_nodes_002.txt"
+      nodes_file: "corridor_nodes_009.txt"
 planner_server_rclcpp_node:
   ros__parameters:
     use_sim_time: False

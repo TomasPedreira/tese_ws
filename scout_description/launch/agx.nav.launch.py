@@ -143,7 +143,7 @@ def generate_launch_description():
             "launch",
             "nav2_bringup",
             "localization_launch.py",
-            f"map:={os.path.join(pkg_share, 'maps/basement.yaml')}",
+            f"map:={os.path.join(pkg_share, 'maps/corridor.yaml')}",
             f"params_file:={os.path.join(pkg_share, 'config/agx_amcl_params.yaml')}",
             "use_sim_time:=false",
         ],

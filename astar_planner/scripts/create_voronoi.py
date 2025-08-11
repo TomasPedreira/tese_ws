@@ -21,13 +21,14 @@ class VoronoiGraphNode(Node):
         self.declare_parameter('pgm_file', '/home/tomas/tt_ws/corridor.pgm')
         self.declare_parameter('yaml_file', '/home/tomas/tt_ws/corridor.yaml')
         self.declare_parameter('output_file', '/home/tomas/tt_ws/corridor_nodes.txt')
-        self.declare_parameter('min_node_distance', 7.5)
+        self.declare_parameter('min_node_distance', 18.0)
         
         self.get_logger().info("Getting parameter values...")
         self.pgm_file = self.get_parameter('pgm_file').value
         self.yaml_file = self.get_parameter('yaml_file').value
         self.output_file = self.get_parameter('output_file').value
         self.min_node_distance = self.get_parameter('min_node_distance').value
+        self.get_logger().info(f"min node dist: {self.min_node_distance}")
         
         # Create results directory and setup incremental naming
         self.get_logger().info("Creating results directory...")
