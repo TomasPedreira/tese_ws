@@ -441,6 +441,10 @@ namespace astar_planner
       algo_end_time - algo_start_time).count();
     cout << std::fixed << std::setprecision(3)
          << "Exec time: " << exec_ms << " ms" << endl;
+
+    cout << "Total path length: " << total_path_length << endl;
+    cout << "Total hybrid length: " << total_hybrid_length << endl;
+    cout << "Total dubins length: " << total_dubins_length << endl;
     return global_path;
   }
 }  // namespace astar_planner
