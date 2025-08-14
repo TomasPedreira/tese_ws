@@ -393,6 +393,10 @@ namespace astar_planner
     nodeHybrid path_node = goal_node;
     cout << "collecting nodes from final path" << endl;
     // add node to the last path
+
+    double total_path_length = 0;
+    double total_dubins_length = 0;
+    double total_hybrid_length = 0;
     while (path_node.parent != nullptr) {
       geometry_msgs::msg::PoseStamped pose;
       pose.header.stamp = node_->now();
@@ -401,12 +405,14 @@ namespace astar_planner
       pose.pose.position.y = costmap_->getOriginY() + path_node.y * costmap_->getResolution();
       pose.pose.orientation = tf2::toMsg(tf2::Quaternion(tf2::Vector3(0, 0, 1), path_node.yaw));
       global_path.poses.insert(global_path.poses.begin(), pose);
-      
+      total_path_length += calculateDist(path_node.x * costmap_->getResolution(), path_node.y * costmap_->getResolution(), path_node.parent->x * costmap_->getResolution(), path_node.parent->y * costmap_->getResolution());
       // Add node to appropriate final path vector based on its type
       if (path_node.is_hybrid) {
         final_hybrid_nodes.push_back(path_node);
+        total_hybrid_length += calculateDist(path_node.x * costmap_->getResolution(), path_node.y * costmap_->getResolution(), path_node.parent->x * costmap_->getResolution(), path_node.parent->y * costmap_->getResolution());
       } else if (path_node.is_dubins) {
         final_dubins_nodes.push_back(path_node);
+        total_dubins_length += calculateDist(path_node.x * costmap_->getResolution(), path_node.y * costmap_->getResolution(), path_node.parent->x * costmap_->getResolution(), path_node.parent->y * costmap_->getResolution());
       }
 
       last_path_.push_back(path_node);
