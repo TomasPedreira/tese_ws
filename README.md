@@ -55,10 +55,8 @@ The relevant directories for this matter are:
 The Scout is a bigger 4 wheel drive custom robot more suited for outdoor environments with a trailer.
 
 It is equipped with the following sensors:
-- **VLP16 LIDAR**
-- **IMU mpu6050**
+- **RS_HELIOS_16P LIDAR**
 - **Intel Realsense D435if**
-- **GPS sensor**
 
 ### Novamob
 Novamob is a small 4 wheel drive custom robot designed for indoor environments. This is not the focus of this thesis and is a result of a previous project developed in the original repo.
@@ -68,20 +66,19 @@ Novamob is a small 4 wheel drive custom robot designed for indoor environments. 
 ### Visualizing the robots
 
 ### Agilex Scout (Main focus)
-To visualize the Agilex Scout robot in Gazebo Fortress, use the following command:
+To visualize the Agilex Scout robot in Gazebo Fortress (only visualization), use the following command:
  
 ```bash
 ros2 launch scout_nav2_gz display.launch.py use_trailer:=True
 ```
 
-To visualize the Agilex Scout robot in Gazebo Classic (Recomended), use the following command:
+To visualize and use the Agilex Scout robot in Gazebo Classic (Recomended), use the following command:
  
 ```bash
+colcon build
+source install/setup.bash
 ros2 launch scout_description classic_display.launch.py
 ```
-
-To use the navigation, simply wait for the nav2 servers to load and choose a goal pose. Tipicaly the branch to be used in the simulations will be the hybridastar.
-
 
 ## Useful Resources
 
