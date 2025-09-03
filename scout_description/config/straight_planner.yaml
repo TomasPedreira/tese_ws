@@ -101,8 +101,8 @@ controller_server:
       # max_linear_speed: 0.0
       # max_angular_speed: 0.0
       lookahead_distance: 0.75
-      collision_check_distance: 0.5
-      use_collision_check: false
+      collision_check_distance: 0.7
+      use_collision_check: true
 
 
 controller_server_rclcpp_node:

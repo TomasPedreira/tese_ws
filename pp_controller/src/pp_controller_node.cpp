@@ -295,15 +295,16 @@ bool PPController::checkForCollisions(
                 point_map.point.z = 0.0;
                 geometry_msgs::msg::PointStamped point_odom = point_from_map_to_odom(point_map);
                 if (!costmap->worldToMap(point_odom.point.x, point_odom.point.y, map_x, map_y)) {
+                    RCLCPP_WARN(node_->get_logger(), "Point not in costmap: (%.2f, %.2f)", point_odom.point.x, point_odom.point.y);
                     continue;  
                 }
                 
                 unsigned char cost = costmap->getCost(map_x, map_y);
                 
-                if (cost > 254) {
+                if (cost > 253) {
                     RCLCPP_WARN(node_->get_logger(), 
                         "Collision detected at world pos (%.2f, %.2f) map pos (%d, %d) with cost %d (threshold: %d) at distance %.2f m", 
-                        check_x, check_y, map_x, map_y, cost, 254, distance_along_path);
+                        check_x, check_y, map_x, map_y, cost, 253, distance_along_path);
                     collision_detected = true;
                 }
             }
