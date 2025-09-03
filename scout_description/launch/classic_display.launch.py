@@ -116,8 +116,9 @@ def generate_launch_description():
             "launch",
             "nav2_bringup",
             "localization_launch.py",
-            "map:=/home/tomas/tt_ws/src/tese_ws/scout_description/maps/wallworldV2.yaml",
-            "params_file:=/home/tomas/tt_ws/src/tese_ws/scout_description/config/amcl_params.yaml",
+            f"map:={os.path.join(pkg_share, 'maps/wallworldV2.yaml')}",
+            # f"map:={os.path.join(pkg_share, 'maps/basement.yaml')}",
+            f"params_file:={os.path.join(pkg_share, 'config/amcl_params.yaml')}",
             "use_sim_time:=True",
         ],
         output="screen",
@@ -129,10 +130,21 @@ def generate_launch_description():
             "nav2_bringup",
             "navigation_launch.py",
             # "params_file:=/home/tomas/tt_ws/src/tese_ws/scout_description/config/nav2_params.yaml",
-            "params_file:=/home/tomas/tt_ws/src/tese_ws/scout_description/config/straight_planner.yaml",
+            f"params_file:={os.path.join(pkg_share, 'config/straight_planner.yaml')}",
             "use_sim_time:=True",
         ],
         output="screen",
+    )
+
+    # Timer actions for delayed start
+    nav_loc_timer = TimerAction(
+        period=1.0,
+        actions=[nav_loc]
+    )
+    
+    nav_nav_timer = TimerAction(
+        period=1.0,
+        actions=[nav_nav]
     )
   
 
@@ -170,6 +182,6 @@ def generate_launch_description():
         robot_localization_node,
         rviz_node,
         trailer_pub,
-        nav_loc,
-        nav_nav
+        nav_loc_timer,
+        nav_nav_timer
     ])

@@ -6,6 +6,9 @@
 #include <unordered_set>
 #include <algorithm>
 #include <fstream>
+#include <chrono>
+#include <iomanip>
+#include "ament_index_cpp/get_package_share_directory.hpp"
 #include "nav2_util/node_utils.hpp"
 #include "astar_planner/astar_planner.hpp"
 #include "astar_planner/node2d.hpp"
@@ -74,6 +77,10 @@ namespace astar_planner
       node_, name_ + ".num_hybrid_segments", rclcpp::ParameterValue(20));
     node_->get_parameter(name_ + ".num_hybrid_segments", num_hybrid_segments_);
 
+    nav2_util::declare_parameter_if_not_declared(
+      node_, name_ + ".nodes_file", rclcpp::ParameterValue("basement_nodes.txt"));
+    node_->get_parameter(name_ + ".nodes_file", nodes_file_);
+
     double step = max_angle_ / num_directions_;
     
     for (int i = -num_directions_ + 1; i < num_directions_; i++) {
@@ -116,10 +123,10 @@ namespace astar_planner
     voronoi_subgoals_publisher_->on_activate();
     hybrid_path_publisher_->on_activate();
     dubins_path_publisher_->on_activate();
-    voronoi_nodes_ = read_nodes(
-      "/home/tomas/tt_ws/src/tese_ws/astar_planner/map/voronoi_nodes_v10.txt", 
-      costmap_
-    );
+    // Get the package share directory and construct the full path to the Voronoi nodes file
+    std::string package_share_dir = ament_index_cpp::get_package_share_directory("astar_planner");
+    std::string voronoi_nodes_path = package_share_dir + "/map/" + nodes_file_;
+    voronoi_nodes_ = read_nodes(voronoi_nodes_path, costmap_);
   }
 
   void Astar::deactivate()
@@ -140,6 +147,7 @@ namespace astar_planner
     const geometry_msgs::msg::PoseStamped & goal
   )
   {
+    auto algo_start_time = std::chrono::steady_clock::now();
     nav_msgs::msg::Path global_path;
 
     geometry_msgs::msg::TransformStamped base_link_transform;
@@ -385,6 +393,10 @@ namespace astar_planner
     nodeHybrid path_node = goal_node;
     cout << "collecting nodes from final path" << endl;
     // add node to the last path
+
+    double total_path_length = 0;
+    double total_dubins_length = 0;
+    double total_hybrid_length = 0;
     while (path_node.parent != nullptr) {
       geometry_msgs::msg::PoseStamped pose;
       pose.header.stamp = node_->now();
@@ -393,12 +405,14 @@ namespace astar_planner
       pose.pose.position.y = costmap_->getOriginY() + path_node.y * costmap_->getResolution();
       pose.pose.orientation = tf2::toMsg(tf2::Quaternion(tf2::Vector3(0, 0, 1), path_node.yaw));
       global_path.poses.insert(global_path.poses.begin(), pose);
-      
+      total_path_length += calculateDist(path_node.x * costmap_->getResolution(), path_node.y * costmap_->getResolution(), path_node.parent->x * costmap_->getResolution(), path_node.parent->y * costmap_->getResolution());
       // Add node to appropriate final path vector based on its type
       if (path_node.is_hybrid) {
         final_hybrid_nodes.push_back(path_node);
+        total_hybrid_length += calculateDist(path_node.x * costmap_->getResolution(), path_node.y * costmap_->getResolution(), path_node.parent->x * costmap_->getResolution(), path_node.parent->y * costmap_->getResolution());
       } else if (path_node.is_dubins) {
         final_dubins_nodes.push_back(path_node);
+        total_dubins_length += calculateDist(path_node.x * costmap_->getResolution(), path_node.y * costmap_->getResolution(), path_node.parent->x * costmap_->getResolution(), path_node.parent->y * costmap_->getResolution());
       }
 
       last_path_.push_back(path_node);
@@ -422,6 +436,14 @@ namespace astar_planner
     }
     trailer_pos_publisher_->publish(path_from_vector(trailer_path, global_frame_, costmap_));
     cout << "returning global path" << endl;
+    auto algo_end_time = std::chrono::steady_clock::now();
+    auto exec_ms = std::chrono::duration<double, std::milli>(
+      algo_end_time - algo_start_time).count();
+    cout << std::fixed << std::setprecision(3)
+         << "Exec time: " << exec_ms << " ms" << endl;
+    cout << "Total path length: " << total_path_length << " m" << endl;
+    cout << "Total hybrid path length: " << total_hybrid_length << " m" << endl;
+    cout << "Total dubins path length: " << total_dubins_length << " m" << endl;
     return global_path;
   }
 }  // namespace astar_planner

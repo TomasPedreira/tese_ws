@@ -160,7 +160,7 @@ std::vector<nodeHybrid> create_hybrid_segment(nodeHybrid &start, nodeHybrid &goa
     nodeHybrid successor;
     for (int i = 0; i < num_steps; i++){
         
-         double yaw = current.yaw + direction;
+        double yaw = current.yaw + direction;
         
         unsigned int x_cell, y_cell;
         double x, y;

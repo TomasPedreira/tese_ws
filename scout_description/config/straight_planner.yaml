@@ -3,7 +3,7 @@ bt_navigator:
     use_sim_time: True
     global_frame: map
     robot_base_frame: base_link
-    odom_topic: /odom
+    odom_topic: /odometry/filtered
     bt_loop_duration: 10
     default_server_timeout: 20
     enable_groot_monitoring: True
@@ -97,11 +97,12 @@ controller_server:
     FollowPath:
       plugin: "pp_controller::PPController"
       max_linear_speed: 0.3
-      max_angular_speed: 1.5
+      max_angular_speed: 1.0
       # max_linear_speed: 0.0
       # max_angular_speed: 0.0
-      lookahead_distance: 0.8
-      collision_check_distance: 0.5
+      lookahead_distance: 0.75
+      collision_check_distance: 0.7
+      use_collision_check: true
 
 
 controller_server_rclcpp_node:
@@ -224,6 +225,8 @@ planner_server:
       final_angle_tolerance: 0.2 # in radians
       timeout: 3.0
       num_hybrid_segments: 15
+      nodes_file: "voronoi_nodes_v10.txt"
+      # nodes_file: "basement_nodes_002.txt"
 planner_server_rclcpp_node:
   ros__parameters:
     use_sim_time: True

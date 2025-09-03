@@ -1,0 +1,6 @@
+rslidar_sdk_node:
+  ros__parameters:
+    use_sim_time: false
+    use_system_time: true  # Ensure system clock
+    timestamp_mode: system  # Use system time if supported
+    time_offset: 0.0       # Adjust if needed 
