@@ -408,7 +408,7 @@ geometry_msgs::msg::TwistStamped PPController::computeVelocityCommands(
   }
 
   // Check for collisions before proceeding
-  if (checkForCollisions(pose_map, current_goal_pose)) {
+  if (false &&checkForCollisions(pose_map, current_goal_pose)) {
     RCLCPP_WARN(node_->get_logger(), "Collision detected! Stopping robot.");
     cmd_vel.twist.linear.x = 0.0;
     cmd_vel.twist.angular.z = 0.0;
